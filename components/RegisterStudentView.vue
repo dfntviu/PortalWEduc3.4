@@ -1,10 +1,10 @@
 <template>
+			<h2 class="titulo-seccion">Registro de Estudiantes - FI</h2>
 	<section class="registro-estudiante">
-			<h2 class="titulo-seccion"></h2>
 			<div v-if="error" class="alerta alerta-error">{{error}}</div>
 			<div v-if="message" class="alerta alerta-exito">{{message}}</div>
 				
-			<form @submit.prevent="submitRegister" class="formulario-registro">
+			<form @submit.prevent="onSubmitRegistration" class="formulario-registro">
 				  <!-- Nombre -->
 				<div class="campo-formulario">
 				  <label for="nombre" class="nombre">Nombre *</label>
@@ -22,12 +22,12 @@
 					<label for="carrera" >Carrera *</label>
 					<select id="carrera" v-model.trim="registrationForm.carrera"
 					   			required :disabled="loading" >
-						<option value="ICO"></option>
-						<option value="IME"></option>
-						<option value="ICI"></option>
-						<option value="IEL"></option>
-						<option value="IIA"></option>
-						<option value="ISES"></option>
+						<option value="ICO">Ing. en Computación</option>
+						<option value="IME">Ing. Mécanica</option>
+						<option value="ICI">Ing. Civil</option>
+						<option value="IEL">Ing. Electrónica</option>
+						<option value="IIA">Ing. en Int. Artificial</option>
+						<option value="ISES">Ing. en Sistemas Energéticos y Sustentables</option>
 					</select>
 				</div>
 					
@@ -48,7 +48,19 @@
 				   	  <option value="docx">DOCX(Word)</option>
 				   </select>
 				</div>
-					
+				<!-- ** nuevo Campo[Corro-Elect] testeable -->
+				<div class="campo-email">
+				   <label for="">Correo Electrónico *</label>
+				  	<input
+				  	 id="pasword"
+				  	 type="text"
+				  	 v-model="registrationForm.email"
+				  	 placeholder="correo en forma napellido@alumno.universidad.mx"
+				  	 required
+				  	 minlength="20" 
+				  	 :disabled="loading"
+				  	>
+				</div>
 					<!-- Contrasena -->
 				<div class="campo-formulario">
 				   <label for="">Contraseña *</label>
@@ -104,8 +116,11 @@
 	 * Resp: Renderizado del formulario de registro
 	 * Delegar: La lógica del composable useStudentProfile 
 	 * */
-	import { computed } from 'vue';
+	import { computed,ref} from 'vue';
+	import { useStudentProfileStore } from '@/stores/useStudentProfileStore';
 	import { useStudentProfile } from '@/composables/compStudentProfile.ts';
+	import { useRouter } from 'vue-router';
+	import type { Profile } from '@/interfaces/Profile.types.ts';
 
 	// 
 	// ══════════════════════════════════════════════
@@ -119,13 +134,16 @@
 		error,
 		message,
 		handleRegistration,
+		controllerRegistro,
 		clearMessages
 	} = useStudentProfile();
 
 	// ══════════════════════════════════════
 	// 		COMPUTED PROPERTIES
 	// ══════════════════════════════════════
-
+	const studentStore = useStudentProfileStore();
+	const router = useRouter();
+	const result = ref<Profile| null>(null);  //*
 	/**
 	 * Preview del email que se generará
 	 * */
@@ -152,12 +170,19 @@
 	 * */
 	   async function onSubmitRegistration(): Promise<void> {
 	  	  clearMessages();
+	  	  if(!isRegistrationFormValid) return;
 
-	  	  const success = controllerRegistration();
+	  	  	result.value = await controllerRegistro(registrationForm);
+	  		// result.value = await studentStore.registerStudent(registrationForm);
+	  		console.log('Register-Details ',result.value);
 
-	  	  if(success){
-	  	  	 console.log('[Vw-Registro]: Registro exitoso');
-
+	  	  if(result.value.success){
+	  	  	 	  console.log('[Vw-Registro]: El Registro fue exitoso');
+	  	  		return {success:true};
+	  	  		console.log('[Vw-Registro]: Redirigiendose a tú Gestions Personal de materiales');
+	  	  	 	router.push({name: 'viewMaterialIndividual'} );
+	  	  } else {
+	  	  	 console.error('[Vw-Registro]: Ocurrio un fallo al Registrar al Estudiante')
 	  	  }
 	   }
 </script>

@@ -15,9 +15,19 @@
    	   const {
    	   	  duracion = 5000,
    	   	  autoCerrar = true
-   	   } = options;
+   	   } = options ?? {};
+       /**CBIO_HOME **/
+       const activeNotifications = ref<Notification[]>([]);
+       //* **
+       const ICONS: Record<NotificationType, string> = {
+          success: '✅',
+          error:   '❌',
+          warning: '⚠️',
+          info:    'ℹ️'
+        }
 
-
+        const AUTO_DISMISS_MS = 5000
+        /** CBIO_END **/
        // ════════════════════════
        //     STATE STORE
        // ════════════════════════
@@ -85,18 +95,43 @@
                  timeoutId = null;
              } 
         };
+        //* cambio*
+        const showNotification = (payload: NotificationPayload): void => {
+            const id = `notif-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+
+            const notification: Notification = {
+              id,
+              type:    payload.type,
+              message: payload.message,
+              icon:    ICONS[payload.type]
+            }
+             // ** **
+            activeNotifications.value.push(notification)
+
+            // Auto-dismiss
+            setTimeout(() => removeNotification(id), AUTO_DISMISS_MS)
+        }
+                //* cambio *
+            const removeNotification = (id: string): void => {
+                const index = activeNotifications.value.findIndex(n => n.id === id)
+                if (index !== -1) {
+                  activeNotifications.value.splice(index, 1)
+                }
+            }
 
         const success  = (mensaje: string): void => mostrar(mensaje,'success');
         const error    = (mensaje: string): void => mostrar(mensaje, 'error');
         const warning  = (mensaje: string): void => mostrar(mensaje, 'warning');
         const informar = (mensaje: string): void => mostrar(mensaje, 'info');   
-
+        // Fueron efectuados cambios, en la Fecha: 15 de Abril del 2026
 
         return {
              // Estado
             mostrarNotificacion,
             notificacionMensaje,
             notificacionTipo,
+            showNotification, //cmbio
+            removeNotification, //cmbio
             // Prop computadas
             notificationClass,
             notificationIconClass,

@@ -5,43 +5,45 @@
 import {ref,computed} from 'vue';
 
  interface DateFormatterOption {
- 	locale: 'full' |'long'| 'short';
+ 	locale?: string;
  	 dateStyle?: 'full' | 'long'| 'short';
  	 timeStyle?: 'full' | 'long'| 'short';
  }
+ 	
+ 	type TimestampInput = { toDate: () => Date } | Date | string | number;
 
   export function useDateFormatter(options_d: DateFormatterOption) {
-    const {	
-      locale = 'es-MX',
-      dateStyle = undefined,
-      timeStyle = undefined } = options_d;
+  const { locale = 'es-MX', dateStyle, timeStyle } = options_d ?? {};
 
-        const formatearFecha = (timestamp: any):string => {
-	      	if (!timestamp) {
-	      		throw Error('El Formato Fecha no fue proporcionado')
-	      	}
-
-	      	try{
-	      	 	const fecha = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-
-	      	 	if (isNaN(fecha.getTime())) {
-	      	 	 	throw Error('Fecha no válida');
-	      	 	}
-
-
-	      	 	if (dateStyle || timeStyle) {
-	      	 	 	return new Intl.DateTimeFormat(locale, {
-	      	 	 		dateStyle,
-	      	 	 		timeStyle,
-	      	 	 	}).format(fecha);
-	      	 	}
-	      	 	 	 return fecha.toLocaleDateString(locale);  //new
-	      	}catch(error){
-	      		console.error('Error al formatear fecha:', error);
-	      		throw error;
-	      	}
-      	}
+  const formatearFecha = (timestamp: TimestampInput): string => {
+    if (timestamp === null || timestamp === undefined) { //!timestamp
+      throw new Error('El formato de fecha no fue proporcionado');
     }
+    try {
+      const fecha = (timestamp as { toDate?: () => Date }).toDate
+        ? (timestamp as { toDate: () => Date }).toDate()
+        : new Date(timestamp as string | number | Date);
+
+      if (isNaN(fecha.getTime())) {
+        throw new Error('Fecha no válida');
+      }
+
+      if (dateStyle || timeStyle) {
+        const intlOptions: Intl.DateTimeFormatOptions = {};
+        if (dateStyle) intlOptions.dateStyle = dateStyle;
+        if (timeStyle) intlOptions.timeStyle = timeStyle;
+        return new Intl.DateTimeFormat(locale, intlOptions).format(fecha);
+      }
+
+      return fecha.toLocaleDateString(locale);
+    } catch (error) {
+      console.error('Error al formatear fecha:', error);
+      throw error;
+    }
+  };
+
+  return { formatearFecha };
+}
 
     const formatearFechaRelativa = (timestamp: any):string => {
     	try{

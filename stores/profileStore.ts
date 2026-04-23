@@ -1,4 +1,4 @@
-/**
+  /**
  * @Store ProfileStore
  * @description Store unificado para gestión de perfiles de estudiantes y profesores
  * @features
@@ -42,6 +42,7 @@ import type { Profile } from '@/types/Profile.type.ts';
         bySubject: Record<string, number>;
       };
     } | null;
+    message: string; //**
   }
 
 export const useProfileStore = defineStore('profile', {
@@ -55,6 +56,7 @@ export const useProfileStore = defineStore('profile', {
     error: '',
     searchResults: [],
     stats: null,
+    message: '', //**
   }),
 
   // ===========================
@@ -154,6 +156,71 @@ export const useProfileStore = defineStore('profile', {
         this.loading = false;
       }
     },
+    //*** Simetrico de Student for role1, Vista 3 del Rol ['Teacher']
+    async registerTraditional(data:{nombre:string;apellido:string;correo:string;passwd:string,cuenta:string,areaTrab:string,role: 'student' | 'teacher';uid_teacher: string| null;}){
+        this.loading = true;
+        this.error = '';
+          console.log('Ingrese a al f(n).........');
+        try{  
+          const user = await ProfileStudentService.createAccountEmailAndPassword(data.correo, data.passwd);
+
+           if (!user?.uid) throw new Error('No se obtuvo UID del registro');
+
+          const profileData = {
+            // ...data  nombre indefinido
+            uid_teacher: user.uid,
+            name: data.nombre,
+            lname: data.apellido,
+            email: data.correo,
+            password: data.passwd,
+            numCuenta: data.cuenta,
+            area: data.areaTrab,
+            role: data.role,
+          };  
+            // C1 - Los valores de los atributos se reciben completos
+              /*Recordando: El naming de los atribs deberan ser identicos a los atribs de la f(n) del layer1 */
+              console.log('Nombre del Profesor >', profileData.name);
+              console.log('Uid del Profesor >', profileData.uid_teacher);
+              console.log('Are de t Profesor >', profileData.area);
+              //ui o el obj.prop completo
+          if (data.role === 'teacher') {
+              console.log('[Store]_ profileData ANTES de Guardar: ',JSON.parse(JSON.stringify(profileData)));
+             await ProfileTeacherService.saveTeacherProfile({...profileData},  profileData.uid_teacher);
+          } else {
+               await ProfileStudentService.saveStudentProfile(profileData, user.uid);
+          }
+        }catch(err: any){
+          this.error = err.message || 'Error al registrar el usuario';
+          throw err;
+        } finally {
+           this.loading = false;
+        }
+    },
+      //** new ajustar **
+   /**  async registerTraditional(data:{nomb:string,apellido:string,correo:string,passwd:string,cuenta:number,areaTr:string},uid_teacher:string) {
+            this.error = '';
+            this.message = '';
+            this.loading = true;
+            try {
+                if (!data.email || !data.password || !data.name)
+                    throw new Error('Completa todos los campos requeridos (nombre, correo y contraseña).');
+                const creadetUser = ProfileStudentServ_ts_1.ProfileStudentService.creadetUserWithEmail(data.email, data.password);
+                if (!creadetUser || !creadetUser.uid)
+                    throw new Error('Error: no se obtuvo el identificador del registro');
+                const userId = creadetUser.uid;
+                await ProfileStudentServ_ts_1.ProfileStudentService.saveStudentProfile({
+                    ...data,
+                    uid_alumno: userId,
+                });
+                this.message = 'Registro completado y perfil guardado satisfactoriamente';
+            }
+            catch (err) {
+                this.error = err.message || 'Error al registrar el usuario.';
+            }
+            finally {
+                this.loading = false;
+            }
+        },
 
     /**
      * Obtiene un estudiante por UID

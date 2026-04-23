@@ -21,23 +21,30 @@ import {  getFirestore, doc, setDoc, getDoc,
      * @param collectionName - Nombre de la colección ('students' o 'teachers')
      * @param uid - ID del usuario (debe coincidir con Firebase Auth)
      * @param data - Datos del perfil a guardar
-     */
-   static async saveProfile(collectionName: 'students' | 'teachers', uid: string, data: Partial<Profile>):Promise<void> {
+     */        //students teacher
+   static async saveProfile(collectionName: 'student_register' | 'teacher_register', uid: string, data: Partial<Profile>): Promise<void> {
   	  	try {
             const db = getFirestore();
-            const docRef = doc(db, collectionName, uid);
-            
             console.log(`[BaseProfileService] Guardando perfil en '${collectionName}':`, uid);
+
+            const role = collectionName === 'student_register' ?  'student' : 'teacher';
+            const uid_role_key =  `uid_${role}` as const;
             
             // Preparar datos para Firestore
             const profileData = {
             	...data,
-            	uid:uid,
-            	createAt: serverTimestamp(),
+            	uid,
+               [uid_role_key]: uid,  //simetrico al rol
+                name: data.name ?? '',
+                lname: data.lname ?? '',
+                email: data.email ?? '',
+                numCuenta: data.numCuenta ?? '',
+            	status: 'active',
+            	createAt: data.createAt ?? serverTimestamp(),
             	updateAt: serverTimestamp(),
-            	status: 'active'
             }
-
+               //  C2.2 - Composicion-01 Teacher, las propiedades se reciben vacias en Firestore
+            const docRef = doc(db, collectionName, uid);
             await setDoc(docRef, profileData);
 
              console.log(`[BaseProfileService] ✅ Perfil guardado exitosamente en '${collectionName}'`);
@@ -55,7 +62,7 @@ import {  getFirestore, doc, setDoc, getDoc,
      	* @returns Perfil encontrado o null si no existe
     	 */
 
-   static async getProfile(collectionName:'students' | 'teachers', uid: string): Promise<Profile| null> {
+   static async getProfile(collectionName:'student_register' | 'teacher_register', uid: string): Promise<Profile| null> {
      	 try{
 
      	 	const db = getFirestore();

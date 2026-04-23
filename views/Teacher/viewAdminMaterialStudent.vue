@@ -629,7 +629,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useMaterialTeachStore } from '@/stores/materialTeacherStore';
 
 // Composables
-import { useDateFormatter } from '@/composables/useDataFormatter';
+import { useDateFormatter } from '@/composables/useDateFormatter';
 import { useNotifications } from '@/composables/useNotifications';
 
 // Types
@@ -643,7 +643,7 @@ import type { Timestamp } from 'firebase/firestore';
 // ║  Inicialización de funcionalidad reutilizable                            ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
-const { formatearFecha } = useDataFormatter();
+const { formatearFecha } = useDateFormatter(); 
 
 const {
   mostrarNotificacion,
@@ -662,6 +662,7 @@ const {
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
 const materialStore = useMaterialTeachStore();
+// const materialStore =  computed( () => useMaterialTeachStore());
 
 
 // ╔══════════════════════════════════════════════════════════════════════════╗

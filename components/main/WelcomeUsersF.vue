@@ -51,8 +51,8 @@
 
 <script setup lang="ts">
 	import { ref } from 'vue';
-	import {storeToRefs} from 'pinia';
-	import {useAuthStore3}  from '@/stores/useAuthStore3.ts'	
+	import {storeToRefs} from 'pinia'; 
+	import {useAuthStore3}  from '@/stores/authStore3.ts'
 	import ReporteSummaryModal from '@/components/ReporteSummaryModal.vue';
 
 	// ═════════════════════════════════════════

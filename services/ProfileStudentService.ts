@@ -1,16 +1,23 @@
+ import {createUserWithEmailAndPassword,getAuth} from 'firebase/auth';
+ import {doc,setDoc} from 'firebase/firestore';
  import {BaseProfileService} from './BaseProfileService.ts';
+ import { initializeFirebaseStorage } from '@/config/initializeFirebaseConf.ts';
  // import { StorageService } from './StorageService';
- import type {Profile} from '@/types/interfaces.ts';
+ // import type {Profile} from '@/interfaces/Profile.types.ts';
 
  interface ProfilePhotoOptions {
   	 uploadPhoto: boolean;
   	 photoFile?: File;
   	 photoURL?: string;
   }
+  
+  const { auth, db } = initializeFirebaseStorage();
 
   export class ProfileStudentService {
-  	private static readonly COLLECTION_1 = 'students';
-  	private static readonly STORAGE_PATH = 'profiles/students';
+  	// private static readonly COLLECTION_1 = 'student_register';; //*
+    private static readonly COLLECTION_2 = 'teacher_register';
+  	private static readonly STORAGE_PATH = 'profiles_students';
+    private static readonly collectionNameR1 = 'student_register'
 
   	/**
   	 * Guarda un perfil de estudiante con foto opcional
@@ -19,34 +26,40 @@
   	 * */
   	static async saveStudentProfile(
   		 data: Partial<Profile>,
-  		 photoOptions?: ProfilePhotoOptions
+         uid_student: string/*,
+  		 photoOptions?: ProfilePhotoOptions*/
   		): Promise<void>{
             // revisar condicion d la 34
   		try{
-  			if (!data.uid) {
+  			if (!uid_student) {
   				throw new Error('El Uid del Estudiante es requerido');
   			}
-  			console.log('[ProfileStudentService] Guardar perfil del Estudiante:',data.uid);
+  			console.log('[ProfileStudentService] Guardar perfil del Estudiante:',data.uid_profe);
 
   			// Procesar foto que se requiere
-  			 let photoURL = data.photoURL || '';
+  			 // let photoURL = data.photoURL || '';
 
-  			if (photoOptions?.uploadPhoto && photoOptions.value.photoFile) {
+  			/*if (photoOptions?.uploadPhoto && photoOptions.value.photoFile) {
   			 	console.log('[ProfileStudentService] Subiendo foto de Perfil..');
-  			 	  photoURL: this.uploadProfilePhoto(data.uid, photoOptions.photoFile);
-  			}
+  			 	  photoURL: this.uploadProfilePhoto(data.uid_profe, photoOptions.photoFile);
+  			}*/
 
   			// Preparar datos para Firestore
   			const studentData: Partial<Profile> = {
   				...data,
   				role: 'student' as const,
-  				uid_prof: data.uid,
-  				photoURL,
+  				//uid: uid_student, parametro directo
+                uid_student: uid_student, //par. definido directo
+                name: data.name,
+                lname: data.lname,
+                email: data.email ?? '',
+                account: data.numCuenta ?? '',
   				updateAt: new Date(),
   				createdAt: data.createdAt || new Date(),
+  				// photoURL,
   			};
-
-  			BaseProfileService.saveProfile(this.COLLECTION_1,data.uid,data);
+            // El objeto enriquecido(directo), no crudo(su propiedad), para eso es el 2do arg
+  			await BaseProfileService.saveProfile(this.collectionNameR1,uid_student,studentData);
   			console.log('[ProfileStudentService] Perfil guardado exitosamente ');
 
   		}catch(error: any){
@@ -54,6 +67,31 @@
   			 throw new Error(`Error al guardar perfil de estudiante: ${error.message}`);
   		}
   	}
+
+    static async createAccountEmailAndPassword(email:string , password:string ){
+    try{
+        console.log('Visitando la f(n)');
+         // 0. Obtener la referencia a Firebase
+        const auth = getAuth();
+        console.log('Inf. del autetificacion: ', auth);
+      console.log()
+        // 1. Metodo para traer la credenciales de firebase
+            const  userCredential = await createUserWithEmailAndPassword(auth,email,password);
+        // 2. Extraer el usuario creado
+            const user = userCredential.user;
+            console.log('Inf. de Primer role1 - Prof: ', user); //genera uid
+    
+        // 3. Asociar la coleccion con las credenciales(base para profesor)
+            const reference = doc(db,this.COLLECTION_2, user.uid);
+              await setDoc(reference, { email: user.email, uid_profesor: user.uid, status: 'active'});
+            console.log('Usuario > ',user);
+        // 4. devolver el usuario con la coleccion 
+              return user;
+    }catch(error){
+      console.error('[ProfileTeacherService]: Error al crear usuario de profesor con email y contraseña', error);
+        throw error;
+    }
+  }
 
   	/**
   	 * Obtiene un perfil de estudiante con su UID
@@ -64,7 +102,7 @@
   		try{
   			console.log('[ProfileStudentService] 🔎Obteniendo Perfil del Estudiante: ',uid);
 
-  			const profile = await BaseProfileService.getProfile(this.COLLECTION_1,uid);
+  			const profile = await BaseProfileService.getProfile(this.collectionNameR1,uid);  //* las colecciones deben coincidir
 
   			if (profile) {
   				console.log('Estudiante Encontrado');
@@ -170,7 +208,7 @@
             const term = searchTer.toLowerCase();
 
                 const results = allStudents.filter(student =>{
-                    const fullName = `${student.nombre} ${student.appellidos}.toLowerCase()`;
+                    const fullName = `${student.nombre} ${student.appellidos}`.toLowerCase();
                       return fullName.includes(term);
                 });
                 console.log('')

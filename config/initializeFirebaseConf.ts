@@ -15,14 +15,16 @@ export const initializeFirebaseStorage = () => {
         appId: import.meta.env.VITE_FIREBASE_APP_ID,
         measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
    };
-   // console.log('Clave de Acceso:' ,import.meta.env.VITE_FIREBASE_API_KEY);
-   // console.log('Clave de Acceso- ',firebaseConfig.apiKey);
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const auth = getAuth(app);  //*
+    const auth = getAuth(app); //*
     const storage = getStorage(app);
 
+      // console.log('Conexion Satisfactoria, Gracias por usar FBase');
     return { app, db, auth, storage, firebaseConfig };
 };
+   /*console.log('Clave de Acceso:' ,import.meta.env.VITE_FIREBASE_API_KEY);
+     console.log('Clave de Acceso- ',firebaseConfig.apiKey);
+     AIzaSyD4B3irImFN1Tc-TtbWfaHSKuaAI_CvQrg*/
 
 // Verificar la 2da referencia del script de configuracion

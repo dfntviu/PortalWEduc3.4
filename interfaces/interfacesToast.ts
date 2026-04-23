@@ -1,3 +1,4 @@
+    // Material Extendido(Generico)
 export interface MaterialT {
       id: string;
       titulo: string;
@@ -20,6 +21,23 @@ export interface MaterialT {
       vistas?: number;
       descargas?: number;
     }
+    // 29/03/2026
+export interface MaterialBase {
+    autorId: string; 
+    titulo: string;
+    descripcion: string;
+    nombreArchivo: string;
+    archivoURL: string;
+    fechaCreacion: Date; // new 30/03/26
+    // status: string;
+    tipoArchivo: string; //*
+}
+ 
+ export interface UploadMaterialDTO {
+    titulo: string;
+    descripcion: string;
+    file:File;
+ }
 
 		
 	export type MaterialStatus = 'aprobado' | 'rechazado' | 'pendiente';

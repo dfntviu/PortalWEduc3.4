@@ -1,4 +1,7 @@
 <template>
+    <header>
+        <title>Profesor - Registrar Estudiante</title>
+    </header>
    <div class="vista-estudiantes">
        <nav class="navegacion-paneles">
           <button class="btn-nav"> Registrar Estudiante </button>
@@ -24,7 +27,7 @@
          MODAL DE CAMBIO DE CONTRASENIA
        ===================================== -->
      <ChangePasswordModal
-       is-open="isPasswordModalOpen"
+       :is-open="isPasswordModalOpen"
        @close="closePasswordModal"
        @success="openPasswordChangeSuccess"
      />
@@ -42,7 +45,7 @@
    import  RegisterStudentView from '@/components/RegisterStudentView.vue';
    import  ProfileStudentView  from '@/components/ProfileStudentView.vue';
    import  ChangePasswordModal from  '@/components/ChangePasswordModal.vue';
-   import  { useProfileStore } from '@/stores/profileStore.ts'
+   import  { useStudentProfileStore } from '@/stores/useStudentProfileStore.ts';
 
    // ══════════════════════════════════════════
    //  ESTADO LOCAL
@@ -60,7 +63,7 @@
    // ════════════════════════════════════════
    //    STORE
    // ════════════════════════════════════════
-   const store_profile = useProfileStore();
+   const store_profile = useStudentProfileStore();
 
    // ═════════════════════════════════════
    //     LYFECICLE HOOKS
@@ -68,7 +71,7 @@
 
    onMounted(async () => {
     // Intetar cargar de perfil desde localStorage al montar
-     const loaded =  store_profile.loadFromLocalStorage();
+     const loaded =  await store_profile.loadFromLocalStorage(); 
 
      if(loaded){
         console.log('[vwStudentRegister] Perfil cargado desde el localStorage');

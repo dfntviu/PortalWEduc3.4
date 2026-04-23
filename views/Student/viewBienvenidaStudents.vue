@@ -18,8 +18,8 @@
 				<!-- Error del Estado -->
 			<div v-else class="flex items-center justify-center min-h-screen">
 				<div class="text-center">
-					<svg class="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor"  viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-widh="2" d="M12 9v2m0 4h.01m-6.938 4g13.85c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.33-2 4c-.77-1.33-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+					<svg class="w-16 h-16 text-yellow-500 mx-auto mb-4" fill="none" stroke="currentColor"  viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.858c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.33-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
 					</svg>
 				</div>
 			</div>
@@ -29,17 +29,23 @@
 <script setup lang="ts">
  import { computed} from 'vue'
  import { storeToRefs } from 'pinia'
-  import {useAuthStore} from '@/components/authStore';
+  import {useAuthStore3} from '@/stores/authStore3.ts';
+  import {useProfileStore} from '@/stores/profileStore';
   import WelcomeUsers from '@/components/main/WelcomeUsersF.vue'
 
-  const authStore = userAuthStore();
-  const {isAuthentitcated, profile} = storeToRefs(authStore);
+  const authStore3 = useAuthStore3();
+  const profileStr3 = useProfileStore();
+
+  const {isAuthentitcated, role} = storeToRefs(authStore3);
+  const {profile} = storeToRefs(profileStr3);
+
+  console.log('El perfil:[', profile);
 
   // ═════════════════════════════════
   // 		METODOS COMPUTADOS
   // ═════════════════════════════════
   const isLoading = computed(() => {
-  	 isAuthentitcated.value && !profile.value
+  	 return isAuthentitcated && !profile;
   });
 
   const isAlumno = computed(() => {

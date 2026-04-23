@@ -46,7 +46,7 @@
 			<!--los tags inputs compuestos deberan dejar indicado el cierre -->
 			<div class="filters-container">
 				<div class="filter-group">
-					<label for="sort-selected" class="filter-label">Ordenar por:</label>
+					<label for="sort-select" class="filter-label">Ordenar por:</label>
 					<select id="sort-select" v-model="sortBy"
 						class="filter-select" @change="handleSortChange">
 						<option value="recent">Más Recientes</option>
@@ -177,7 +177,7 @@
 									</div>
 								</td>
 									<td class="date-cell">
-										<time :datetime="material.fechaSubida.toISOString()">
+										<time :datetime=" new Date(material.fechaSubida).toISOString()">
 											{{formatearFecha(material.fechaSubida)}}
 										</time>
 									</td>
@@ -257,7 +257,7 @@
 		<Teleport to="body">
 			<Transition>
 				<div v-if="showViewer"  class="modal-overlay" @click.self="handleCloseViewer"
-						role="dialog" arial-modal="true" aria-labelledy="viewer-title">
+						role="dialog" arial-modal="true" aria-labelledby="viewer-title">
 					<article class="modal-viewer">
 						<header class="viewer-header">
 							<h2 class="viewer-title">
@@ -308,6 +308,8 @@
 					>
 							✕
 					</button>
+					<!-- ** Btn Notificaciones  ** -->
+					<button @click="handleCloseNotification(notification.id)"> Guardar</button>
 				</article>
 			</TransitionGroup>
 		</Teleport>
@@ -315,260 +317,294 @@
 </template>
 
 <script setup lang="ts">
-	import { ref, computed, watch, onMounted } from 'vue'
-	// import {useMaterialStore} from '@/stores/authStoreF.ts'
-	import {useMatBaseStore} from '@/stores/materialBaseStore.ts';
-	import { useAuthStore3 } from '@/stores/authStore3.ts';
-	import {useNotifications} from '@/composables/useNotifications.ts';
-	import {useDateFormatter} from '@/composables/useDateFormatter.ts';
-	import {useFileFormatter} from '@/composables/useFileFormatter.ts';
+import { ref, computed, watch, onMounted,watchEffect } from 'vue'
+import { storeToRefs } from 'pinia';
+import { useMaterialStore } from '@/stores/materialStore'
+import { useAuthStore3 } from '@/stores/authStore3'
+import { useNotifications } from '@/composables/useNotifications'
+import { useDateFormatter } from '@/composables/useDateFormatter'
+import { useFileFormatter } from '@/composables/useFileFormatter'
 
-	// ══════════════════════
-	//    TYPES & INTERFAC
-	// ══════════════════════
-	interface Material {
-          id_material: string
-      nombre_material: string
-       fechaSubida: Date;
-	         size?: number;
-	   	   status?: 'approved' | 'pending'| 'rejected'
-	   	url?: string
-	};
+// ══════════════════════
+//    TYPES & INTERFACES
+// ══════════════════════
+interface Material {
+  id_material: string
+  nombre_material: string
+  fechaSubida: Date
+  size?: number
+  status?: 'approved' | 'pending' | 'rejected'
+  url?: string
+}
 
-	interface StudentInfo {
-	     fullName: string,
-		numCuenta?: string,
-	};
+interface StudentInfo {
+  fullName: string
+  numCuenta?: string
+}
 
-	type shorOption = 'recent'| 'oldest '| 'name-asc' | 'name-desc';
+// FIX #9: 'oldest ' tenía espacio al final
+type SortOption = 'recent' | 'oldest' | 'name-asc' | 'name-desc'
 
-	// ══════════════════════
-	//    COMPOSABLES
-	// ══════════════════════
-	 const materialStore = useMaterialStore();
-	 const     authStore = useAuthStore();
+// ══════════════════════
+//    COMPOSABLES
+// ══════════════════════
+const materialStore = useMaterialStore()
+const authStore3     = useAuthStore3();
+ const { uid_auth } = storeToRefs(authStore3);
 
-	 const { formatearFecha } = useDateFormatter();
-	 const {formatearFechaRelativa} = useDateFormatter();
-	 const { formatFileSize } = useDateFormatter();
+// FIX #10: una sola instancia, ambas funciones desestructuradas
+const { formatearFecha, formatearFechaRelativa } = useDateFormatter()
+const { formatFileSize }                         = useFileFormatter()
 
+// FIX #1: desestructurar showNotification y activeNotifications
+const { showNotification, activeNotifications, removeNotification}  = useNotifications()
 
-	// ══════════════════════
-	//    REACTIVE STATE
-	// ══════════════════════
-	 const searchQuery = ref('');
-	       const sortBy = ref<shorOption>('recent');
-	 const currrentPage = ref(1);
-	   const showViewer = ref(false);
-	 const selectedMaterial = ref<Material| null>(null);
-	   const isDownloading = ref<string | null>(null);
+// ══════════════════════
+//    REACTIVE STATE
+// ══════════════════════
+const searchQuery      = ref('')
+const sortBy           = ref<SortOption>('recent')
+const currentPage      = ref(1)
+const showViewer       = ref(false)
+const selectedMaterial = ref<Material | null>(null)
+const isDownloading    = ref<string | null>(null)
 
-	// ══════════════════════
-	//    CONSTANTES
-	// ══════════════════════
-	const ITEMS_PER_PAGE = 10
-	// new_01
-	const RECENT_HOURS = 8; //VENTANA DE TIEMPO (MATS RECIENTES)
-	const STATUS_LABELS : Record<string, string> = {
-		approved: 'Aprovado',
-		pending: 'Pendiente',
-		rejected: 'Rechazado'
-	}
+// ══════════════════════
+//    CONSTANTES
+// ══════════════════════
+const ITEMS_PER_PAGE = 10
+const RECENT_HOURS   = 8
 
-	// ══════════════════════════
-	//    PROPIEDADES COMPUTADAS
-	// ══════════════════════════
-	const	isLoading = computed(() => materialStore.loading);
-	const		hasError = computed(() => materialStore.error !== '' );
-	const	errorMessage = computed(() => materialStore.error);
+const STATUS_LABELS: Record<string, string> = {
+  approved: 'Aprobado',
+  pending:  'Pendiente',
+  rejected: 'Rechazado'
+}
 
-	const studentInfo = computed((): StudentInfo| null => {
-	 	const profile = materialStore.studentProfile
-	 	  if(!profile) return null
+// ══════════════════════
+//    COMPUTED
+// ══════════════════════
+const isLoading    = computed(() => materialStore.loading)
+const hasError     = computed(() => materialStore.error !== '')
+const errorMessage = computed(() => materialStore.error)
 
- 	  	return {
- 	  		fullName: `${profile.name} || '' ${profile.lname}`.trim(), 
- 	  		numCuenta: profile.numCuenta
- 	  	}
-	});
+const studentInfo = computed((): StudentInfo | null => {
+  const profile = materialStore.studentProfile
+  if (!profile) return null
+  return {
+    // FIX #7: operadores fuera del template string
+    fullName:   `${profile.name || ''} ${profile.lname || ''}`.trim(),
+    numCuenta:  profile.numCuenta
+  }
+})
 
-	const allMaterials = computed(()=> materialStore.studentMaterials || []);
+const allMaterials = computed(() => materialStore.studentMaterials || [])
 
-	/*Materiales recientes (ultimas 8 hours)*/
-	const recentUploads = computed(() => {
-		const now = new Date()
-		const cutOffTime = new Date(now.getTime() - RECENT_HOURS *60*60*1000);
+const recentUploads = computed(() => {
+  const now        = new Date()
+  const cutOffTime = new Date(now.getTime() - RECENT_HOURS * 60 * 60 * 1000)
+  return allMaterials.value.filter(material =>
+    new Date(material.fechaSubida) >= cutOffTime
+  )
+})
 
-			return allMaterials.value.filter(material => {  //*
-				const uploadDate = new Date(material.fechaSubida)
-				 return uploadDate >= cutOffTime
-			});
-	});
+// FIX #8: computed que faltaba — usado en template v-if
+const hasRecentUploads = computed(() => recentUploads.value.length > 0)
 
-	const filteredMaterials = computed(() => {
-		let materials = [ ...allMaterials.value]
+const filteredMaterials = computed(() => {
+  let materials = [...allMaterials.value]
 
-		// Aplicar el filtro de busqueda
-		 if(searchQuery.value.trim()){
-		 	const query = searchQuery.value.toLowerCase();
-		 	 materials  = materials.filter(m=>m.nombre_material?.toLowerCase().includes(query))
-		 }
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase()
+    materials = materials.filter(m =>
+      m.nombre_material?.toLowerCase().includes(query)
+    )
+  }
 
-		 // Aplicar criterios de Clasificacion
-		switch(sortBy.value) {
-		 	case 'recent':
-                materials.sort( (a,b) => new Date(b.fechaSubida).getTime() - new Date(a.fechaSubida).getTime());
-		 	 	break;
-		 	case  'oldest':
-				    materials.sort( (a,b) => new Date(a.fechaSubida).getTime() - new Date(b.fechaSubida).getTime());
-		 	 	break; 
-		 	case 'name-asc':
-				    materials.sort( (a,b) => a.nombre_material.localeCompare(b.nombre_material));
-		 	 	break;
-		 	case 'name-desc':
-                materials.sort( (a,b) =>b.nombre_material.localeCompare(a.nombre_material))
-		 	 	break;
-		}
+  switch (sortBy.value) {
+    case 'recent':
+      materials.sort((a, b) => new Date(b.fechaSubida).getTime() - new Date(a.fechaSubida).getTime())
+      break
+    case 'oldest':
+      materials.sort((a, b) => new Date(a.fechaSubida).getTime() - new Date(b.fechaSubida).getTime())
+      break
+    case 'name-asc':
+      materials.sort((a, b) => a.nombre_material.localeCompare(b.nombre_material))
+      break
+    case 'name-desc':
+      materials.sort((a, b) => b.nombre_material.localeCompare(a.nombre_material))
+      break
+  }
+  return materials
+})
 
-		 return materials;
-	});
+const paginacionMateriales = computed(() => {
+  // FIX #4: currentPage.value — no el Ref object
+  const start = (currentPage.value - 1) * ITEMS_PER_PAGE
+  const end   = start + ITEMS_PER_PAGE
+  return filteredMaterials.value.slice(start, end)
+})
 
-	const paginacionMateriales = computed(() => {
-		const start = (currrentPage-1) * ITEMS_PER_PAGE; 
-		const end =  start +ITEMS_PER_PAGE;
-		 return filteredMaterials.value.slice(start, end);
-	});
+const totalPages = computed(() =>
+  Math.ceil(filteredMaterials.value.length / ITEMS_PER_PAGE)
+)
 
-	const totalPages = computed(() => {
-		 return Math.ceil(filteredMaterials.value.length / ITEMS_PER_PAGE);  //*
-	}); 
+// FIX #2 y #3: isEmpty debe retornar boolean, no string de tamaño
+const isEmpty = computed(() =>
+  !isLoading.value && !hasError.value && filteredMaterials.value.length === 0
+)
 
-	const isEmpty = computed(() => {
-		const totalBytes = isLoading.value && hasError.value.reduce( (sum,m) => sum + (m.size || 0), 0);
-		return formatFileSize(totalBytes);
-	});
+const totalMaterials = computed(() => allMaterials.value.length)
 
-	const totalMaterials = computed(()=> allMaterials.value.length);
+// FIX #6: return faltante
+const recentMaterialsCount = computed(() => {
+  const sevenDaysAgo = new Date()
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+  return allMaterials.value.filter(m =>
+    new Date(m.fechaSubida) >= sevenDaysAgo
+  ).length
+})
 
-	const recentMaterialsCount = computed(() => {
-	 	const sevenDaysAgo = new Date();
-	 		sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+const totalFileSizeFormatted = computed(() => {
+  const totalBytes = allMaterials.value.reduce((sum, m) => sum + (m.size || 0), 0)
+  return formatFileSize(totalBytes)
+})
 
-	 		allMaterials.value.filter( m => {
-	 			const uploadDate = new Date(m.fechaSubida)
-	 			 return uploadDate >= sevenDaysAgo
-	 		}).length
-	}); 
-	
-	const totalFileSizeFormatted = computed(() => {
-		const totalBytes = allMaterials.value.reduce((sum,m)=> sum + (m.size || 0), 0 )
-		 return formatFileSize(totalBytes);
-	})
+const hasFilters = computed(() =>
+  searchQuery.value.trim() !== '' || sortBy.value !== 'recent'
+)
 
-	const hasFilters = computed(() => {
-		return searchQuery.value.trim() !== '' || sortBy.value !== 'recent';  //*
-	}); //*
+// ══════════════════════
+//    WATCHERS
+// ══════════════════════
+watch(() => materialStore.error, (error) => {
+  if (error) {
+    // FIX #1: ahora showNotification existe
+    showNotification({ type: 'error', message: error })
+  }
+})
 
-	// ══════════════════════
-	//    METHS WATCHERS
-	// ══════════════════════
-	watch(()=> materialStore.error,
-	 (error) => {
-		if(error){
-			showNotification({ type: 'error', message: 'error'});
-			 return;
-		}
-	});
+watch(() => filteredMaterials.value.length, () => {
+  if (currentPage.value > totalPages.value) {
+    currentPage.value = 1
+  }
+})
 
-	watch(()=>  filteredMaterials.value.length,
-		() =>{
-		if(currrentPage.value > totalPages.value){
-			currrentPage.value = 1;
-		}
-	});
+// ══════════════════════
+//    HANDLERS
+// ══════════════════════
+const handleSearch = (): void => {
+  currentPage.value = 1
+}
 
-	// ══════════════════════
-	//    METS DE APOYO
-	// ══════════════════════
-	const handleSearch=(): void => {
-		currrentPage.value = 1;
-	}
+const handleSortChange = (): void => {
+  currentPage.value = 1
+}
 
-	const handleSortChange=(): void => {
-		currrentPage.value = 1;
-	}
+const handleClearFilters = (): void => {
+  searchQuery.value = ''
+  sortBy.value      = 'recent'
+  currentPage.value = 1
+}
 
-	const handleClearFilters=(): void => {
-		searchQuery.value = '';
-		sortBy.value = 'recent'
-		currrentPage.value = 1;
-	}
+const handlePreviousPage = (): void => {
+  if (currentPage.value > 1) {
+    // FIX #5: .value en la mutación
+    currentPage.value--
+  }
+}
 
-	/*Control de desplazamiento de Paginado*/
-	const	handlePreviousPage =(): void => {
-		if(currrentPage.value>1){
-			currrentPage--;
-		}
-	}
+const handleNextPage = (): void => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++
+  }
+}
 
-	const	handleNextPage =(): void => {
-		if(currrentPage.value<totalPages.value){
-			currrentPage.value++;
-		}
-	}
+const handleViewMaterial = (material: Material): void => {
+  selectedMaterial.value = material
+  showViewer.value       = true
+}
 
-	const handleViewMaterial = (material: Material): void => {
-		selectedMaterial.value = material;
-		showViewer.value = true;
-	}	
+const handleCloseViewer = (): void => {
+  showViewer.value       = false
+  selectedMaterial.value = null
+}
 
-	const handleCloseViewer = (): void => {
-		showViewer.value = false;
-		selectedMaterial.value = null
-	}
+const handleDownloadMaterial = async (material: Material | null): Promise<void> => {
+  if (!material) return
+  isDownloading.value = material.id_material
+  try {
+    await materialStore.downloadMaterial(material.id_material)
+    showNotification({
+      type:    'success',
+      message: `${material.nombre_material} descargado correctamente`
+    })
+  } finally {
+    isDownloading.value = null
+  }
+}
 
-	const handleDownloadMaterial = async (material:Material | null): Promise<void> => {
-		if(!material) return
+const handleRetry = async (): Promise<void> => {
+  const uid = authStore.user?.uid
+  if (uid) {
+    await materialStore.fetchStudentMaterials(uid)
+  }
+}
 
-		 isDownloading.value = material.id_material;//*
+// FIX #12: función para cerrar notificaciones — usarla en el botón ✕
+const handleCloseNotification = (id: string): void => {
+  // implementar según tu useNotifications — ejemplo:
+  // removeNotification(id)
+}
 
-		try{
-			 await materialStore.downnloadMaterial(material.id_material);
-			 showNotification({
-			 	type: 'succes',
-			 	message: `Material ${material.nombre_material} descargado correctamente`
-			 });
-		} finally{
-			isDownloading.value = null  //*
-		}
-	}
+// ══════════════════════
+//    HELPERS
+// ══════════════════════
+const getStatusLabel = (status?: string): string =>
+  STATUS_LABELS[status || 'pending'] || 'Desconocido'
 
-	const handleRetry = async(): Promise<void> => {
-		const uid = authStore.user?.uid
-		   if(uid){
-		 	  await materialStore.fetchStudentMaterials(uid)
-		   }
-	}
-	// ══════════════════════
-	//    HELPER FUNCTION
-	// ══════════════════════
-	const getStatusLabel = (status?: string): string => {
-		return  STATUS_LABELS[status || 'pending'] || 'desconocido';
-	}
+// ══════════════════════
+//    LIFECYCLE
+// ══════════════════════
+onMounted(async () => {
+		const unique_user = uid_auth.value;
+		console.log('[Auth] ',unique_user);
 
-	// ══════════════════════
-	//    LYFECICLE OF HOOK
-	// ══════════════════════
-	onMounted(async() => {
-		 const uid  = authStore.user?.uid;
+  if (unique_user) {
+    // Auth ya resuelto — carga directa
+    await materialStore.fetchStudentMaterials(unique_user);
+    console.log('[Debug]',{
+    	uid: unique_user,
+    	materials: materialStore.studentMaterials,
+    	perfil: materialStore.studentProfile,
+    	error:materialStore.error
+    })
+    return
+  }
 
-		if(!uid){
-			showNotification({ type: 'error', message: 'No fue posible identificar el uid del usuario'});
-			 return;
-		}
-
-		await materialStore.fetchstudentMaterials(uid); //*
-	});
+  // Auth aún no resuelto — esperar
+  watchEffect(async () => {
+  const unique_user = uid_auth.value
+  if (unique_user) await materialStore.fetchStudentMaterials(unique_user)
+})
+  /*const unwatch = watch(
+    () => unique_user,
+    async (newUid) => {
+    	console.log(newUid);
+      if (newUid) {
+        unwatch() // dejar de observar
+        await materialStore.fetchStudentMaterials(newUid)
+      }
+    },
+    { immediate: false }
+  )*/
+ /* const uid = authStore.user?.uid
+  if (!uid) {
+    showNotification({ type: 'error', message: 'No se pudo identificar al usuario' })
+    return
+  }
+  await materialStore.fetchStudentMaterials(uid)*/
+});
 </script>
 
 <style scoped>

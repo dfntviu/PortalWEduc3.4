@@ -24,6 +24,13 @@ export type UserRole = 'student' | 'teacher';
      message: string;
      timestamp: number;  //unix timestamp
      read: boolean;
+     
+    /* name: string; 
+     lname: string;  //apellido
+     email: string;
+     age: number;
+     typeDocument[0]: string;
+     password: string;*/
    }
 
 
@@ -64,6 +71,16 @@ export interface Material {
     fecha: Date;
   }
 
+  interface Moderation {
+    id_material: string; //id del material relacionado
+    id_autor: string;   //id del autor(perfil del Alumno)
+    snapshot:  'adm_materials' | 'alumno';  // estado/origen de la relación
+    fecha: Date| number  // fecha de moderación o tiemstamp
+    criterio: boolean;   // true = aprobado, false = rechazado
+        //correction-2 en Fecha
+       // snapshot:  'adm_materials' | User.value='alumno';
+  }
+  
   export interface TipoDocumento {
 
   }

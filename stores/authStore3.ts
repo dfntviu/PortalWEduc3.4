@@ -1,20 +1,27 @@
 // stores/authStore.ts
-import { defineStore } from 'pinia';
+import { defineStore, storeToRefs} from 'pinia';
+// import { getActivePinia } from 'pinia';
 import { ref, computed } from 'vue';
-import { onAuthStateChanged, type User } from 'firebase/auth';
-// import { initializeFirebaseStorage } from '@/config/initializeFirebaseConf.ts';
-import { AuthService } from '@/services/AuthService.ts';
-// import type { ProfileTeacher, ProfileStudent, UserRole } from '@/types/interfacesv2';
+import {doc,getDoc} from 'firebase/firestore';
+import { onAuthStateChanged, getAuth ,type User } from 'firebase/auth';
+import { initializeFirebaseStorage } from '@/config/initializeFirebaseConf.ts'; 
+import {  AuthService} from '@/services/AuthService.ts';
+import { RoleFirstUsingService } from '@/services/CloseBoostrap/FirstUsingClSys.ts';
+import type { ProfileTeacher, ProfileStudent, UserRole } from '@/interfaces/interfacefVUn';
+
 
 /**
  * AuthStore - Store de autenticación multiusuario
  * Maneja el estado de autenticación y perfil del usuario
  * Sigue el patrón Services-Stores-Views
  */
- // const { auth } = initializeFirebaseStorage();
+ const { auth, db } = initializeFirebaseStorage();
+ const authService = new AuthService();
+ // const authRFServ = new RoleFirstUsingService();
 
 export const useAuthStore3 = defineStore('auth', () => {
-  
+
+  console.log('Haz llegado al primer alm. de Autenticacion: ', useAuthStore3);
   // =====================================================
   // ESTADO
   // =====================================================
@@ -31,12 +38,15 @@ export const useAuthStore3 = defineStore('auth', () => {
   
   // Rol del usuario
   const userRole = ref<UserRole | null>(null);
-  
+  // Esta interfaz no esta guardando nada, por lo que nunca compara en LayoutNBr
   // Estado de autenticación
   const isAuthenticated = ref<boolean>(false);
   
   // Flag para saber si se completó la inicialización
   const isInitialized = ref<boolean>(false);
+    // 26/02/2026
+  const totalUsers =  0;  //1
+  const currentRole = ref<'student' | 'teacher' | ''>();  //2
 
   // =====================================================
   // GETTERS
@@ -48,19 +58,31 @@ export const useAuthStore3 = defineStore('auth', () => {
   
   const userName = computed(() => userProfile.value?.name || '');
   
-  const isTeacher = computed(() => userRole.value === 'professor');
+  const isTeacher = computed(() => userRole.value === 'teacher');
   
-  const isStudent = computed(() => userRole.value === 'alumno');
+  const isStudent = computed(() => userRole.value === 'student');
+  const role = computed(() => userRole.value);
+    // const email = computed(() =>userProfile.email);
 
+  /*console.trace('[authSt3] Primera inovacion - Stack Completo:');
+  console.log('[authSt3] Pinia activa en este momento:',!!getActivePinia());*/
   // =====================================================
   // ACCIONES - INICIALIZACIÓN
   // =====================================================
-  
+  console.log('La cte currentUser ', currentUser);  //nulo
+  console.log('El getter  UserID contie ', userId);
   /**
    * Inicializa el listener de autenticación de Firebase
    * Debe llamarse una sola vez al inicio de la aplicación
    */
-  function initAuthListener(): void {
+
+  onAuthStateChanged(getAuth(), (firebaseUser) => {
+    currentUser.value = firebaseUser ?? null;
+  });
+  // uid de la sesion personal de Firebase del Usuario
+  const uid_auth = computed((): string | null => currentUser.value?.uid ?? null);
+
+  async function initAuthListener(): void {
     onAuthStateChanged(auth, async (user) => {
       try {
         loading.value = true;
@@ -69,13 +91,15 @@ export const useAuthStore3 = defineStore('auth', () => {
           currentUser.value = user;
           
           // Determinar el rol del usuario
-          const role = await authService.getUserRole(user.uid);
-          
-          if (role) {
-            userRole.value = role;
+           const fetchedRole = await authService.getUserRole(user.uid);
+            userRole.value = fetchedRole;
+
+          if (fetchedRole) {
+            userRole.value = fetchedRole;
             
             // Cargar el perfil según el rol
-            const profile = await authService.getUserProfile(user.uid, role);
+            const profile = await authService.getUserProfile(user.uid, fetchedRole);
+            console.log('Se guardo el perfil de sesion: ', profile);
             userProfile.value = profile;
             
             isAuthenticated.value = true;
@@ -97,6 +121,19 @@ export const useAuthStore3 = defineStore('auth', () => {
         isInitialized.value = true;
       }
     });
+  }
+  /*F(n) de Test para obtener el uid del autor de firebase [solo usar para probar] ****/
+  async function getUid(): void{
+    try{  //NUNCA inicia la f(n), modificarla o bien depurarla para factorizarla y ajustarla para los stores que se necesiten
+      const autenticate = await authService.getCurrentUser();
+      console.log('guarde el dato de auth..');
+      return autenticate;
+    }catch(err: any){
+      err.value = err.message;
+      return false;
+    }
+
+    return autenticate;
   }
 
   /**
@@ -127,7 +164,7 @@ export const useAuthStore3 = defineStore('auth', () => {
       loading.value = true;
       error.value = null;
       
-      const result = await authService.initializeFirstTeacher();
+      const result = await RoleFirstUsingService.initialingFirstUse();
       return result;
     } catch (err: any) {
       error.value = err.message;
@@ -155,8 +192,8 @@ export const useAuthStore3 = defineStore('auth', () => {
   }> {
     try {
       loading.value = true;
-      error.value = null;
-      
+        error.value = null;
+        console.log('Correo', email,'pwd',password);
       // Validaciones básicas
       if (!email || !password) {
         throw new Error('Email y contraseña son requeridos');
@@ -172,11 +209,26 @@ export const useAuthStore3 = defineStore('auth', () => {
       if (!passwordValidation.isValid) {
         throw new Error(passwordValidation.message);
       }
-      
       // Realizar login
       const user = await authService.login(email, password);
+      console.log('[authStore3] user recibido:', user);
       
       // El estado se actualizará automáticamente por el listener
+      const teacherSnap = await getDoc(doc(db, 'teacher_register', user.uid));
+      /**
+       * Segmento f(n) vital para el registro de rol 'student'***/
+      if (teacherSnap.exists()) {
+          userRole.value = 'teacher';
+            console.log('[authStore3] userRole seteado:', userRole.value);
+      } else {
+          const studentSnap = await getDoc(doc(db, 'student_register', user.uid));
+          if (studentSnap.exists()) {
+              userRole.value = 'student';
+          }
+            console.log('[authStore3] user.uid:', user.uid);
+      }
+
+      isAuthenticated.value = true;  // *chge **
       // Solo retornamos éxito
       return {
         success: true,
@@ -204,7 +256,10 @@ export const useAuthStore3 = defineStore('auth', () => {
       loading.value = true;
       error.value = null;
       
-      await authService.logout();
+      this.uid_auth.value = null;
+      this.isAuthenticated = false;
+      
+      await authService.logout(auth);
       
       // Limpiar estado
       resetState();
@@ -259,7 +314,10 @@ export const useAuthStore3 = defineStore('auth', () => {
       loading.value = false;
     }
   }
-
+    //26/02/2026
+  async function syncUserCount() {
+      this.totalUsers = await UserService.getTotalUsers();
+  }
   // =====================================================
   // UTILIDADES
   // =====================================================
@@ -281,7 +339,12 @@ export const useAuthStore3 = defineStore('auth', () => {
   function clearError(): void {
     error.value = null;
   }
+    // 26/02/2026
+  function setRole(role: 'student' | 'teacher') {
+    this.currentRole.value = role;
+  }
 
+  // console.log('Cbio Vbe Usuario Actual '. currentUser.value);
   // =====================================================
   // RETURN
   // =====================================================
@@ -291,18 +354,22 @@ export const useAuthStore3 = defineStore('auth', () => {
     loading,
     error,
     currentUser,
+    currentRole,
     userProfile,
-    userRole,
+    userRole,  //## clave para el layout ##
     isAuthenticated,
     isInitialized,
-    
+     //email,
+    uid_auth,
     // Getters
     userId,
     userEmail,
     userName,
-    isTeacher,
+    // isTeacher,
     isStudent,
-    
+    role,
+    // profile,
+
     // Acciones
     initAuthListener,
     checkSystemInitialization,
@@ -312,6 +379,18 @@ export const useAuthStore3 = defineStore('auth', () => {
     handleLogout,
     reloadProfile,
     clearError,
-    resetState
+    resetState,
+    getUid
   };
 });
+
+ // console.trace();
+
+/**
+ * El authStore actual debera vincularse con el servicio 'FirstUsingClSys' del directorio
+ * de  CloseBootstrap el cual funge con el proposito maximo: el met'initializeFirstUser'
+ *  se invocará con el y asi se solucionara el problema de ciclo cerrado, abriendo 
+ * despbloquado el flujo del sistema. Debera usarse el de AuthService(esta incompleto)
+ * corregirlo con el ultimo ajuste de lo discutido en: 'Evaluación de flujos de navegación por usabilidad'
+ * ademas de las 4 pequeñas correciones de los guardas de vue: 'RouterGuardhService
+ * Finalmente, aplicar los 2 ultimos cambios al script de configuracion principal: 'main.js'*/

@@ -1,479 +1,496 @@
 /**
- * @store MaterialStudentService
+ * @store MaterialStudentStore
  * @description Gestión de materiales del Alumno
- * @pattern derivada de(centralizacion MaterialBaseStr) 
- * @extends MaterialBaseService*/
-
-/**
+ * @pattern Composición sobre MaterialBaseStore (SSV)
+ *
  * FUNCIONALIDADES
- *  Crear materiales propios
+ *  - Crear materiales propios
  *  - Ver materiales visibles (propios + aprobados de otros)
- *  - Actualizar/eliminar materiales propios
+ *  - Actualizar / eliminar materiales propios
  *  - Consultar estado de envíos
- * */
- // ########## ================== ///////////////////// ------------------------------- *********************   PPPPPPPPPPPPPPPPPP RRRRRRRRRRRRRRR
- import { defineStore } from 'pinia';
- import { ref, computed } from 'vue';
- import { useMatBaseStore } from './materialBaseStore.ts';
- import {MaterialBseService} from '@/services/materials/MaterialBaseService.ts';  //**
- import {MaterialStudentService} from '@/services/materials/MaterialStudentService.ts' // |-<>-|
- import { useAuthStore3 } from '@/stores/authStore3.ts';//# -> <-
- // import type {Material} from '@/types/indexInterface.ts';
- // ########## ================== ///////////////////// ------------------------------- *********************   PPPPPPPPPPPPPPPPPP RRRRRRRRRRRRRRR
-export const useMaterialStudentStore = defineStore('materialStudent', ()=> {
-   // ########## ================== ///////////////////// ------------------------------- *********************   PPPPPPPPPPPPPPPPPP RRRRRRRRRRRRRRR
-	  // ================================
-    //   HERENCIA DEL STORE BASE
-    // ================================
-    const baseStore = useMatBaseStore();
-    const {
-    	materials,
-	    loading,
-	    error,
-	    searchTerm,
-	    totalMaterials,
-	    filteredMaterials,
-	    hasMaterials,
-	    hasError,
-    } = storeToRefs(baseStore);
+ *  - Modo edición con detección de cambios
+ */
+import { defineStore }              from 'pinia';
+import { ref, computed }            from 'vue';
+import { useMatBaseStore }          from './materialBaseStore';
+import { MaterialStudentService }   from '@/services/materials/MaterialStudentService';
+import { useAuthStore3 }            from '@/stores/authStore3';
+import { getAuth }                  from 'firebase/auth';
+import { storeToRefs } from 'pinia';
 
-    // =================================
-    //		 EDO ESPECIFICO DEL ALUMNO
-    // =================================
+import type { MaterialBase }        from '@/interfaces/interfaceToast';
+import type { Material }            from '@/types/interface.index';
 
-    // Estado para modo edicion
-     const isEditMode = ref<boolean>(false);
-     const editingMaterialId    = ref<string | null>(null);
-     const originalMaterialData = ref<Partial<Material>| null>(null);
-     const editFormData = ref<{
-     	titulo:string;
-     	description: string;
-     	tags: string[];
-      }>({
-     	   titulo: '',
-     	   description: '',
-     	   tags: [],
-        });
+export const useMaterialStudentStore = defineStore('materialStudent', () => {
 
-    // ===================================
-    //	  COMPUTED ESPECIFICS FOR STUDENT
-    // ===================================
+  // ============================================================
+  // COMPOSICIÓN DEL STORE BASE
+  // ============================================================
+  const baseStore = useMatBaseStore();
 
-     /**
-      * Materiales Propios del Alumno
-      * */
-    const myMaterials = computed(() => {
-     	const authStore = useAuthStore();
-     	  const material_filter = materials.value.filter( m => m.autorId === authStore.user?.uid);
-     	  return material_filter;
-    });
+  // ==============================
+  // BLOQUE: DATA (específico alumno)
+  // ==============================
+  const originalMaterialData = ref<Partial<Material> | null>(null);
 
-    /**
-      * Materiales Aprobados por los Alumnos
-      * */
-    const approvedMaterials = computed(()=> {
-    	const authStore = useAuthStore();
-    	    	const approves =	materials.value.filter( m => m.status === 'approved' &&
-    								   m.autorId !== authStore.user?.uid );
-    	    return approves;
-    });
+  // ==============================
+  // BLOQUE: UI (específico alumno)
+  // ==============================
+  const isEditMode         = ref<boolean>(false);
+  const editingMaterialId  = ref<string | null>(null);
+  const editFormData       = ref<{
+    titulo:      string;
+    description: string;
+    tags:        string[];
+  }>({
+    titulo:      '',
+    description: '',
+    tags:        [],
+  });
 
-    /**
-      * Materiales Pendientes del Alumno
-      * */
-    const pendingMaterials = computed(()=> {
-      const authStore = useAuthStore();
-         return materials.value.filter(
-                   m => m.autorId === authStore.user?.uid
-                   &&   m.status  === 'pending'
-                );
-    });
-        // * NEWS *
-    /**
-      * Materiales Aprobados del Alumno
-      * */  
-    const myApprovedMaterials = computed(()=> {
-      const authStore = useAuthStore();
-      return materials.value.filter(
-          m=>m.autorId === authStore.user?.uid
-        &&   m.status  === 'approved'
-      );
-    });
+  // ==============================
+  // COMPUTADOS HEREDADOS (acceso directo desde la vista)
+  // ==============================
 
-    /**
-      * Materiales Rechazados del Alumno
-      * */  
-    const myRejectedMaterials = computed(()=> {
-       const authStore = useAuthStore();
-        return materials.value.filter(
-            m => m.autorId === authStore.user?.uid
-          &&     m.status  === 'rejected'
+  // Nota: se accede via baseStore.X en lugar de storeToRefs
+  // porque storeToRefs no puede desestructurar métodos
+  const materials        = computed((): MaterialBase[] => baseStore.materials);
+  const loading          = computed((): boolean => baseStore.loading);
+  const error            = computed((): string  => baseStore.error);
+  const totalMaterials   = computed((): number  => baseStore.totalMaterials);
+  const filteredMaterials = computed(()       => baseStore.filteredMaterials);
+  const hasMaterials     = computed((): boolean => baseStore.hasMaterials);
+  const hasError         = computed((): boolean => baseStore.hasError);
+  const searchTermValue  = computed((): string  => baseStore.searchTermValue);
+  console.log('Traza # 4: Materiales recibidos >> ', materials.value);
+  // console.log('Filtro Mts >',hasMaterials.value);
+  // ==============================
+  // COMPUTADOS ESPECÍFICOS DEL ALUMNO
+  // ==============================
+
+    // const {uid_auth} = storeToRefs(authStore3);
+
+  /** Materiales propios del alumno autenticado */
+    const authStore3 = useAuthStore3(); //* deberia estar fuera y usar para todos los filtros
+  const myMaterials = computed((): MaterialBase[] => {
+    return baseStore.materials.filter(m => m.autorId === authStore3.user?.uid) as MaterialBase[];
+  });
+  console.log('Traza 5: Materiales recibidos, actuales  -> ',myMaterials.value);
+  /** Materiales aprobados de otros alumnos */
+  const approvedMaterials = computed((): Material[] => {
+    const authStore3 = useAuthStore3();
+    return baseStore.materials.filter(
+      m => m.status === 'approved' && m.autorId !== authStore3.user?.uid
+    ) as Material[];
+  });
+
+  /** Materiales propios pendientes */
+  const pendingMaterials = computed((): Material[] => {
+    const authStore3 = useAuthStore3();
+    return baseStore.materials.filter(
+      m => m.autorId === authStore3.user?.uid && m.status === 'pending'
+    ) as Material[];
+  });
+
+  /** Materiales propios aprobados */
+  const myApprovedMaterials = computed((): Material[] => {
+    const authStore3 = useAuthStore3();
+    return baseStore.materials.filter(
+      m => m.autorId === authStore3.user?.uid && m.status === 'approved'
+    ) as Material[];
+  });
+
+  /** Materiales propios rechazados */
+  const myRejectedMaterials = computed((): Material[] => {
+    const authStore3 = useAuthStore3();
+    return baseStore.materials.filter(
+      m => m.autorId === authStore3.user?.uid && m.status === 'rejected'
+    ) as Material[];
+  });
+
+  /** Estadísticas del alumno */
+  const myStats = computed(() => ({
+    total:    myMaterials.value.length,
+    pending:  pendingMaterials.value.length,
+    approved: myApprovedMaterials.value.length,
+    rejected: myRejectedMaterials.value.length,
+  }));
+
+  /** Material actualmente en edición */
+  const editingMaterial = computed((): Material | null => {
+    if (!editingMaterialId.value) return null;
+    return (baseStore.materials.find(m => m.uid === editingMaterialId.value) as Material) ?? null;
+  });
+
+  /** Indica si hay cambios pendientes respecto al original */
+  const hasEditChanges = computed((): boolean => {
+    if (!originalMaterialData.value) return false;
+    return (
+      editFormData.value.titulo      !== originalMaterialData.value.titulo      ||
+      editFormData.value.description !== originalMaterialData.value.description ||  // FIX: faltaba .value en originalMaterialData
+      JSON.stringify(editFormData.value.tags) !== JSON.stringify(originalMaterialData.value.tags) // FIX: typo stringnify → stringify
+      // FIX: nombre de variable era editingFormData — no existe, es editFormData
+    );
+  });
+
+  // ==============================
+  // MÉTODOS — CARGA DE MATERIALES
+  // ==============================
+
+  // ==============================================================
+  // FETCH MY MATERIALS
+  // ==============================================================
+  async function fetchMyMaterials(userId: string): Promise<void> {
+    // const uid_firebase = getAuth().currentUser?.uid;
+   /* const authStore3 = useAuthStore3();
+    const {uid_auth} = storeToRefs(authStore3);
+    console.log('uid actual ',uid_auth.value);*/
+    if (!userId) {
+      baseStore.setError('Debes iniciar Sesión para ver los Materiales');
+      return;
+    }
+    // FIX: faltaba await — el wrapper resolvía sin esperar la operación
+    return await baseStore.manejoEjecucionError(
+      async () => {
+        const visibleMaterials = await MaterialStudentService.getMyMaterials(userId);
+        baseStore.setMaterials(visibleMaterials); // FIX: antes llamaba setMaterials() sin argumento
+         return visibleMaterials;
+      },
+      'Error al cargar los Materiales del Alumno',
+
+    );
+  }
+
+  // ==============================================================
+  // FETCH TODAY MATERIALS
+  // ==============================================================
+  async function fetchTodayMaterials(userId:string): Promise<void> {
+    /*const authStore3 = useAuthStore3();
+    const {uid_auth} = storeToRefs(authStore3);*/
+
+    if (!userId) {
+      baseStore.setError('Debes iniciar Sesión para ver los Materiales');
+      return;
+    }
+    // FIX: faltaba await
+    return await baseStore.manejoEjecucionError(
+      async () => {
+        const todayMaterials = await MaterialStudentService.getTodayMaterials(userId);
+        baseStore.setMaterials(todayMaterials);
+
+        const totalMaterials = todayMaterials.length;
+        // console.log(`El Total de materiales actls  ->  ${totalMaterials}`);
+         console.log('[Traza real:Forma-2] Todos los materiales:', baseStore.materials.length);
+         /*console.log('Arreglo de Mats ',todayMaterials);*/
+         return todayMaterials;
+      },
+      'Error al cargar los Materiales de Hoy del Alumno',
+    );
+  }
+
+  // ==============================
+  // MÉTODOS — CRUD DE MATERIALES
+  // ==============================
+
+  // ==============================================================
+  // CREATE MATERIAL
+  // ==============================================================
+  /**
+   * Idea asociar por el uuid del material y no el uid del usuario, desapareceria el error al guardar*/
+  async function createMaterial(file: File, data: Partial<Material>): Promise<string | null> {
+      // const {uid_auth} = storeToRefs(authStore3);
+    const uid_firebase  = getAuth().currentUser?.uid;
+    const authStore3    = useAuthStore3();
+
+    if (!uid_firebase) {
+      baseStore.setError('Debes iniciar sesión para crear tu primer Material');
+      return null;
+    }
+
+    if (!authStore3.isAuthenticated) {
+      baseStore.setError('Debes iniciar Sesión para crear los Materiales');
+      return null;
+    }
+
+    // FIX: faltaba return — result se computaba pero nunca salía de la función
+    // FIX: fetchMyMaterials se llamaba sin argumento
+    return await baseStore.manejoEjecucionError(
+      async () => {
+        const materialId = await MaterialStudentService.createMaterial(uid_firebase, data, file);
+        await fetchMyMaterials(uid_firebase);
+        return materialId;
+      },
+      'Error al crear el Material del Alumno',
+    );
+  }
+
+  // ==============================================================
+  // UPDATE MY MATERIAL
+  // ==============================================================
+  async function updateMyMaterial(
+    materialId: string,
+    updates:    Partial<Material>,
+  ): Promise<boolean> {
+    const authStore3 = useAuthStore3();
+
+    // FIX: era authStore3.role?.uid — role no tiene uid, es user
+    if (!authStore3.user?.uid) {
+      baseStore.setError('Debes iniciar sesión para actualizar los Materiales');
+      return false;
+    }
+
+    // FIX: faltaba await y result no estaba declarado en el scope del return
+    const result = await baseStore.manejoEjecucionError(
+      async () => {
+        await MaterialStudentService.updateMyMaterial(authStore3.user!.uid, materialId, updates);
+        baseStore.updateMaterial(materialId, updates);
+        return true;
+      },
+      'Error al actualizar material',
+    );
+
+    return result !== null;
+  }
+
+  // ==============================================================
+  // DELETE MY MATERIAL
+  // ==============================================================
+  async function deleteMyMaterial(materialId: string): Promise<boolean> {
+    const authStore3 = useAuthStore3();
+
+    if (!authStore3.user?.uid) {
+      baseStore.setError('Debes iniciar sesión para eliminar Materiales');
+      return false;
+    }
+
+    // FIX: faltaba await
+    const result = await baseStore.manejoEjecucionError(
+      async () => {
+        await MaterialStudentService.deleteMyMaterial(authStore3.user!.uid, materialId);
+        baseStore.removeMaterial(materialId);
+        return true;
+      },
+      'Error al eliminar material',
+    );
+
+    return result !== null;
+  }
+
+  // ==============================================================
+  // GET MY MATERIAL STATUS
+  // ==============================================================
+  async function getMyMaterialStatus(materialId: string): Promise<{
+    status:      string;
+    moderatedAt?: Date;
+    reason?:     string | null;
+  } | null> {
+    const authStore3 = useAuthStore3();
+
+    if (!authStore3.user?.uid) {
+      baseStore.setError('Debes iniciar sesión para consultar el estado');
+      return null;
+    }
+
+    // FIX: faltaba await + había doble return dentro del callback (unreachable)
+    const result = await baseStore.manejoEjecucionError(
+      async () => {
+        return await MaterialStudentService.getMyMaterialMyStatus(
+          authStore3.user!.uid,
+          materialId,
         );
-    });
+      },
+      'Error al consultar estado del material',
+    );
 
+    return result;
+  }
 
-    /**
-      * Estadistícas del Alumno
-      * */  
-    const myStats = computed(()=> {
-        total: myMaterials.value.length;
-        pending: pendingMaterials.value.length;
-        approved: myApproveMaterials.value.length;
-        rejected: myRejectedMaterials.value.length
-    });
+  // ==============================
+  // MÉTODOS — MODO EDICIÓN
+  // ==============================
 
-    /**
-      * Indica si hay cambios en el formulario de edición respecto al original
-      * */  
-    const hasEditChanges = computed(()=> {
-      if (!originalMaterialData) return false;
-        return (
-            editingFormData.value.titulo !== originalMaterialData.value.titulo ||
-            editingFormData.value.description !== originalMaterialData.description ||
-              JSON.stringnify(editingFormData.value.tags) !== JSON.stringnify(originalMaterialData.value.tags)
-          );
-    });
+  // ==============================================================
+  // START EDIT MATERIAL
+  // ==============================================================
+  /**
+   * Activa el modo edición para un material propio y pendiente.
+   * @returns true si se activó correctamente, false si no
+   */
+  function startEditMaterial(material: Material): boolean {
+    const authStore3 = useAuthStore3(); // FIX: no estaba instanciado en el scope
 
-    /**
-      * Material que se está editando actualmente
-      * */  
-    /*const editingMaterial = computed(()=> {
-      if (!editingMaterial.value) return null;
-        materials.value.find(m =>m.uid === editingMaterial.value) || null;
-    });*/
+    if (material.status !== 'pending') {
+      baseStore.setError('Solo puedes editar materiales pendientes de revisión');
+      return false;
+    }
 
-    /**
-     * Material que está siendo editado actualmente
-     * */
-    const editingMaterial = computed(()=> {
-      if (!editingMaterialId.value) return null;
-          materials.value.find( m =>m.uid === editingMaterialId.value) || null;
-    });
+    if (material.autorId !== authStore3.user?.uid) {
+      baseStore.setError('No tienes permiso para editar este material');
+      return false;
+    }
 
-    // ================================
-    //   METS ESPECIFICOS DEL ALUMNO
-    // ================================
+    // FIX: variables incorrectas — eran editMode y editingMaterial (no existen)
+    isEditMode.value        = true;
+    editingMaterialId.value = material.uid;
 
-    /**
-     * Carga todos los materiales especificos para 
-     * el Alumno (sus materiales + materiales aprobados por otros)
-     *  */
-     async function fetchMaterials(): Promise<void> {
-         const authStore = useAuthStore();
+    originalMaterialData.value = {
+      titulo:      material.titulo,
+      description: material.description,
+      tags:        [...(material.tags ?? [])],
+    };
 
-         if (!authStore.user?.uid) {
-            baseStore.setError('Debes iniciar Sesión para ver los Materiales');
-            return;
-         }
+    editFormData.value = {
+      titulo:      material.titulo      ?? '',
+      description: material.description ?? '',
+      tags:        [...(material.tags   ?? [])],
+    };
 
-          baseStore.manejoEjecucionError(
-             async ()=> {
-                 const visibleMaterials =  MaterialStudentService.getAllVisibleMaterials(authStore.user!.uid);
-               
-              baseStore.setMaterials()
-            },
-             'Error al cargar 0Materiales del Alumno'
-          );  
-     }
+    console.log('[MaterialStudentStore] ✏️ Edición iniciada para:', material.titulo);
+    return true;
+  }
 
-     /**
-      * Crear un nuevo Material
-      * */
-    function createMaterial(data: Partial<Material>): Promise<string> {
-       const authStore = useAuthStore();
+  // ==============================================================
+  // CANCEL EDIT MATERIAL
+  // ==============================================================
+  /**
+   * Cancela el modo edición.
+   * @param force — Si true, cancela sin pedir confirmación aunque haya cambios
+   * @returns true si canceló, false si el llamador debe pedir confirmación al usuario
+   */
+  function cancelEditMaterial(force = false): boolean {
+    if (!force && hasEditChanges.value) return false;
 
-       if (authStore.user?.uid) {
-          baseStore.setError('Debes iniciar Sesión para crear los Materiales');
-           return null;
-       }
+    isEditMode.value        = false;
+    editingMaterialId.value = null;
+    originalMaterialData.value = null;
+    editFormData.value = { titulo: '', description: '', tags: [] };
+    baseStore.clearError();
 
-        const result = baseStore.emanejoEjecucionError(
-          async ()=> {
-            const materialId = MaterialStudentService.createMaterial(authStore.user.uid, data);
+    console.log('[MaterialStudentStore] ❌ Edición cancelada');
+    return true;
+  }
 
-            // Recargar materiales despues de crear
-               await fetchMaterials();
+  // ==============================================================
+  // UPDATE EDIT FORM DATA
+  // ==============================================================
+  function updateEditFormData(
+    field: 'titulo' | 'description' | 'tags',
+    value: any,
+  ): void {
+    editFormData.value[field] = value;
+  }
 
-               return materialId;
-          },
-          'Error al crear el Material del Alumno'
+  // ==============================================================
+  // SAVE EDIT MATERIAL
+  // ==============================================================
+  // FIX: no era async — los returns síncronos devolvían false fuera del Promise
+  async function saveEditMaterial(): Promise<boolean> {
+    const authStore3 = useAuthStore3();
+
+    if (!authStore3.user?.uid) {
+      baseStore.setError('No hay sesión activa');
+      return false;
+    }
+
+    if (!editingMaterialId.value) {
+      baseStore.setError('No hay material en edición');
+      return false;
+    }
+
+    if (!editFormData.value.titulo.trim()) {
+      baseStore.setError('El título es requerido');
+      return false;
+    }
+
+    // FIX: faltaba await + no había return del resultado
+    const result = await baseStore.manejoEjecucionError(
+      async () => {
+        const updates: Partial<Material> = {
+          titulo:      editFormData.value.titulo.trim(),
+          description: editFormData.value.description.trim(),
+          tags:        editFormData.value.tags,
+        };
+
+        await MaterialStudentService.updateMyMaterial(
+          authStore3.user!.uid,
+          editingMaterialId.value!,
+          updates,
         );
-    }
-   // ########## ================== ///////////////////// ------------------------------- *********************   PPPPPPPPPPPPPPPPPP RRRRRRRRRRRRRRR
-    /**
-     * Actualizar el Material Propio
-     * */
-    async function updateMyMaterial(materialId: string,
-      updates: Partial<Material> ) {
 
-      const authStore = useAuthStore();
+        const materialName = editFormData.value.titulo;
+        cancelEditMaterial(true);
+        console.log(`[MaterialStudentStore] ✅ Material "${materialName}" actualizado`);
+        return true;
+      },
+      'Error al actualizar el Material',
+    );
 
-            if (authStore.user?.uid) {
-                 baseStore.setError('Debes iniciar sesión para actualizar los Materiales');
-                    return false;
-            }
+    return result !== null;
+  }
 
-              await baseStore.manejoEjecucionError(
-                 async () => {
-                     await MaterialStudentService.updateMaterial(authStore.user!.uid,materialId,updates);
-
-                     baseStore.updateMaterial(materialId, updates);
-
-                     return true;
-                 },
-                  'Error al actualizar material'
-              );
-
-              return result !== null;
-    }
-// ########## ================== ///////////////////// ------------------------------- *********************   PPPPPPPPPPPPPPPPPP RRRRRRRRRRRRRRR
-    /**
-     * Elimina un material propio(soft delete) 
-     * */
-    async function deleteMyMaterial(materialId: string): Promise<boolean> {
-      const authStore = useAuthStore();
-
-        if(authStore.user?.uid) {
-            baseStore.setError('Debes inciar sesión para eliminar Materiales');
-              return false;
-        }
-
-          const result = baseStore.manejoEjecucionError(
-            async () => {
-                     
-                  await MaterialStudentService.deleteMyMaterial(authStore.user!.uid,materialId);
-
-                  // Remover del store local
-                 baseStore.removeMaterial(materialId);
-
-                 return true;
-             },
-                  'Error al eliminar material'
-          ); 
-
-          return result !== null;
-    }
-    // ########## ================== ///////////////////// ------------------------------- *********************   PPPPPPPPPPPPPPPPPP RRRRRRRRRRRRRRR
-    /**
-     * Consulta el estado del material propio
-     * */
-    async function getMyMaterialStatus(materialId: string):Promise<{status:string, moderateAt?: Date,
-        reason?: string| null}>{
-       const authStore = useAuthStore();
-
-       if (!authStore.user?.uid) {
-           baseStore.setError('Debes inciar sesión, para filtrar los distintos status'); 
-            return null;
-       }
-
-          const result = baseStore.manejoEjecucionError(
-             async () => {
-                     return await MaterialStudentService.getMyMaterialMyStatus(
-                                  authStore.user!.uid,materialId);
-
-                     return true;
-                 },
-                  'Error al consultar estado del material'
-            );
-
-          return result;
-    }
-// ########## ================== ///////////////////// ------------------------------- *********************   PPPPPPPPPPPPPPPPPP RRRRRRRRRRRRRRR
-    // ======================
-    //   METODOS DE EDICIÓN 
-    // ======================
-    // ########## ================== ///////////////////// ------------------------------- *********************   PPPPPPPPPPPPPPPPPP RRRRRRRRRRRRRRR
-    /**
-     * Inicia el modo de edición para un material
-     * @param material - Material a Editar
-     * @param true - si no fue posible Iniciar edición, falso si
-     * */
-    function startEditMaterial(material: Material): boolean {
-
-         // Validación 1: El Material debera perm. en estado 'pending->pendiente'
-        if (material.status !== 'pending') {
-           baseStore.setError('Solo puedes editar materiales pendientes de revisión');
-             return false;
-        }
-          // Validación 2: Usuario deber ser el propietario
-        if (material.autorId !== authStore.user?.uid) {
-           baseStore.setError('NO tienes PERMISO para editar el Material.');
-             return false;
-        }
-
-        // Activar el modo edición
-          editMode.value = true;
-          editingMaterial.value = material.uid;
-
-          // Guardar los datos originales (para detectar cambios y cancelar)
-
-          originalMaterialData.value = {
-              titulo: material.titulo,
-              description: material.description,
-              tags: material.tags || [],
-          };
-           // Cargar Datos de formulario de edición
-          editingFormData.value = {
-              titulo:  material.titulo  || '',
-              description:  material.description || '',
-              tags:  material.tags || [],
-          };
-
-            console.log('[MaterialStudentStore]✏️ Edicion iniciada para: ', material.titulo);
-             return true;
-    }
-    // ########## ================== ///////////////////// ------------------------------- *********************   PPPPPPPPPPPPPPPPPP RRRRRRRRRRRRRRR
-    /**
-     * Cancela el modo de edición para un material
-     *
-     *  @param force - Si no es true, no pide confirmación a pesar(aunque) haya cambios
-     * @returns true  si canceló, false si el usuario rechazó cancelar
-     * */
-    function cancelEditMaterial(force: boolean= false): boolean {
-       if (!force && hasEditChanges.value) {
-         return false;
-       }
-
-        isEditMode.value = false;
-        editingMaterialId.value = null;
-        originalMaterialData.value = null;
-
-         editingFormData.value = {
-          titulo:  '',
-          description: '',
-          tags:[],
-         };
-
-         baseStore.clearError();
-         console.log('[MaterialStudentStore] ❌ Edición cancelada');
-        // Body of function()
-      return true;
+  // ==============================================================
+  // UPLOAD MATERIAL FILE
+  // ==============================================================
+  async function uploadMaterialFile(
+    file:         File,
+    materialData: Partial<Material>,
+  ): Promise<string | null> {
+    // FIX: el check estaba duplicado y el primer mensaje era incorrecto ("Debes iniciar Sesión")
+    if (file.type !== 'application/pdf') {
+      baseStore.setError('Solo se aceptan archivos PDF');
+      return null;
     }
 
-    function updateEditFormData(field: 'titulo'| 'description'| 'tags', value: any):void {
-        editingFormData.value[field] = value;
-    }
+    return await createMaterial(file, { ...materialData });
+  }
 
-    /**
-     * Guarda los cambios del Material en Edición
-     * */
-     function saveEditMaterial(): Promise<boolean> {
-        const authStore = useAuthStore();
-
-        if (!authStore.user?.uid) {
-           baseStore.setError('No hay material de Edición');
-             return false;
-        }
-
-        if (!editingMaterialId.value) {
-            baseStore.setError('No hay materiales en Edición');
-             return false;
-        }
-
-        if (!editingFormData.value.titulo.trim()) {
-            baseStore.setError('El título es requerido');
-              return false;
-        }
-
-           const result = baseStore.manejoEjecucionError(
-               async () => {
-                   const updates: Partial<Material> = {
-                       titulo: editingFormData.value.titulo.trim(),
-                       description: editingFormData.value.description.trim(),
-                       tags: editingFormData.value.tags,
-                   };
-
-                   MaterialStudentService.updateMyMaterial(
-                       authStore.user!.uid,
-                       editingMaterialId.value!,
-                       updates
-                    );
-
-                    const materialName = editingFormData.value.titulo;
-                    cancelEditMaterial(true);
-
-                    console.log(`[MaterialStudentStore] ✅ Material ${materialName} actualizado `);  
-                     return true;
-               },
-                'Error al actualizar el Material'
-            );
-
-            result !== null;
-     }
-
-     /**
-      * Sube un archivo PDF y crea el material
-      * */
-      async function uploadMaterialFile(file: File, materialData: Partial <Material> ): Promise<string| null> {
-         const authStore = useAuthStore();
-
-         if (file.type !== 'application/pdf') {
-            baseStore.setError('Debes iniciar Sesión para subir Materiales');
-              return null;
-         }
-
-         if (file.type !== 'application/pdf') {
-            baseStore.setError('Solo se aceptan archivos PDF');
-             return null;
-         }
-
-         return await createMaterial({
-            ...materialData,
-         });
-
-      }
-         return {
-          // Estado heredado(referenciados)
-           materials,
-           loading,
-           error,
-           searchTerm,
-
-           // Estado de Edicion
-            isEditMode,
-            editingMaterialId,
-            editForm,
-            editFormData,
-            editingMaterial,
-
-           // Computed heredados
-            totalMaterials,
-            filteredMaterials,
-            hasMaterials,
-            hasError,
-
-            // Metdo Especifícos
-            myMaterials,
-            approvedMaterials,
-            pendingMaterials,
-            myApprovedMaterials,
-            myRejectedMaterials,
-            myStats,
-            hasEditChanges,
-
-             // Metodos Heredados
-            clearError: baseStore.clearError,
-            searchMaterials: baseStore.searchMaterials,
-            clearSearch: baseStore.clearSearch,
-            resetState: baseStore.resetState,
-            getMaterialById: baseStore.getMaterialById,
-
-            // Metodos Especifícos
-            fetchMaterials,
-            createMaterial,
-            updateMyMaterial,
-            deleteMyMaterial,
-            getMyMaterialStatus,
-            uploadMaterialFile,
-             // Metodos de Edicion
-            startEditMaterial,
-            cancelEditMaterial,
-            updateEditFormData,
-            saveEditMaterial
-         };
-
-    // ########## ================== ///////////////////// ------------------------------- *********************   PPPPPPPPPPPPPPPPPP RRRRRRRRRRRRRRR
-
-    // ########## ================== ///////////////////// ------------------------------- *********************   PPPPPPPPPPPPPPPPPP RRRRRRRRRRRRRRR
+  // ==============================
+  // RETORNO DEL STORE
+  // ==============================
+  return {
+    // ---- DATA ----
+    originalMaterialData,
+    // ---- UI ----
+    isEditMode,
+    editingMaterialId,
+    editFormData,
+    // ---- COMPUTED HEREDADOS ----
+    materials,
+    loading,
+    error,
+    searchTermValue,
+    totalMaterials,
+    filteredMaterials,
+    hasMaterials,
+    hasError,
+    // ---- COMPUTED PROPIOS ----
+    myMaterials,
+    approvedMaterials,
+    pendingMaterials,
+    myApprovedMaterials,
+    myRejectedMaterials,
+    myStats,
+    editingMaterial,
+    hasEditChanges,
+    // ---- MÉTODOS HEREDADOS (delegados al base) ----
+    setError:        baseStore.setError,
+    clearError:      baseStore.clearError,
+    searchMaterials: baseStore.searchMaterials,
+    clearSearch:     baseStore.clearSearch,
+    resetState:      baseStore.resetState,
+    getMaterialById: baseStore.getMaterialById,
+    // ---- MÉTODOS PROPIOS ----
+    fetchMyMaterials,
+    fetchTodayMaterials,
+    createMaterial,
+    updateMyMaterial,
+    deleteMyMaterial,
+    getMyMaterialStatus,
+    uploadMaterialFile,
+    // ---- MÉTODOS EDICIÓN ----
+    startEditMaterial,
+    cancelEditMaterial,
+    updateEditFormData,
+    saveEditMaterial,
+  };
 });
- // ########## ================== ///////////////////// ------------------------------- *********************   PPPPPPPPPPPPPPPPPP RRRRRRRRRRRRRRR

@@ -1,250 +1,231 @@
 /**
  * @store MaterialBaseStore
  * @description Store base con lógica compartida para materiales
- * @pattern Herencia originada por MaterialBase
- * */
-import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-import {MaterialBseService} from '@/services/materials/MaterialBaseService';
-import type {Material} from '@/types/indexInterface.ts';
+ * @pattern Base — heredado por MaterialStudentStore
+ *
+ * RESPONSABILIDADES
+ *  - Estado común: materials, loading, error, searchTerm
+ *  - Métodos helpers centralizados
+ *  - Gestión de errores centralizada vía manejoEjecucionError
+ */
+import { defineStore }        from 'pinia';
+import { ref, computed }      from 'vue';
+import { MaterialBseService } from '@/services/materials/MaterialBaseService';
+import type { MaterialBase }  from '@/interfaces/interfaceToast';
 
-/**
- * PROPOSITO
- *  Estados comunes (loading,error, materials)
- *  Metodos helpers centralizados
- *  Gestion de errores centralizada
- * */
+// ============================================================
+// ENUM DE FILTROS — exportado para uso en vistas y stores hijos
+// ============================================================
+export enum MaterialFilter {
+       ALL = 'all',
+   PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+     TODAY = 'today',
+ LAST_WEEK = 'last_week',
+}
 
- /**
-  * Estado Base compartido
-  * */
- export interface BaseMaterialsState {
- 	materials: Material[];
- 	loading: boolean;
- 	error: string | null
- 	searchTerm: string;
- }
+// ============================================================
+// STORE BASE — no se usa directamente, solo en composición
+// ============================================================
+export const useMatBaseStore = defineStore('materialBase', () => {
 
-  export interface MaterialFilter {  
-         ALL;
-     PENDING;
-    APPROVED;
-    REJECTED; 
-       TODAY;
-   LAST_WEEK;
+  // ==============================
+  // BLOQUE: DATA
+  // ==============================
+  const materials  = ref<MaterialBase[]>([]);
+  const searchTerm = ref<string>('');
+  console.log('Traza1: Materiales <-- [MatBase] ',materials);
+  // 'Traza1:', materials estado trampa, solo muestra lo que existe en firebase, no su alcance por usabilidad;  ...materials
+  // ==============================
+  // BLOQUE: UI
+  // ==============================
+  const loading = ref<boolean>(false);
+
+  // ==============================
+  // BLOQUE: FEEDBACK
+  // ==============================
+  const error = ref<string>('');
+  
+  // ==============================
+  // COMPUTADOS
+  // ==============================
+  /*const getMaterialsRefresh() = computed(()=>{
+    const totalMaterials = 
+  })*/
+  /** Total de materiales cargados */
+  const totalMaterials = computed((): number =>  materials.value.length);
+  console.log('Traza 2: Todos sus Materiales  ->',totalMaterials.value); 
+
+  /** Materiales filtrados por término de búsqueda */
+  const filteredMaterials = computed((): MaterialBase[] => {
+    if (!searchTerm.value.trim()) return materials.value;
+    return MaterialBseService.searchMaterials(searchTerm.value, materials.value);
+  })
+  /** Término de búsqueda actual (solo lectura) */
+  const searchTermValue = computed((): string => searchTerm.value);
+
+  /** Indica si hay materiales cargados */
+  const hasMaterials = computed((): boolean => materials.value.length > 0);
+
+  /** Indica si hay un error activo */
+  const hasError = computed((): boolean => error.value !== '');  // FIX: era !== null sobre string
+
+  // ==============================
+  // HELPERS PRIVADOS
+  // ==============================
+
+  function startLoading(): void {
+    loading.value = true;
+    error.value   = '';           // FIX: limpia error en punto único — era: error.value; (solo lectura)
   }
 
- /**
-  * No se usa directamente, solo en Herencia*/
-  export const useMatBaseStore = defineStore('materialBase', () => {
+  function stopLoading(): void {
+    loading.value = false;
+  }
 
-  	// =======================
-  	// ESTADO BASE COMPARTIDO
-  	// =======================
+  function controladoraError(err: any, context: string): void {
+    const message = err?.message || 'Error desconocido';
+    setError(`${context}: ${message}`);
+    console.error(`[MaterialBaseStore] ${context}`, err);
+  }
 
-  	const materials = ref<Material[]>([]);
-  	const loading = ref<boolean>(false);
-  	const error = ref<string>('');
+  // ==============================
+  // MÉTODOS PÚBLICOS — FEEDBACK
+  // ==============================
 
-  	// =============================
-  	//  COMPUTADOS BASE(Compartidos)
-  	// =============================
+  function clearError(): void {
+    error.value = '';             // FIX: era null sobre ref<string>
+  }
 
-  	/**
-  	 * Total de Materiales cargados
-  	 * */
+  function setError(message: string): void {
+    error.value = message;
+    console.error('[MaterialBaseStore]', message);
+  }
 
-  	const totalMaterials = computed(()=> materials.value.length);
+  // ==============================
+  // MÉTODOS PÚBLICOS — DATA
+  // ==============================
 
-  	/**
-  	 * Materiales filtrados en la busqueda
-  	 * */
-  	const filteredMaterials = computed(()=> {
-  		if (!searchTerm.value.trim()) {
-  			 return mateials.value;
-  		}
+  /** Reemplaza la lista completa de materiales */
+  function setMaterials(newMaterials: MaterialBase[]): void {   // FIX: tipo era Material[]
+    materials.value = newMaterials;
+    console.log(`[MaterialBaseStore] ${newMaterials.length} materiales cargados`);
+    // console.log('Total Materiales > ',newMaterials); // esta vacio -> es antes
+  }
 
-  		return MaterialBseService.searchMaterials(
-  				searchTerm.value,
-  				materials.value
-  			);
-  	});
+  /** Agrega un material al inicio de la lista (optimistic update) */
+  function addMaterial(material: MaterialBase): void {           // FIX: tipo era Material
+    materials.value.unshift(material);
+  }
 
-  	/**
-  	 * Indica  si hay materiales cargados
-  	 * */
-  	const hasMaterials = computed(()=> materials.value.length > 0);
-
-  	/**
-  	 * Indica  si está en estado de error
-  	 * */
-  	const hasError = computed(()=> error.value !== null);
-
-  	// =========================
-  	//  METODOS BASE(Compartidos)
-  	// =========================
-
-  	function clearError(): void {
-  		error.value = null;
-  	}
-  	/**
-  	 * Estab un error
-  	 * */
-  	function setError(message: string): void {
-  		error.value = message;
-  		console.error('MaterialBseStore Error', message);
-  	}
-  	/**
-  	 * Inicia el estado de carga
-  	 * */
-  	function startLoading(): void {
-  		loading.value = true;
-  		error.value;
-  	}
-  	/**
-  	 * Finaliza el estado de carga
-  	 * */
-  	function stopLoading(): void {
-  		loading.value = false;
-  	}
-  	/**
-  	 * Actualiza la Lista de los materiales
-  	 * */
-  	 function setMaterials(newMaterials: Material[]):void {
-  	 	materials.value = newMaterials;
-  	 	 console.log(`[MaterialBseStore] ${newMaterials.length} materiales cargados `);
-  	 }
-
-  	 /**
-  	  * Agrega un material a la lista
-  	  * */
-  	 function addMaterial(material: Material): void {
-  	 	 materials.value.unshift(material) //al inicio de la lista
-  	 }
-
-  	 /**
-  	  * Actualiza un material existente
-  	  * */
-  	 function updateMaterial(materialId: string, updates: Partial<Material>): void {
-  	 	const index = materials.value.findIndex( m=>m.uid === materialId);
-  	 	 if (index !== -1) {
-  	 	 	materials.value[index] = {...materials.value[index], ...updates};
-  	 	 }
-  	 }
-
-  	 /**
-  	 * Elimina un Material de la Lista
-  	 * */
-  	function removeMaterial(materialId: string): void {
-  	   materials.value.filter(m => m.uid === materialId);
-  	}
-
-  	 /**
-  	 * Obt el Material por ID
-  	 * */
-  	async function getMaterialById(materialId: string) {
-  	 	try{
-  	 		// stopLoading() not is logical incorrect
-  	 		const material = await MaterialBseService.getMaterialById(materialId);
-  	 		// stopLoading();
-  	 		 return material;
-  	 	}catch(error: any){
-  	 		setError(`Error al obtener el Material: ${err.message}`);
-  	 		stopLoading();
-  	 		 return null;
-  	 	}
-  	}
-
-  	 /**
-  	  * Busca el Material en la lista actual
-  	  * */
-  	function searchMaterials(term: string): void {
-  	 	searchTerm.value = term;
-  	}
-
-  	 /**
-     * Limpia el término de búsqueda
-     */
-    function clearSearch(): void {
-     	searchTerm.value = '';
+  /** Actualiza un material existente por ID */
+  function updateMaterial(materialId: string, updates: Partial<MaterialBase>): void {
+    const index = materials.value.findIndex(m => m.uid === materialId);
+    if (index !== -1) {
+      materials.value[index] = { ...materials.value[index], ...updates };
     }
+  }
 
-     /**
-      * Resete todo el estado
-      * */
-     function resetState(): void {
-     	materials.value = [];
-     	loading.value = false;
-     	error.value = null;
-     	 searchTerm.value = '';
-       /*setError('');
-         clearSearch(''); El identico de 169,170*/
-     }
+  /** Elimina un material de la lista local */
+  function removeMaterial(materialId: string): void {
+    // FIX: filter no muta — se asigna el resultado
+    // FIX: condición era === (encontraba el que eliminar, no el que conservar)
+    materials.value = materials.value.filter(m => m.uid !== materialId);
+  }
 
-
-     // =========================
-     //		HELPERS COMPARTIDOS
-     // =========================
-
-     /**
-      * Maneja los Errores de forma 
-      * centralizada.*/
-    function contoladoraError(error:any, context: string): void{
-     	const message = error?.message || 'Error desconocido';// '>>unknown'
-     	 setError(`${context}: ${message}`);
-     	  console.error(`[MaterialBseStore]: ${context}`, error);
-    }	
-
-    /**
-     * Ejecuta 1 op. de Manejo de Errores automático
-     * */
-    async function manejoEjecucionError<T>( operation: () => Promise<T>,
-    	 								  context: string): Promise<T| null>{
-    	try{
-    		stopLoading();  //*
-    		const result = await operation();
-    		stopLoading();
-    		clearError();
-    		 return result;
-    	}catch(err: any){
-    		contoladoraError(error, context);
-    		stopLoading();
-    		 return null;
-    	}
+  /** Obtiene un material por ID desde el servicio */
+  async function getMaterialById(materialId: string): Promise<MaterialBase | null> {
+    try {
+      return await MaterialBseService.getMaterialById(materialId);
+    } catch (err: any) {
+      setError(`Error al obtener el Material: ${err.message}`); // FIX: era ${error.message} — variable capturada era error, sombreaba el ref
+      return null;
     }
+  }
 
-    // ============================
-    //		RETORNO DEL STORE BASE
-    // ============================
-    	return {
-    	 	//  STATES
-    	 	materials,
-    	 	loading,
-    	 	error,
-    	 	searchTerm,
+  // ==============================
+  // MÉTODOS PÚBLICOS — BÚSQUEDA
+  // ==============================
 
-    	 	 //  COMPUTED
-    	 	totalMaterials,
-    	 	filteredMaterials,
-    	 	hasMaterials,
-    	 	hasError,
-    	 	 // MÉTODOS
-    	 	clearError,
-    	 	setError,
-    	 	startLoading,
-    	 	stopLoading,
-    	 	setMaterials,
-			addMaterial,
-			updateMaterial,
-			removeMaterial,
-			getMaterialById,
-			searchMaterials,
-			clearSearch,
-            resetState, 
-            contoladoraError,
-            manejoEjecucionError
-    	};	
+  function searchMaterials(term: string): void {
+    searchTerm.value = term;
+  }
+
+  function clearSearch(): void {
+    searchTerm.value = '';
+  }
+
+  // ==============================
+  // MÉTODOS PÚBLICOS — RESET
+  // ==============================
+
+  function resetState(): void {
+    materials.value  = [];
+    loading.value    = false;
+    error.value      = '';        // FIX: era null
+    searchTerm.value = '';
+  }
+
+  // ==============================
+  // WRAPPER CENTRAL DE ERRORES
+  // ==============================
+
+  /**
+   * Ejecuta una operación async con manejo centralizado de loading/error.
+   * Garantiza que loading siempre se detenga via finally.
+   */
+  async function manejoEjecucionError<T>(
+    operation: () => Promise<T>,
+    context: string,
+  ): Promise<T | null> {
+    try {
+      startLoading();
+      const result = await operation();
+      clearError();
+      return result;
+    } catch (err: any) {
+      // FIX: catch estaba completamente comentado → errores silenciados + loading infinito
+      controladoraError(err, context);
+      return null;
+    } finally {
+      // FIX: stopLoading estaba ausente del flujo normal — ahora siempre ejecuta
+      stopLoading();
+    }
+  }
+
+  // ==============================
+  // RETORNO DEL STORE
+  // ==============================
+  return {
+    // DATA
+    materials,
+    searchTerm,
+    // UI
+    loading,
+    // FEEDBACK
+    error,
+    // COMPUTED
+    totalMaterials,
+    filteredMaterials,
+    searchTermValue,
+    hasMaterials,
+    hasError,
+    // MÉTODOS FEEDBACK
+    clearError,
+    setError,
+    // MÉTODOS DATA
+    setMaterials,
+    addMaterial,
+    updateMaterial,
+    removeMaterial,
+    getMaterialById,
+    // MÉTODOS BÚSQUEDA
+    searchMaterials,
+    clearSearch,
+    // MÉTODOS RESET
+    resetState,
+    // WRAPPER
+    manejoEjecucionError,
+  };
 });
-	// No representa un store con API Composition sino tipo API Options
-  export type materialBaseStoreType = ReturnType<typeof useMatBaseStore>;
-    // ## Forma no convencional para exportar ##

@@ -1,101 +1,122 @@
 <template>
-	<div class="login-container">
-		<div class="login-card">
-			<div class="login-header">
-				<h1>Portal Educativo</h1>
-				<h2>Facultad de Ingeniería -UAEMéx</h2>
-			</div>
+	<div class="login-card">
+    <div class="login-header">
+        <h1>Portal Educativo</h1>
+        <h2>Facultad de Ingeniería - UAEMéx</h2>
+    </div>
 
-			<div v-if="showInitButton" class="init-section">
-				<div class="alert alert-info">
-					<p>Sistema no Inicializado. Es necesario crear el primer Usuario.</p>
-				</div>
-				<button 
-				   @click="controllInitSystem"
-				   :disabled="loading"
-				   class="btn btn-primary">
-				     {{loading ? 'Inicializando...' : 'Inicializar el Sistema'}}
-				</button>
-			</div>
-		  			<!-- Formulario de Login -->
-			    <form v-else @submit.prevent="manipAcessSubmitInit" class="login-form">
-			   	  	<!-- Correo Electrónico -->
-			   	  <div class="form-group">
-			   	  	<label for="correo">Correo Institucional</label>
-			   	  	<input  type="text" v-model="form.email" placeholder="ejemplo@fi.uamex.mx" :disabled="loading" required>
-			   	  </div>
-			   	  <!-- Contrasenia -->
-			   	  <div class="form-group">
-			   	  	<label for="contrasenia">Contraseña</label>
-			   	  	<input  type="text" v-model="form.password" placeholder="Escribe la Contraseña" :disabled="loading" required>
-			   	  
-			   	  	<!-- Role -->
-			   	    <div class="form-group">
-			   	  	    <label for="rol">Tipo de Usuario:</label>
-			   	  	 	<div class="role-selector">
-			   	  	 		<label for="" class="role-option">
-			   	  	 		   <input  type="radio" value="profesor" v-model="form.role"  :disabled="loading" required>
-			   	  	 		   <span class="role-label">
-			   	  	 			  <span class="role-icon">👨🏼‍🏫</span>
-			   	  	 			  <span>Profesor</span>
-			   	  	 		    </span>
-			   	  			</label>
+    <!-- ═══ Estado de verificación del sistema ═══ -->
+    <div v-if="!isSystemChecked" class="alert alert-info">
+        <p>Verificando estado del sistema...</p>
+    </div>
 
-			   	  			<label class="role-option">
-			   	  				<input   
-			   	  					 type="text"
-			   	  					value="estudiante" v-model="form.role"
-			   	  					:disabled="loading" required >
-			   	  				 <span class="role-label">
-			   	  				 	<span class="role-icon">👨🏼‍🎓</span>
-			   	  				 	<span>Estudiante</span>
-			   	  				 </span>
-			   	  			</label>
-						    </div>
-			   	    </div>
-			   	  </div>
+    <!-- ═══ Sección Init: sistema vacío ═══ -->
+    <div v-else-if="showInitButton" class="init-section">
+        <div class="alert alert-info">
+            <p>Sistema no Inicializado. Es necesario crear el primer Usuario.</p>
+        </div>
+        <button 
+            @click="controllInitSystem"
+            :disabled="loading"
+            class="btn btn-primary">
+            {{ loading ? 'Inicializando...' : 'Inicializar el Sistema' }}
+        </button>
+    </div>
 
-			   	    <!-- Mensajes de Error -->
-			   	    <div class="alert alert-error">
-			   	      {{ error}}
-			   		</div>
-
-			   		<button class="btn btn-primary btn-block">
-			   		  {{loading ? 'Iniciando Sesión...' : 'Iniciar la Sesión'}}
-			   		</button>
-			    </form>
-			    <!-- Footer -->
-			    <div class="login-footer">
-			    	<p>Necesitas Ayuda? Contantanos en la Administración</p>
-			    </div>
-		</div>
-	</div>
+    <!-- ═══ Formulario Login: sistema ya inicializado ═══ -->
+    <form v-else-if="!showInitButton" @submit.prevent="controllSubmit">
+        <!-- Correo Electrónico -->
+        <div class="form-group">
+            <label for="correo">Correo Institucional</label>
+            <input type="email" v-model="form.email" placeholder="ejemplo@fi.uamex.mx" :disabled="loading" required>
+        </div>
+        <!-- Contraseña -->
+        <div class="form-group">
+            <label for="contrasenia">Contraseña</label>
+            <input type="password" v-model="form.password" placeholder="Escribe la Contraseña" :disabled="loading" required>
+        </div>
+        <!-- Role -->
+        <div class="form-group">
+            <label>Tipo de Usuario:</label>
+            <div class="role-selector">
+                <label class="role-option">
+                    <input type="radio" value="teacher" v-model="form.role" :disabled="loading" required>
+                    <span class="role-label">
+                        <span class="role-icon">👨🏼‍🏫</span>
+                        <span>Profesor</span>
+                    </span>
+                </label>
+                <label class="role-option">
+                    <input type="radio" value="student" v-model="form.role" :disabled="loading" required>
+                    <span class="role-label">
+                        <span class="role-icon">👨🏼‍🎓</span>
+                        <span>Estudiante</span>
+                    </span>
+                </label>
+            </div>
+        </div>
+        <!-- Mensajes de Error -->
+        <div v-if="error" class="alert alert-error">{{ error }}</div>
+        <div v-if="successMsg" class="alert alert-success">{{ successMsg }}</div>
+        <button type="submit" class="btn btn-primary btn-block" :disabled="loading">
+            {{ loading ? 'Iniciando Sesión...' : 'Iniciar la Sesión' }}
+        </button>
+    </form>
+    <!-- Seccion Acceso a la vista principal de c/rol-->
+   <!-- <div class="roles">
+       ═══ Acción post-login: solo visible para teacher ═══
+          Aparece tras el loginRole1 exitoso del primer profesor    -->
+        <!-- <div v-if="showRegisterStudentLink" class="init-section">
+            <div class="alert alert-success">
+                <p>Sesión iniciada. Como Profesor puedes registrar al primer Estudiante.</p>
+            </div>
+            <router-link :to="{ name: 'viewRegisterTeacher' }" class="btn btn-primary"><viewRegisterStudent
+                Registrar Estudiante
+            </router-link> ---
+         </div> -->
+         <!-- Accion post-LoginRole2: Login p/estudiantes mostrar B. de Naveg. para Operaciones de Estudiante -->
+        <!-- <div v-if="showNavBarGetStudentRegisterLink" class="init-section">
+            <div class="alert alert-success-student">
+                <p>Cuenta  Aceptada. Como Estudiante posees acceso a todas las acciones(operaciones) del Portal</p>
+            </div>
+            <router-link :to="{ name: 'viewUploadMaterials' }" class="btn btn-primary">
+                Subir tú Primer material
+            </router-link>
+        </div> -->
+    </div>
+    <!-- Footer -->
+    <div class="login-footer">
+        <p>¿Necesitas Ayuda? Contáctanos en la Administración</p>
+    </div>
+<!-- </div> -->
 </template>
-
 <script setup lang="ts">
-	import {ref, computed, onMounted} from 'vue';
+
+	import {ref, computed,reactive, onMounted} from 'vue';
 	import {useRouter} from 'vue-router';
 	import {useAuthStore3} from '@/stores/authStore3.ts';
-	import type {userRole} from '@/interfaces/interfaceRules.ts';
+	import type {UserRole} from '@/interfaces/interfacefVUn.ts';  //interefaceRules 
 
 		// =========================
 	  	//     COMPOSABLES
 		// =========================
-	   const router = useRouter();
-	   const authStore = useAuthStore();
+   const router = useRouter();
+   const authStore3 = useAuthStore3(); 
+
+   // const userRole = computed(() => authStore.role);
 
 	    // ===================
 	  	//     ESTADO LOCAL
 		 // ====================
-	    interface LoginForm {
-	    	email:  string;
-	    	password: string;
-	    	role: userRole | '';
-	    }
+    interface LoginForm {
+    	email:  string;
+    	password: string;
+    	role: UserRole | '';
+    }
 
 	    const form = ref<LoginForm>({
 	    	 email: '',
-		  password: '',	
+		  password: '',
 		      role: ''
 	    });
 
@@ -106,133 +127,156 @@
 	    // =======================
 	  	//     METHODS COMPUTED
 		// =======================
-	    const loading = computed(()=>authStore.loading);
+	    const loading = computed(()=>authStore3.loading);
 
-	    const isFormValid = computed(()=> {
-	    	form.value.email.trim() !== '' &&
-	    	form.value.password.trim() !== '' &&
-	    	form.value.role !== '';
-	    });
+	// ─── nuevas refs ───
+    const isSystemChecked      = ref<boolean>(false);
+    const showRegisterStudentLink = ref<boolean>(false);
+    const showNavBarGetStudentRegisterLink = ref<boolean>(false);
 
-	    // ================
-		//     METHODS
-		// ================
-		
-		/** 
-		 * Verifica si El Sistema necesita inicializarse
-		 * */
-	    async function checkSystemStatus(): Promise<void>{
-	    	try{
-	    		const usersExist = await authStore.checkSystemInitialization();
-	    		 showInitButton.value = !usersExist;
-	    	}catch(err: any){
-	    		console.error('Error verificando el Estado del Sistema..');
-	    		error.value = 'Error al Inicializar Sys';
-	    	}
+// ─── isFormValid: agregar return ───
+    const isFormValid = computed((): boolean => {
+        return (
+            form.value.email.trim()    !== '' &&
+            form.value.password.trim() !== '' &&
+            form.value.role            !== ''
+        );
+    });
+
+// ─── checkSystemStatus: marcar como verificado al terminar ───
+async function checkSystemStatus(): Promise<void> {
+    try {
+        const usersExist = await authStore3.checkSystemInitialization();
+        showInitButton.value = !usersExist;
+    } catch(err: any) {
+        console.error('Error verificando el Estado del Sistema..');
+        error.value = 'Error al Inicializar Sys';
+    } finally {
+        isSystemChecked.value = true; // ← desbloquea el template
+    }
+}
+
+// ─── controllSubmit: invertir la condición ───
+async function controllSubmit(): Promise<void> {
+    try {
+        error.value = null;
+        successMsg.value = null;
+        // ✅ Bloquear cuando el formulario NO es válido
+        if (!isFormValid.value) {
+            error.value = 'Por favor, Ingresa todos los campos';
+            return;
+        }
+            await optionMultuserRole();
+    } catch(err: any) {
+        console.error('Error al Iniciar Sesión: ', err);
+        error.value = 'Error en el Login';
+    }
+}
+	// ────────────────────────────────────────────────────────────────
+	// Redirige según el rol (ya autenticado y validado)
+	// ────────────────────────────────────────────────────────────────
+	
+	const redirectByRole = (role) => {  // chges: 179,180
+	    const routes = {
+	        teacher: '/viewWelcomeTeachers',       //name: viewRegisterTeacher
+	        student: '/viewBienvenidaStudents', //upload-materials
 	    }
+		router.push({ name: routes[role.value] ?? 'viewLoginMultUser' }); //ajustar caract raiz
+	}
+    // Ingresar a la vista principal de cada uno de los roles asignados
+async function optionMultuserRole() {
+        const result = await authStore3.login(form.value.email, form.value.password);
+        
+        if (result.success) {
+            successMsg.value = result.message;
+            // Solo el profesor, puede registrar al primer estudiante
+            if (form.value.role === 'student') {
+                router.push({ name: 'viewUploadMaterials'});
+                // showRegisterStudentLink.value = true;
+            }
+            // El Estudiante unicamente  subira los materiales que necesite
+            else if(form.value.role === 'teacher'){
+                    router.push({ name: 'viewAdminMaterialStudent'});
+                // showNavBarGetStudentRegisterLink.value = true;
+            }
+            /*setTimeout(() => {
+                redirectByRole(form.value.role);
+            }, 300);*/
+        } else {
+            error.value = result.message;
+        }
+        /*La logica de ctrl de navegacion no debera responsabilizarse en esta vta independiente
+        Tampoco en el router, lo idoneo será en RouterGuardService con sus roles corresponds */
+}
+// ─── clearMessages: corregir typo ───
+function clearMessages(): void {
+    setTimeout(() => {
+        error.value = null;
+        successMsg.value = null; // ✅ .value no .message
+    }, 4900);
+}
 
-	    /**
-	     * Manipular el submit del Inicio de Sesion, del Formulario
-	     * */
-	    async function controllSubmit(): Promise<void> {
-	    	try{
-	    	 error.value = null;
-	    	 successMsg.value = null;
-	    	 	// Validacion elemental
-	    	    if(!isFormValid.value){
-					error.value = 'Por favor, Ingresa todos los campos';
-					 return;
-				}
-				// Iniciar la sesion
-				const result =  authStore.login(form.value.email, form.value.password);
+ 
+onMounted(async () => {
+    await checkSystemStatus();
+})
+	/*Vista ajustada: Nueva 09/03/2026
+	Creada a partir de LoginMultiusuario.origin[la primera creada, flujo de trabajo inicial]
+	- Caracteristícas:
+	 - Redirecciones
+	 -  Reactividad
+	 - Vista Correcta
+	 - Estilos incompletos
+		-Nota
+		Importante: Corregir detalles de CompStudentProfile
+	 */
+	
+	/**const showInitButton = ref(false);
+	const showRegisterStudentLink = ref(false);
+	const loading = ref(false);
+	const error = ref('');
+	const form? = reactive({email: '', password: '', role: ''});
 
-	    	    if(result.success){
-	    	    	successMsg.value = result.message;
-	    	    	// Esperar un instante antes de la redireccione x 	Roles
-	    	    	  setTimeout(()=>{
-	    	    	  	 redirectByRole();
-	    	    	  }, 950);
-	    	    } else {
-	    	    	error.value = result.message;
-	    	    }
+	// ════════════════════════════════════════
+	//  LIFECYCLE - Determina el estado inicial de la vista
+	// ════════════════════════════════════════
+	onMounted(async ()=>{
+		await checkSystemInialized();
+	})
 
-	    	}catch(err: any){
-	    		console.error('Error al Iniciar Sesión: ',err);
-	    		error.value = 'Error en el Login';
-	    	}
-	    }
 
-	    /** 
-		 * Redirigir al Usuario segun su rol
-		 * */
-	    function redirectByRole(): void {
-	    	const role = authStore.userRole;
+	const checkSystemInialized = async () => {
+		try{
+			loading.value = true;
+			const userSnap = await getDocs(collection(db,users));
 
-	    	if(role === 'teacher'){
-	    		router.push('/vw-bienvenida-teachers');
-	    	} else if(role === 'studente' ){
-	    		router.push('/vw-bienvenida-students');
-	    	} else {
-	    		error.value = 'El Rol del Usuario no ha sido Identificado, o NO es válido';
-	    	}
-	    }
-
-	    /**
-	     * Iniciar el Sistema, creando el Primer Usuario
-	     * */
-		function controllInitSystem(): Promise <void> {
-			try{
-				error.value = null;
-				successMsg.value = null;
-
-				const result = authStore.initializerFirstUser();
-
-				if(result.success){
-					// Llenar el formulario con las credenciales iniciales
-					form.value.email = result.email;
-					form.value.password = result.password;
-					form.value.role = 'tacher';
-
-					successMsg.value = result.message;
-					 showInitButton.value = false;  //Bloquea
-
-					 // Inicia Sesion automaticamente a los 2.5 segundos
-					  setTimeout(()=>{
-					  	 controllSubmit();
-					  },2500);
-				}else {
-				  error.value = result.message;
-				}
-			}catch(err: any){
-				console.error('Error Inicializando tú Rol de Sesión');
-			}
+			 showInitButton.value = userSnap.empty;
+		}catch(err){
+			error.value = 'Error al verficar el edo del Sistema';
+			console.log('[LoginView] checkSystemInitialized:', err);
+		} finally {
+			loading.value = false;
 		}
+	}
 
-		/**
-		 * Limpiar los mensajes de Interaccion, despues de un tiempo definido
-		 * */
-		function clearMessages(): void {
-			setTimeout(()=>{
-				error.value = '';
-				successMsg.message = null;
-			}, 4900);
-		}
-		// ================
-		//   CICLO DE VIDA
-		// ================
-	onMounted( async ()=>{
-		// Revision de la Autenticidad
-		if(authStore.isAuthenticated){
-			redirectByRole();
-			 return;
-		}
-		 // Validacion del Estado del Sistema
-		await checkSystemStatus();
-	});
 
+	const controllInitSystem = async () => {
+		try{
+			loading.value = true;
+			error.value =  '';
+
+			await authStore.initializeFirstUser();
+
+			showInitButton.value = false;
+		}catch(err){
+			error.value = 'Error al inicializar el sistema.';
+			console.log('Control del Sistema',err);
+		}
+	}*/
 </script>
+
 <style scoped>
-/* =============================
+	/* =============================
    CONTENEDOR PRINCIPAL
    ============================= */
 .login-container {
@@ -411,6 +455,12 @@
   background-color: #c6f6d5;
   color: #22543d;
   border: 1px solid #68d391;
+}
+
+.alert-success-student {
+  background-color: #FFA500;
+  color: #22543d;
+  border: 1px solid #63B3ED;
 }
 
 .alert-info {

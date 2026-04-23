@@ -161,7 +161,7 @@ export const useMaterialTeachStore = defineStore('teacher_materials',{
 	        // ─────────────────────────────────────────────────────────
 	        this.loading = false;
 	      }
-	    },
+		},
 
 	/**
      * Limpia todos los errores del historial
@@ -221,9 +221,9 @@ export const useMaterialTeachStore = defineStore('teacher_materials',{
       				console.warn('Material con estructura incompleta encontrado:', item);
       			}
       		}
-      	},
+      },
 
-      	_extractErrorMessage(error: any): string {
+      _extractErrorMessage(error: any): string {
       		// Error de Firebase
       		if (error.code) {
       			return `Error de Firebase (${error.code}): ${error.message}`;
@@ -239,7 +239,7 @@ export const useMaterialTeachStore = defineStore('teacher_materials',{
       		}
 
       		return 'Error al ingresar los materiales';
-      	},
+      },
 
      /**
     	 * Manipula errores de Forma centralizada
@@ -251,7 +251,7 @@ export const useMaterialTeachStore = defineStore('teacher_materials',{
       		stackTrace?: string):void {
 
       		this.error = message;
-      		this.errorHistory.push({timestamp: newDate,
+      		this.errorHistory.push({timestamp: new Date(),
       		 message,
       		 filter, 
       		 stackTrace,
@@ -262,9 +262,9 @@ export const useMaterialTeachStore = defineStore('teacher_materials',{
 		          message,
 		          filter,
 		          stackTrace,
-		          timestamp: newDate().ISOString(),
+		          timestamp: new Date().ISOString(),
 		       });
       		}
-		},
+				},
 	}
  });

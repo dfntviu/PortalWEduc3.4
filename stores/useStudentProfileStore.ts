@@ -51,6 +51,7 @@ StudentProfileState, ServiceResponse} from '@/interfaces/tipos.estudiantes';
 
   	actions: {
   		// ═════════════════════════════════════════════════════════════════════
+  	// }
     // REGISTRO COMPLETO (Auth + Perfil)
     // ══════════════════════════════════════════
 
@@ -81,38 +82,42 @@ StudentProfileState, ServiceResponse} from '@/interfaces/tipos.estudiantes';
         if (data.password.length < 8) {
           throw new Error('La contraseña debe tener al menos 8 caracteres');
         }
-        	const tempEmail = ProfileStudentService['generateUniversitaryEmail'](
-        		data.nombre,
+        	/*const tempEmail = ProfileStudentService['generateUniversitaryEmail'](
+        		data.nombre,   debera de ajustarse, de tal suerte que el email sea generado, por medio de la f(n)
         		data.apellido);
 
-        	console.log('[Estado de Estudiante] Email generado por Auth ',tempEmail);
+        	console.log('[Estado de Estudiante] Email generado por Auth ',tempEmail);*/
 
-				}catch(error: any){
+				
 				// 1. Crear usuario en Firebase Auth
-					const firebaseUser = ProfileStudentService.createWithEmailAndPassword(data.email, data.password);
+					const firebaseUser = await ProfileStudentService.createAccountEmailAndPassword(data.email, data.password);
 
 					const uid = firebaseUser.uid;
 					console.log('[Estado de Estudiante] Usuario creado con  UID:',uid);
 
 						// 2. Guardar Perfil en firestore
-					const result = await ProfileStudentService.saveStudentProfile(uid,data);
+					const result = await ProfileStudentService.saveStudentProfile(uid,data);  //**
 
-					if (!result.success || !result.data) {
+					if (!result.success || !result.data) { //*
 						console.log('Error al guardar el perfil del Estudiante');
-					}
+					}  //*
 						// Cargar el perfil del estado
-					this.profile = result.data;
-					this.message = MESSAGE.REGISTRO_EXITOSO;
+					this.profile = result.data; //*
+					this.message = MESSAGES.REGISTRO_EXITOSO; //*
 
 					 console.log('[StudentStore] El registro fue completado exitosamente');
 					 console.log('[StudentStore] Email Universitario', result.data.email);
 					 console.log('[StudentStore] Número de cuenta:', result.data.accounNumber);
 
-						return {
-							success: true,
-							data: result.data,
-							message: this.message
-						};
+						return { //* * * 
+							success: true,  // * * *
+							data: result.data, // * * *
+							message: this.message // * * *
+						};//* * * 
+				}catch(error: any){
+						this.error = error.message ?? 'Error desconocido';
+        		console.error('[StudentStore] Error al registrar:', error);
+        	 return { success: false, message: this.error };
 				} finally {
 					this.loading = false;
 				}
@@ -148,6 +153,7 @@ StudentProfileState, ServiceResponse} from '@/interfaces/tipos.estudiantes';
   					this.loading = true;
 						this.error  = '';
 						this.message = '';
+
   						const storedUser = localStorage.getItem('currentUser');
 
   						if (!storedUser) {
@@ -157,8 +163,8 @@ StudentProfileState, ServiceResponse} from '@/interfaces/tipos.estudiantes';
 
   						const userData = JSON.parse(storedUser);
 
-  						if (!userData.uid || userData.role !== 'alumno') {
-  							console.warn('[StudentStore] Usuario en localStoage, no es estudiante', error);
+  						if (!userData.uid || userData.role !== 'student') {
+  							console.warn('[StudentStore] Usuario en localStorage, no es estudiante', error);
   								return false;
   						}
   							const result = await this.loadStudentProfile(userData.uid);
@@ -167,6 +173,8 @@ StudentProfileState, ServiceResponse} from '@/interfaces/tipos.estudiantes';
   				}catch(error: any){
   						console.warn('[StudentStore] Error al cargar desde el localStorage', error);
   						return false;
+  				}finally{
+  					 this.loading = false;
   				}
   		},
 

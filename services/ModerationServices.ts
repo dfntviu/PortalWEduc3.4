@@ -1,6 +1,7 @@
 import { initializeFirebaseStorage } from '@/config/initializeFirebaseConf.ts';
 import { collection,doc,getDoc,getDocs,addDoc,updateDoc, deleteDoc, query, where, 
          orderBy, Timestamp, serverTimestamp, writeBatch, increment } from 'firebase/firestore';
+  import { initializeFirebaseStorage } from '@/config/initializeFirebaseConf.js'
  import type { Material, Comentario} from '@/interfaces/Profile.types';  //##
 
 
@@ -41,9 +42,11 @@ import { collection,doc,getDoc,getDocs,addDoc,updateDoc, deleteDoc, query, where
  // ========================== 
  // CONFIGURACIÓN DEL SERVICIO
  // ==========================
-  
+
+  const { db } = initializeFirebaseStorage();
+
   const COLLECTIONS = {
-     Materiales: 'Materials',
+     Materiales: 'Students_Materials',
      Comentarios: 'Comments_Moderation',
      Notificaciones:'Notifications',
      Estadisticas: 'Moderation_Statistics'
@@ -60,7 +63,7 @@ import { collection,doc,getDoc,getDocs,addDoc,updateDoc, deleteDoc, query, where
    // =================================== 
    // GESTIÓN DE MATERIALES PENDIENTES
    // ===================================
-
+  
   /**
    * Obtiene todos los materiales pendientes de moderación
    * @returns Promise<Material[]> Array de materiales pendientes
@@ -69,16 +72,16 @@ import { collection,doc,getDoc,getDocs,addDoc,updateDoc, deleteDoc, query, where
 
   export class ModerationService{
 
-      static async getPendientes(): Promise<Material[]>{
+      static async getPendientes(): Promise<Material[]> {
         console.log('[ModerationStore]: Obteniendo materiales Pendientes');
 
         try{
             const materialesReference = collection(db,COLLECTIONS.Materiales);
-            const qry =  query(materialesReference, where('estado', '==', 'pending' ),
+            const qry =  query(materialesReference, where('estado', '==', 'pendiente' ),
                           orderBy('uploadDate', 'pending')
             );
 
-            const snapshot = getDocs(qry);
+            const snapshot = await getDocs(qry);
             
             if (snapshot.empty) {
                console.log('[ModerationServ]: No hay materiales Pendientes');
@@ -110,7 +113,7 @@ import { collection,doc,getDoc,getDocs,addDoc,updateDoc, deleteDoc, query, where
                // 1. Actualizar estado del Material
             const materialRef = doc(db,COLLECTIONS.Materiales, materialId);
             batch.update(materialRef, {
-               estado: 'rejected',
+               estado: 'rechazado',
                fechaModeracion: serverTimestamp(),
                profesorModeradorId: profesorId,
                razonRechazo: razon || 'No especificada'
@@ -202,6 +205,40 @@ import { collection,doc,getDoc,getDocs,addDoc,updateDoc, deleteDoc, query, where
           throw new Error(`Error al agregar comentario: ${error.message}`);   
       }
    }
+
+   static async rechazarMaterial(materialId: string, alumnoId: string, razon?: string): Promise<void> {
+        console.log(`[ModerationService] Rechazando material ${material}...`);
+
+        try {
+            const profesorId = await obtenerIdProfesorActual();
+            const batch = writeBeach(db);
+
+            // 1. Actualizar el estado del material
+            const materialRef = doc(db, COLLECTIONS.Materiales, materialId);
+            batch.update(materialRef, {
+                estado: 'rejected',
+                fechaModeracion: serverTimestamp(),
+                profesorModeradorId: profesorId,
+                razonRechazo: razon || 'No especificada'
+            });
+
+            const statsRef = doc(db, COLLECTIONS.Estadisticas, 'global');
+            batch.set(statsRef, {
+                totalRechazados: increment(1),
+                ultimaActualizacion: serverTimestamp()
+            }, {merge: true });
+
+              await batch.comit();
+
+              const mensaje = razon
+                ? `Tu materiales ha sido Rechazado. Razón ${razon}`
+                : 'Tu material ha sido rechazado';
+                 await this.notificarAlumno(alumnoId, 'rejected', materialId, mensaje);
+        } catch(error: any){
+            console.error(`[ModerationService] Error al rechazar material`,error);
+             throw new Error(`Error al rechazar material: ${error.message}`);
+        }
+   }
    /**
     * Obtiene todos los comentarios de un Material
     * */
@@ -224,7 +261,7 @@ import { collection,doc,getDoc,getDocs,addDoc,updateDoc, deleteDoc, query, where
 
             const commentarios: Comentario[] = snapshot.docs.map(doc=>{
                const data = doc.data() as ComentarioFirestore;
-                   return this.convertirFirestoreAMaterial;
+                   return this.convertirFirestoreAMaterial(doc.id, data);
             });
 
             return commentarios;
@@ -248,7 +285,7 @@ import { collection,doc,getDoc,getDocs,addDoc,updateDoc, deleteDoc, query, where
                 throw new Error('El comentario no debe estar vacío');
             }
 
-            const comentarioRef = doc(db, COLLECTIONS.Comentarios, comentarioId);
+            const comentariosRef = doc(db, COLLECTIONS.Comentarios, comentarioId);
 
             const comentarioDoc = await getDoc(comentariosRef);
 
@@ -312,7 +349,7 @@ import { collection,doc,getDoc,getDocs,addDoc,updateDoc, deleteDoc, query, where
        * @returns Obtiene las Estadistícas<EstadisticasModeracion
        * @throws Error si falla la consulta
        * */
-      static async obtenerEstadisticas(): Promise<EstadisticasModeracion>{
+      static async obtenerEstadisticas(): Promise<EstadisticasModeracion> {
          console.log('[ModerationService] Obteniendo Estadísticas...');
 
          try{
@@ -322,19 +359,19 @@ import { collection,doc,getDoc,getDocs,addDoc,updateDoc, deleteDoc, query, where
               // Query para pendientes
              const qPendientes = query(
                   materialesRef,
-                   where('estado', '==', 'pending')
+                   where('estado', '==', 'pendiente')
                );
 
              const snapshotPendientes =  await getDocs(qPendientes);
 
                // Query para aprobados
-             const qAprobados = query(materialesRef, where('estado', '==', 'approved'));
+             const qAprobados = query(materialesRef, where('estado', '==', 'aprovado'));
              const snapshotAprobados = await getDocs(qAprobados);
 
              // Query para rechazados
                const qRechazados =  query(
                    materialesRef,
-                   where('estado', '==', 'rejected')
+                   where('estado', '==', 'rechazado')
                );
 
                const snapshotRechazados =  await getDocs(qRechazados);
@@ -348,7 +385,7 @@ import { collection,doc,getDoc,getDocs,addDoc,updateDoc, deleteDoc, query, where
                console.log(`[ModerationService] Estadísticas obtenidas:`, stats);
              return stats;
          }catch(error: any){
-             console.log(`[ModerationService] Error al obtener las Estadísticas:`,error);
+             console.error(`[ModerationService] Error al obtener las Estadísticas:`,error);
               throw new Error(`Error al obtener las Estadísticas: ${error.message}`);
          }
       } 
@@ -383,7 +420,7 @@ import { collection,doc,getDoc,getDocs,addDoc,updateDoc, deleteDoc, query, where
              const notificacionesRef = collection(db, COLLECTIONS.Notificaciones);
               await addDoc(notificacionesRef, notificationData);
 
-              console.log(`[ModerationService] Comentario enviada al Estudiante ${alumnoId}`);
+              console.log(`[ModerationService] Notificación envíada al Estudiante ${alumnoId}`);
          }catch(error: any){
              console.warn(`[ModerationService] Error al envíar Notificación: ${error.message}`);
          }
@@ -456,7 +493,7 @@ import { collection,doc,getDoc,getDocs,addDoc,updateDoc, deleteDoc, query, where
        * @private
        * */
       private static convertirFirestoreAComentario(id: string, data: ComentarioFirestore)
-       :Promise<Comentario>{
+       :Promise <Comentario> {
 
          return {
             id,
@@ -484,10 +521,10 @@ import { collection,doc,getDoc,getDocs,addDoc,updateDoc, deleteDoc, query, where
        * @private
        * **/   
       private static async validarMaterialPendiente(materialId: string):
-        Promise<boolean>{
+        Promise<boolean> {
          try{
-                const materialRef = doc(db, COLLECTIONS.Materiales, materialId);
-                const materialesDoc = await getDoc(materialesRef);
+                const materialsRef = doc(db, COLLECTIONS.Materiales, materialId);
+                const materialesDoc = await getDoc(materialsRef);
 
                  if (!materialesDoc.exists()) {
                    throw new Error(ERROR_MSGS.MATERIAL_NO_ENCONTRADO);

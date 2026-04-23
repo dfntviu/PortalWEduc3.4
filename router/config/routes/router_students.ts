@@ -1,43 +1,51 @@
-  import viewBienvenidaStudents from '/views/Student/viewBienvenidaStudents.vue';    //@ corregir  - vite.config
-  import viewMaterialIndividual from '/views/Student/viewMaterialIndividual.vue'; 
-  import viewRegisterStudent from '/views/Student/viewRegisterStudent.vue';
-  import viewStudentsAdmMaterials from '/views/Student/viewStudentsAdmMaterials.vue';
-  import viewUploadMaterials from '/views/Student/viewUploadMaterials.vue';
+  import viewBienvenidaStudents from '@/views/Student/viewBienvenidaStudents.vue';    //@ corregir  - vite.config
+  import viewMaterialIndividual from '@/views/Student/viewMaterialIndividual.vue'; 
+  import viewRegisterStudent from '@/views/Student/viewRegisterStudent.vue';
+  import viewStudentsAdmMaterials from '@/views/Student/viewStudentsAdmMaterials.vue';   //[aniadi @ a la version de generate origin code ]
+  import viewUploadMaterials from '@/views/Student/viewUploadMaterials.vue';
+   // import LogoutAnimation from '@/views/components/Session_Close/LogoutAnimation.vue';
 
    // FILE ROUTER ONE: ROLE_OF_STUDENTS
   export const route_students = [
     {
-      path:  '/welcome-estudiantes',
+      path:  '/welcome-students',
       name: 'viewBienvenidaStudents',
       component: viewBienvenidaStudents,
       meta:{requiresAuth: true, role: 'alumno', permission: 'puedeVisualizarBienvenidaRole1'}
     },
   
     {
-      path: '/register-estudiante',
+      path: '/vw-indiv-material', //register-student
       name: 'viewMaterialIndividual',
       component: viewMaterialIndividual,
-      meta: { requiresAuth: true, role: 'alumno', permission: 'puedeVerMaterialIndividual'}
+      meta: { requiresAuth: true, role: 'alumno', permission: 'puedeVerMaterialIndividual'} //*
     },
   
     {
-      path: '/upload-materiales',
+      path: '/vw-register-student',
       name: 'viewRegisterStudent',
       component: viewRegisterStudent,
-      meta: { requiresAuth: true, role: 'alumno', permission: 'puedeRegistrarCuentaAlumno' }
+      meta: { requiresAuth: true, role: 'alumno', permission: 'puedeRegistrarCuentaAlumno' } //*
     },
   
     {
-      path: '/auth_material-individual',
+      path: '/vw_adm-materials-adm', //auth_material-individual
       name: 'viewStudentsAdmMaterials',
       component: viewStudentsAdmMaterials,
-      meta: { requiresAuth: true, role: 'alumno', permission: 'puedeGestionarMateriales'}
+      meta: { requiresAuth: true, role: 'alumno', permission: 'puedeGestionarMateriales'}  //*
     },
   
     {
-      path: '/upload-materiales',
+      path: '/upload-materials',
       name: 'viewUploadMaterials',
       component: viewUploadMaterials,
-      meta: {requiresAuth: true, role: 'alumno', permission:'puedeSubirMateriales'}  //alumno, con 1 s
-    }
+      meta: {requiresAuth: true, role: 'alumno', permission:'puedeSubirMateriales'}  //  [**] alumno, con 1 s
+    },
+
+    /*{
+      path: '/session-close',
+      name: 'LogoutAnimation',
+      component: LogoutAnimation,
+      meta: {requiresAuth: true, role: 'alumno', permission:'puedeSubirMateriales'}  //  [**] alumno, con 1 s
+    }*/
   ]

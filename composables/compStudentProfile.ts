@@ -12,7 +12,7 @@
    import {ref,computed, reactive } from 'vue'; 
    import {useStudentProfileStore } from '@/stores/useStudentProfileStore';
    import type {StudentFormData, StudentEditFormData, StudentRegistrationData, StudentEditableData,
-      Carrera, TipoDocumento } from '@/interfaces/student.types';
+      Carrera, TipoDocumento } from '@/interfaces/students.types';
 
     /**═══════════════════════════════════════════
      * 	COMPOSABLE: PRINCIPAL
@@ -91,7 +91,8 @@
     			apellido: registrationForm.lname.trim(),
     			carrera: registrationForm.carrera as Carrera,
     			edad: registrationForm.age ?? undefined,
-    			password: registrationForm.password,
+    			email: registrationForm.email,  //*
+          password: registrationForm.password,
     			typeDocument: registrationForm.typeDocument as TipoDocumento
     		}; 
     		
@@ -116,6 +117,7 @@
     	registrationForm.carrera = '' as Carrera || '';
     	registrationForm.age = null;
     	registrationForm.password = '';
+      registrationForm.email  = ''; //*
     	registrationForm.confirmPassword = '';
     	registrationForm.typeDocument = '' as TipoDocumento | '';
     }
@@ -241,7 +243,7 @@
 
     	return {
     	  // Estado
-       profile,
+        profile,
 		 loading,
 		 error,
 		 message,
@@ -337,7 +339,7 @@
     	return {
     	   passwordForm,
          isPasswordFormValid,
-    	   isEditFormValid,
+    	   // isEditFormValid,
     	   passwordError,
     	   controllerPasswordChange,
     	   resetPasswordForm

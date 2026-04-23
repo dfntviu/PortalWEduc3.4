@@ -15,7 +15,7 @@ import {
     deleteDoc, addDoc, query, where, Timestamp 
 } from 'firebase/firestore';
 import { initializeFirebaseStorage } from '@/config/initializeFirebaseConf.ts';
-import type { Notification } from '@/types/interf.index';
+import type { Notification } from '@/types/Profile.types';
 
 const { db } = initializeFirebaseStorage(); 
 

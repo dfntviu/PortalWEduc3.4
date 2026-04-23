@@ -1,61 +1,59 @@
-<template>  
+<template>
     <div class="app" :class="{'dark-mode': isDarkMode}">
       <div class="institucional-header">
         <img src="./assets/logo.fi-uaemex" id="logo-univ" alt="">
         <span class="institucional-name">
-            Facultad de Ingenería - Universidad Autonóma del Estado de México     
+            Facultad de Ingenería - Universidad Autonóma del Estado de México
         </span>
-     </div>
+      </div>
 
-      <LayoutNavBar v-if="isAuthenticated && userRole"
-        :role="navBarRole"
-      />
+      <LayoutNavBar/>
 
       <!-- ========================== -->
       <!--      CONTENIDO PRINCIPAL   -->
       <!-- ========================== -->
       <main class="main-content">
-         <router-view/>
+         <RouterView/>
       </main>
         
       <!-- ========================== -->
       <!--      PIE DE PAGINA       -->
       <!-- ========================== -->
-       <footer   v-if="isAuthenticated"  class="app-footer">
-           <p>copy; {{currentYear}} Portal Web Educativo FI-UAEMEX</p>
+       <footer   class="app-footer">
+           <p>&copy; {{currentYear}} Portal Web Educativo FI-UAEMEX</p>
        </footer>
     </div>
 </template>
 <script setup lang="ts">  // Code_new: 2025-Nov-02
   import { computed, onMounted } from 'vue';
-  import { useAuthStore3 } from './stores/authStore3.ts';
-  import LayoutNavBar from './components/LayoutNavBar.vue';
+  // import { useAuthStore3 } from '@/stores/authStore3.ts'; 
+  import LayoutNavBar from '@/components/LayoutNavBar.vue';
   
   // ===============
   //    COMPOSABLES
   // ===============
-  const authStore = useAuthStore();
+  // const authStore = useAuthStore3();
 
   // =======================
   //    COMPUTED PROPERTIES
   // =======================
-   const isAuthenticated = computed(()=> authStore.isAuthenticated);
+   // const isAuthenticated = computed(()=> authStore.isAuthenticated);
     
     /**
      * Obtiene el Rol del Usuario
      * */
-     const userRole = computed(()=>authStore.role);
+     // const userRole = computed(()=>authStore.role);
 
      /**
       * Mapea el Rol del store al formato navbar
       * 'alumno' → 'student'
       * 'professor' → 'teacher'
       *  */
-    const  navBarRole = computed(()=> {
+    /*const  navBarRole = computed(()=> {
        if (userRole.value === 'alumno') return 'student';
         if( userRole.value === 'alumno') return 'teacher';
           return 'student';  // fallback
-    });
+    });*/
 
     /**
      * Estado en Dark Mode(A posteriori, para futuras integraciones) 
@@ -71,9 +69,10 @@
    //     CICLO DE VIDA  
    // =====================
     onMounted(async()=>{
-        if (authStore.isLoading) {
+      isDarkMode;
+        /*if (authStore.isLoading) {
             await authStore.checkAuthState();
-        }
+        }*/
     });
 
     /** 24/01/2026

@@ -6,6 +6,7 @@ export function useFormMaterial() {
   const form = ref<MaterialFormState>({
     titulo: '',
     description: '',
+    // nombreArchivo: '',
     tags: []
   });
   
@@ -24,7 +25,7 @@ export function useFormMaterial() {
   );
   
   // Métodos
-  function handlePDFUpload(event: Event): void {
+  function handlePDFUploadTwo(event: Event): void {
     const target = event.target as HTMLInputElement;
     const uploaded = target.files?.[0];
     
@@ -65,7 +66,7 @@ export function useFormMaterial() {
     editingMaterialId,
     isValid,
     submitButtonText,
-    handlePDFUpload,
+    // handlePDFUpload,
     loadForEdit,
     reset
   };

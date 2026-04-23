@@ -1,7 +1,7 @@
 <template>
 	<!--	ok
 	-->
-	<nav class="navbar" :class="navbarClasses">
+	<nav class="navbar"  v-if="isAuthenticated" :class="navbarClasses">
 	 	<div class="navbar-container">
 	 		<div class="navbar-brand">
 	 			<router-link to="/" class="logo" >
@@ -23,27 +23,44 @@
 	          {{ mobileMenuOpen ? '✕' : '☰' }}
 	        </span>
       </button>
+
       <!-- LINKS DE NAVEGACION -->
       <div class="navbar-links" :class="{'mobile-open': mobileMenuOpen }">
+				<!--  habilitar, cuando soluciones la navegacion y las sesiones personalizadas
+				  <LogoutAnimation 
+					:visible="showLogoutAnimation"
+					:user-name="departureName"
+					@animation-complete="onAnimationComplete"
+				/> -->
+
       		<router-link to="/" class="nav-link" @click="closeMobileMenu" >
 				  <span class="nav-icon">🏠</span>
-				  <span>Inicio</span>
+				  <span>Pág. de Inicio</span>
 				</router-link>
+			
 				<!-- Enlaces de Redireccion p/Estudiantes -->
 			<template v-if="role === 'student'">
-	            <!-- Dashboard Estudiante -->
+	            <!-- Bienvenida a Estudiante -->
 	         <router-link
-	            to="/welcome-estudiantes"
-	            class="nav-link"
-	            @click="closeMobileMenu"
+	           :to="{name: 'viewBienvenidaStudents'}"
+	           class="nav-link"
+	           @click="closeMobileMenu"
 	         >
 	            <span class="nav-icon">📊</span>
-	            <span>Panel Estudiantes</span>
+	            <span>Bienvenidos</span>
 	         </router-link>
+	         <!-- Subir Materiales -->
+				<router-link class="nav-link"
+					:to="{name: 'viewUploadMaterials'}"
+					@click="closeMobileMenu"
+				>
+					<span class="nav-icon">🗃️</span>
+					<span>Subir Mat.</span>
+				</router-link>
 
 	           <!-- Administrar Materiales -->
 	         <router-link
-	            to="/view-student-adm-matls"
+	            :to="{name:'viewMaterialIndividual'}"
 	            class="nav-link"
 	            @click="closeMobileMenu"
 	          >
@@ -51,81 +68,93 @@
 	            <span>Mis Materiales</span>
 	         </router-link>
 
-	           <!-- Subir Material -->
+	           <!-- Registrar Estudiante -->
 	         <router-link 
-	            to="/view-upload-materials" 
+	            :to="{name:'viewStudentsRegisterBase'}"
 	            class="nav-link" 
 	            @click="closeMobileMenu"
 	         >
 	            <span class="nav-icon">📤</span>
-	            <span>Subir Material</span>
+	            <span>Reg. Estudiante</span>
 	         </router-link>
 
 	            <!-- Ver Material Individual -->
 	         <router-link 
-	            to="/view-mater-individual" 
-	            class="nav-link" 
+	            class="nav-link nav-link-salir"  
+	            :to="{name: 'viewStudentsAdminMaterials'}" 
 	            @click="closeMobileMenu"
 	         >
 	            <span class="nav-icon">📄</span>
-	            <span>Explorar</span>
+	            <span>Adm Material(s)</span>
 	         </router-link>
-	      </template>
+	         <!-- Salir de Student -->
+	         <router-link 
+	            class="nav-link"  
+	            :to="{name: 'viewLoginMultUser'}" 
+	            @click="logoutInProgress"
+	            aria-label="Cerrar Sesión"
+	         >
+	            <span class="nav-icon" aria-hiden="true">🚪</span>
+	            <span class="nav-label">Salir</span>
+	         </router-link>
+			</template>
 
 				<!-- ========================================== -->
 				<!-- LINKS ESPECÍFICOS PARA PROFESORES -->
 				<!-- ========================================== -->
-		   <template v-if="role === 'teacher'">
+			<template v-else-if="role === 'teacher'">
 		    	<router-link 
-		         to="/view-bienvenida-teachers" 
+		         :to="{ name: 'viewWelcomeTeachers' }" 
 		         class="nav-link" 
 		         @click="closeMobileMenu"
 		      >
 		         <span class="nav-icon">📊</span>
-		         <span>Mí Panel de Actividades </span>
+		         <span>Inicio| PROFESORES  </span>
 		      </router-link>
 
 		      <router-link 
-	             to="/view-teacher-adm-materials" 
+	             :to="{ name: 'viewRegisterTeacher' }"
 	             class="nav-link" 
 	             @click="closeMobileMenu"
 	             >
+	             <span class="nav-icon">👨🏼‍🏫📜</span>
+		         <span>Registro Cuenta Profesor</span>
 	         </router-link>
 
 	            <!-- Gestionar Materiales -->
 	 			<router-link 
-	             to="/view-materials-moderate" 
+	             :to="{ name: 'viewAdminMaterialStudent' }" 
 	             class="nav-link" 
 	             @click="closeMobileMenu"
 	            >
-	            <span class="nav-icon">🔩</span>
-		         <span>Moderar Materiales</span>
+	            <span class="nav-icon">👨🏼‍🎓📚</span>
+		         <span> Materiales Estudiantes</span>
 	         </router-link>
 
-	            <!-- Evaluar Comentarios -->
+	            <!-- Evaluar Comentarios nva_vista -> viewAdminStatisticsMaterials-->
 	 			<router-link 
-	             to="/view-analyze-mod-comments" 
+	             :to="{ name: 'viewAdminStatistics' }"  
 	             class="nav-link" 
 	             @click="closeMobileMenu"
 	            >
 	            <span class="nav-icon">💬</span>
-		         <span>Analisis de Comentarios</span>
+		         <span>Estadistícas Materiales</span>
 	         </router-link>
 
 	             <!-- Ver  Materiales Personales -->
-	 			<router-link to="/view-teacher-adm-materials" 
+	 			<router-link :to="{ name: 'viewModerateMaterials' }" 
 	             class="nav-link" 
 	             @click="closeMobileMenu"
 	            >
 	            <span class="nav-icon">👥</span>
-		         <span>Admin. Alumnos</span>
+		         <span>Moderar Materiales</span>
 	         </router-link>
 
 	           	<!-- <router-link>
-	              <span class="nav-icon">👥</span>
-		          <span>Admin. Alumnos</span>
+	              <span class="nav-icon">🚪</span>
+		          <span>Cerrar</span>
 	           </router-link> -->
-		   </template>
+		 	</template>
 
 	   <div class="navbar-actions mobile-only">
 	    	 <!-- Botón de Notificaciones -->
@@ -266,23 +295,25 @@
  <script setup lang="ts">
   import { ref, computed, onMounted, onUnmounted } from 'vue';
   import { useRouter } from 'vue-router';
-  import { useAuthStore3 } from '@/stores/authStore3';
+  import { storeToRefs} from 'pinia';
+  import { useAuthStore3 } from '@/stores/authStore3.ts';
+  import  LogoutAnimation  from '@/components/Session_Close/LogoutAnimation.vue';
   // import { useNotificationStore } from '@/stores/notificationStore';
  
   // ====================================
 	// PROPS
 	// ====================================
-	interface Props {
+	/*interface Props {
 	  role: 'student' | 'teacher';
-	}
+	}*/
 
-	const props = defineProps<Props>();
+	// const props = defineProps<Props>();
 
 	// ====================================
 	// COMPOSABLES
 	// ====================================
 	const router = useRouter();
-	const authStore3 = useAuthStore();
+	const authStore3 = useAuthStore3();
 	 // const notificationStore = useNotificationStore();
 
 	// =======================
@@ -298,53 +329,70 @@
  	const userMenuOpen = ref(false);
  	const notificationsOpen = ref(false);
  	const userMenuMobileOpenRef = ref<any[]>([]);*/
-
 	// Mock de Notificaciones (Se tenga el store terminado  cambiarlo)
     	const notifications = ref<any[]>([]);
-
     // =======================
 	//	  COMPUTED PROPERTIES
-	// =======================
+	// =======================   ** new ** 
+    const isAuthenticated = computed( () => authStore3.isAuthenticated); 
+    	//  ** new ** sirve a medias. Ing con un rol muestra y muestra el contrario,
+    // a pesar de que la condicion en el HTml sea correcta, no la compara, siempre
+    // deja la opc por defecto
+   	/*const role	= computed<'student' | 'teacher'>(() => {
+   		if(authStore3.role === 'student') return 'alumno';
+   		if(authStore3.role === 'teacher') return 'profesor';
+   		 return 'student';  //siempre rec.estudiante
+   	});*/
 
-   /**
+		const {userRole: role} = storeToRefs(authStore3);
+      // const refs = storeToRefs(authStore3);
+      // const role = refs.userRole;
+
+	  const showLogoutAnimation = ref('false');
+     const logoutin_progress = ref(false);
+     const departureName = ref('');
+
+   	 // const role = computed(() => authStore3.useRole); // [correcta]
+   	// console.log('La navegacion es: ', role.userRole);  //role.value
+   /**	
       * Clases CSS Dinámicas del navbar segun el rol
    * */
     const navbarClasses = computed(()=>({
-    	'navbar-student': props.role === 'student',
-    	'navbar-teacher': props.role === 'teacher'
+    	'navbar-student': role === 'student',
+    	'navbar-teacher': role === 'teacher'
     }));
 
     const userName = computed(()=> {
 
-    	 if(!authStore.user) return 'Usuario';
+    	 if(!authStore3.user) return 'Usuario';
 
-    	  const firstName = authStore.user.firstName || '';
-    	  const lastName = authStore.user.lastName  || '';
+    	  const firstName = authStore3.user.firstName || '';
+    	  const lastName = authStore3.user.lastName  || '';
 
     	  return firstName && lastName
     	         ? `${firstName} ${lastName}`
-    	         :  authStore.user.displayName || 'Usuario';
-    })
+    	         :  authStore3.user.displayName || 'Usuario';
+    });
 
     /**
      * Email del Usuario
      * */
      const userEmail = computed(()=>{
-     	 authStore.user?.email || '';
-     })
+     	 authStore3.user?.email || '';
+     });
 
     const userInitials = computed(()=>{
-     	  if(!authStore.user) return 'U';
+     	  if(!authStore3.user) return 'U';
 
-     	  const firstName = authStore.user.firstName  || '';
-		  const lastName = authStore.user.lastName  || '';
+     	  const firstName = authStore3.user.firstName  || '';
+		   const lastName = authStore3.user.lastName  || '';
 
 		  if(firstName && lastName){
 		  	 return (firstName[0] + lastName[0].toUpperCase());  // con o sin Comp
 		  }
 
-		  if(authStore.user.displayName){
-		  	 const names = authStore.user.displayName.split(' ');
+		  if(authStore3.user.displayName){
+		  	 const names = authStore3.user.displayName.split(' ');
 
 		  	 return names.length > 1
 		  	    ? (names[0][0] + names[1][0].toUpperCase())
@@ -357,7 +405,7 @@
      * Etiqueta Rol en Espaniol
      * */
     const roleLabel = computed(()=> {
-    	 return props.role === 'teacher' ? 'Profesor': 'Alumno';
+    	 return role === 'teacher' ? 'Profesor': 'Alumno';
     });
 
      /**
@@ -365,7 +413,7 @@
      * */
      /*Importante: sobraran 2 parentesis. Siembre se inicia con (est. es bloque comp y da pauta al inicio). Es una sola exp compuesta*/
    const profileRoute = computed(()=> {
-         	 return props.role === 'student'
+         	 return role === 'student'
          		?  '/view-register-base'
          		:  '/view-register-teacher1';
    });
@@ -374,11 +422,10 @@
      * Cantidad de Notificaciónes
      * sin Leer
      * */
-    const unReadCount = computed(() => {
+   const unreadCount = computed(() => {
     	notifications.value.filter(n=>!n.read).length;
     	 // modificarlo al store real:  notificationStore.unreadCount;
-    });
-
+   });
 
 	// ====================================
 	// MÉTODOS
@@ -412,20 +459,45 @@
 	/**
 	 * Controla el Cierre de Sesión
 	 */	
-	async function controlLogout(): Pormise <void>{
+	/*async function controlLogout(): Pormise <void> {
 		 try{
 		 	  authStore.logout();
 		 	   router.push('/view-login-init');
 		 }catch(error){
 		 	 console.error('[Bar. de Navegacion]: Error al cerrar Sesión');
 		 }
-	}
+	}*/
 
+	async function logoutInProgress(): Pormise <void> {
+			if(logoutin_progress.value)  return;
+				logoutin_progress.value = true;
+
+				try{
+					 await authStore3.logout();
+					 /*Seguridad con la clase guardiana. Proteccion Interna (verificar si es asi), eliminar 
+					 no tiene sentido*/
+						await router.push({name: 'viewLoginMultUser'});
+					/** Conseguir nombre antes de que el store se limpie
+					const rawName = 
+						authStore3.user?.displayName ||
+						authStore3.user?.nombre  ||
+						authStore3.user?.email ||
+							'Usuario';
+							// Cierrre de Sesion de Firebase
+						departureName.value = rawName;
+						authStore3.logout();
+						 // Activar el overlay (retardo/tiempo de transicion de la animacion )
+						 showLogoutAnimation.value = true; **/
+				}catch(error){
+					console.error('[Ctrl de Navegacion] Error al cerrar tú Sesión: ', error);
+					logoutin_progress.value = false;
+				}				
+	}
 	/**
 	 * Cierra los Menús al hacer clic fuera de ellos
 	 * */
-	function controlClickOutside(event: MouseEvent): void{
-	 	 	const target  =event.target as Node;
+	function controlClickOutside(event: MouseEvent): void {
+	 	 	const target  = event.target as Node;
 	 	 	
 	 	 	//contraer el menu de Usuario(Desktop)
 	 	if(userMenuRef.value && userMenuRef.value.contains(target)){
@@ -437,6 +509,13 @@
 	 	}
 	}
 
+	function onAnimationComplete(): void {
+		showLogoutAnimation.value = false;
+		logoutInProgress.value = false;
+
+		// redirigir el final de la sesion a la Vista Principal Multiusuario
+			router.push({name: 'viewLoginMultUser'});
+	}
 	  // =================
 	  //   CICLO DE VIDA
 	  // =================
@@ -445,8 +524,8 @@
 	});
 
 	onUnmounted(() =>{
-		document.removeEventListener('click', controlClickOutside);
-	})
+		document.removeEventListener('click', controlLogout);
+	});
 
  		// const notifications = ref<(any[])>([]);
  </script>
@@ -946,4 +1025,47 @@
     	 opacity: 0;
     	 transform: translateY(20px);
     }
+
+    /* Animaciones Cierre de Sesion */
+    /* ── Botón Salir: hereda la apariencia de .nav-link existente ── */
+button.nav-link--salir {
+  /* Reset de button */
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+ 
+  /* Si tu .nav-link ya tiene estilos de color/padding/flex,
+     este selector los hereda porque incluye la clase .nav-link.
+     Solo se añade el toque de color de alerta: */
+  color: inherit;
+  opacity: 0.85;
+  transition: color 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+}
+ 
+button.nav-link--salir:hover:not(:disabled) {
+  color: #ff6b6b;       /* rojo suave al pasar el cursor */
+  opacity: 1;
+  background: rgba(255, 80, 80, 0.1);
+}
+ 
+button.nav-link--salir:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+ 
+/* Icono y etiqueta con la misma alineación que los router-link */
+button.nav-link--salir .nav-icon  { margin-right: 0.35rem; }
+button.nav-link--salir .nav-label { font-weight: 600; letter-spacing: 0.01em; }
+ 
+/*
+  NOTA: Si tu navbar tiene separadores entre ítems,
+  considera añadir un separador visual antes de "Salir":*/
+ 
+  button.nav-link--salir {
+    border-left: 1px solid rgba(255,255,255,0.2);
+    margin-left: 0.5rem;
+    padding-left: 1rem;
+  }
+
  </style>

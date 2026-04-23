@@ -1,12 +1,12 @@
  <template>
- 	 <Teleport>
+ 	 <Teleport to="body">
  	 	<Transition>
  	 		<div class="modal-overlay">
  	 			<div class="modal-contenedor">
  	 				<!-- Encabezado de la vent. Modal -->
  	 				<div class="modal-header">
  	 					<h3>Cambiar Contraseña</h3>
- 	 					<buton class="s">x</buton>
+ 	 					<button class="s">x</button>
  	 				</div>
  	 				<div class="modal-body">
  	 					<div class="alerta-seguridad">

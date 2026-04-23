@@ -115,7 +115,7 @@
 <script setup lang="ts">
 	import {ref,computed, onMounted} from 'vue'
 	import {usePersonalityStore} from '@/stores/personalityStore';
-	import {useAuthStore} from '@/stores/authStore2';
+	import {useAuthStore3} from '@/stores/authStore3';
 	 import PaletteSelector from './PaletteSelector.vue';
 	 import BackgroundSelector from './BackgroundSelector.vue';
 	 import ProfileStyleSelector from './ProfileStyleSelector.vue';
@@ -123,7 +123,7 @@
 
 	 // Stores
 	  const personalityStore = usePersonalityStore();
-	  const authStore = useAuthStore();
+	  const authStore = useAuthStore3();
 
 	  // State from state
 	  const {

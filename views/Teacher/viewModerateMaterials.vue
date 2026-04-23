@@ -18,7 +18,7 @@
 					<div class="flex-items-center justify-between">
 						<div>
 							<p class="text-sm font-medium text-blue-600">Total</p>
-							<p>{{conteoEstadisticas.pendientes}}</p>
+							<p>{{countStatistics.pendientes}}</p>
 						</div>
 						<div class="p-3 bg-yellow-100 rounded-100 rounded-full">
 							<svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,7 +31,7 @@
 				<div class="stat-card bg-green-50 border border-green-200 rounded-lg p-4">
 					<div class="flex items-center justify-between">
 						<div>
-							<p class="p-3 bg-green-100 rounded-full">{conteoEstadisticas.aprobados}
+							<p class="p-3 bg-green-100 rounded-full">{{countStatistics.aprobados}}
 								<svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 2l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 								</svg>
@@ -44,7 +44,7 @@
 					<div class="flex items-center justify-between">
 						<div>
 							<p class="text-sm font-medium text-red-600">Rechazados</p>
-							<p class="text-2xl font-bold text-red-900">{{conteoEstadisticas.rechazados}}</p>
+							<p class="text-2xl font-bold text-red-900">{{countStatistics.rechazados}}</p>
 						</div>
 						<div class="p-3 bg-red-100 rounded-full">
 							<svg class="w-6 h-6 text-red-600" fill="none">
@@ -63,7 +63,7 @@
 				<div class="flex flex-col md:flex-row gap-4">
 					<div class="flex-1">
 						<div class="relative">
-							<input type="text" class="w-full-p-10 pr-4 py-2 border-gray-300 rounde-lg focus:ring-blue-500 focus-border-blue-500">
+							<input type="text" v-model="filtros.search" class="w-full-p-10 pr-4 py-2 border-gray-300 rounde-lg focus:ring-blue-500 focus-border-blue-500">
 								<svg class="absolute left-3 top-25 w-5-h-5 text-gray-400" fill="none" 
 								stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -73,17 +73,17 @@
 					</div>
 					 <!-- Filtro por Materia -->
 					 <div class="w-full md:w-48">
-					 	<select name="" id="" class="w-full px-4 py-2 border focus:border-blue-500">
+					 	<select  v-model="filtros.clasify_material" class="w-full px-4 py-2 border focus:border-blue-500">
 					 		<option
-					 		   v-for="materia in materialesDisponibles" 
-					 		    :key="materia" :value="materia">{{materia}}
+					 		   v-for="material in materialesDisponibles" 
+					 		    :key="material" :value="material">{{material}}
 					 		</option>
 					 	</select>
 					 </div>
 
 					 <!-- seccion de Ordenamiento -->
 					 <div class="w-full md-48">
-					 	<select name="" id="" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+					 	<select v-model="filtros.order" name="" id="" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
 					 		<option value="recent">mas Reciente</option>
 					 		<option value="ancient">mas Antiguos</option>
 					 		<option value="author">Por Autor</option>
@@ -106,8 +106,8 @@
 				<!-- Agrupacion de Animaciones: -->
 				  <!-- Grid responsivo con animaciones de Ent/Sda 
 				   Tarjetas clickeables que seleccionan el material --> <!-- no hay article cierre por group-->
-				 <TransitionGroup class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-				 	<article v-for="material in materialFiltrado"
+				 <TransitionGroup  name="material-list"  tag="div" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				 	<article v-for="material in materialesFiltrados"
 				 	 class="material-card bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer border-2"
 				 	 :key="material.id"
 				 	 @click="handleSeleccionarMaterial(material.id)"
@@ -122,7 +122,7 @@
 					 	<div class="p-4 border-b border-gray-100">
 					 	  	<div class="flex items-start justify-between">
 					 	  		<div class="flex-1">
-					 	  			<h3>{material.titulo}</h3>
+					 	  			<h3>{{material.titulo}}</h3>
 					 	  			<p class="mt-1 text-sm text-gray-600">
 					 	  			  Por: {{material.nombreAlumno}}
 					 	  			</p>
@@ -154,7 +154,7 @@
 					 	  	 		stroke-width="2" d="M7 21h10a2 2 00 002-V9.41a1 1 0
 					 	  	 		00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
 					 	  	 	</svg>
-					 	  	      	<span class="text-gray-700">{material.typeFile || 'PDF'}</span>
+					 	  	      	<span class="text-gray-700">{{material.typeFile || 'PDF'}}</span>
 					 	  	</div>
 
 					 	  	<div class="flex items-center text-sm">
@@ -179,9 +179,9 @@
 			</div>
 		</section> <!-- endRegion -->
 	     
-	    <Teleport>
+	    <Teleport to="body">
 	     	<Transition>
-	     		<div class="fixed-iset-0 z-50 overflow-hidden">
+	     		<div  v-if="currentMaterial !== null" class="fixed-iset-0 z-50 overflow-hidden">
 	     			  <!-- Overlay Obscuro -->
 	     			<div class="absolute inset-0 bg-gray-900 bg-opacity-50"></div>
 	     			  <!-- Panel deslizante -->
@@ -191,13 +191,13 @@
 	     		<header class="px-6 py-4 border-b border-gray-200 bg-gray-50">
 	     			<div class="flex items-center justify-between">
 	     				<div class="text-xl font-bold text-gray-900">
-	     					<h2>{currentMaterial}</h2>
+	     					<h2>{{currentMaterial}}</h2>
 	     					<p class="mt-1 text-sm text-gray-600">
 	     						Subido por:{{ currentMaterial.nameStudent}} 
 	     					</p>
 	     				</div>	
 	     					<!-- Boton de Cerrar -->
-	     				<button class="ml-4 p-2 rounded-lg hover:bg-gray-200 transition-colors">
+	     				<button  @click="handleCerrarPanel" class="ml-4 p-2 rounded-lg hover:bg-gray-200 transition-colors">
 		     				<svg class="w-6 h-6 text-gray-600">
 		     					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 		     						d="M6 18L8 6M6 6l12 12"
@@ -274,7 +274,7 @@
 								</div>
 								    <!-- Contenido del Comentario -->
 								<p class="text-gray-800 text-sm whitespace-pre-wrap">
-									comentario.message
+									{{comentario.message}}
 								</p>
 									<!-- Footer del Comentario -->
 								<div class="mt-2 text-xs text-gray-500">
@@ -327,14 +327,14 @@
 	     		<!-- Acciones de Moderacion -->
 	     		<footer class="px-6 py-4 items-center gap-4">
 	     			<div class="flex items-center gap-4">
-		     			<button class="flex-1 px-6 py-3 bg-green-600 text-white font-semibold ronded-lg hover:bg-green-700 text-white font-semibold rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transtion-colors flex items-center justify-center gap-2">
+		     			<button  @click="handleAprobar"   disabled="!currentMaterial"  class="flex-1 px-6 py-3 bg-green-600 text-white font-semibold ronded-lg hover:bg-green-700 text-white font-semibold rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transtion-colors flex items-center justify-center gap-2">
 		     				<svg class="w-5 h-5">
 		     					<path/>
 		     				</svg>
 		     				Aprobar Material
 		     			</button>
 
-		     			<button class="flex-1 px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:cursor-not-allowed transition-colors flex items-center justify-between gap-2">
+		     			<button  @click="handleMostrarRechazo"  disabled="!currentMaterial" class="flex-1 px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:cursor-not-allowed transition-colors flex items-center justify-between gap-2">
 		     				<svg class="w-5 h-5"  fill="none" stroke="currentColor" viewBox="0 0 24 24">
 		     						<path stroke-linecap="round" stroke-linejoin="round"
 		     						 stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -382,8 +382,8 @@
 		    			</svg>
 		    		</div>
 		    		<div class="flex-1">
-		    			<h3 class="text-red-800 font-semibold">Erro al cargar los materiales</h3>
-		    			 <p class="mt-1 text-red-700">{error}</p>
+		    			<h3 class="text-red-800 font-semibold">Error al cargar los materiales.</h3>
+		    			 <p class="mt-1 text-red-700">{{error}}</p>
 		    			<button class="mt-3 px-4 bg-red-600 text-white-600 rounded-lg hover:bg-red-700 transitions-colors">
 		    				Reintentar
 		    			</button>
@@ -425,10 +425,10 @@
 		    				 </textarea>
 	    				
 		    				<div class="mt-6 flex gap-6">
-		    					<button class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transitions-colors">
+		    					<button  @click="handleCerrarModalRechazo" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transitions-colors">
 		    						Cancelar
 		    				   </button>
-		    				   <button class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+		    				   <button  @click="handleConfirmarRechazo"  :disabled="!rejectOfModal.reason.trim()"  class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
 		    				   	Confirmar Rechazo
 		    				   </button>
 		    				</div>
@@ -439,7 +439,7 @@
 	    	<!-- [Use]: Modal de Confirmacion para aprobacion -->
 	    	<!-- [Objetive]: Proviene aprobaciónes accidentales -->
 
-	    <Teleport>
+	    <Teleport to="body">
 	    	<Transition name="modal">
 	    	<div v-if="confirmationModal.visible" 
 	    	   class="fixed inset-0 z-[60] flex items-center justify-center p-4"
@@ -462,10 +462,10 @@
 		    				</p>
 
 		    				<div class="flex gap-3">
-		    				  	<button class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray transition-colors">
+		    				  	<button  @click="handleCerrarModalCofirmacion" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray transition-colors">
 		    				  		Cancelar
 		    				  	</button>
-		    				  	<button class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+		    				  	<button @click="handleConfirmarAprobacion" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
 		    				  	  Sí, Aprobarlo
 		    				    </button>
 		    				</div>
@@ -479,11 +479,12 @@
 </template>
 
 <script setup lang="ts">
-	import {mof, computed, onMounted, watch} from 'vue';
+	import {ref, computed, onMounted, watch} from 'vue';
 	import {useRouter} from 'vue-router';
 	import {storeToRefs} from 'pinia';
 	import {useModerationStore} from '@/stores/moderationStore';
 	import type { Comentario } from '@/intefaces/Profile.types.ts';
+	// import {getActivePinia} from 'pinia';
 
 	const router = useRouter();
 	const moderationStore = useModerationStore();
@@ -505,22 +506,24 @@
 		countStatistics,
 		materialInRevition,
 	} = moderationStore;
+ 
+ 	/*console.log('B ',getActivePinia()?.state.value);*/
 
 	const filtros = ref({
 		search: '',
 		clasify_material: '',
 		order: 'recent' as 'recent' | 'ancient' | 'author'
 	});
-
+	 // const {search, clasify_material, order } = toRefs(filtros);
 	const newComment = ref({
 		message: '',
 		highlighted: false
-	});	
+	});
 
 	const rejectOfModal = ref({
 		visible: false,
 		reason: ''
-	})
+	});
 
 	const confirmationModal = ref({
 		visible: false
@@ -532,10 +535,10 @@
 	 * */
 	const materialesFiltrados = computed(() => {
 		let resultado = [...pendigsMaterials.value];
-		 // Filtro por Busqueda de Texto
+		 // Filtro por Busqueda de Texto  [cambio 538, 546]**
 		if(filtros.value.search){
 			const busqueda = filtros.value.search.toLowerCase();
-			resultado.filter( material =>
+			resultado = resultado.filter( material =>
 			 	 material.titulo.toLowerCase().includes(busqueda) ||
 			 	 material.nombreAlumno.toLowerCase().includes(busqueda) ||
 			 	 material.clasify_material.toLowerCase().includes(busqueda) 
@@ -543,26 +546,26 @@
 		}
 		  // Filtros por Materia
 		if(filtros.value.clasify_material){
-			 resultado.filter( material =>
+			 resultado = resultado.filter( material =>
 			 	material.clasify_material === filtros.value.clasify_material
 			 );
 		}
 
-		  // Ordenamiento
+		  // Ordenamiento [cambio]** abajo de c/opc
 		switch(filtros.value.order){
 			case 'recent':
-				resultado.sort((a,b)=>{
+				return resultado.sort((a,b) =>{
 					 new Date(a.fechaSubida).getTime() - new Date(a.fechaSubida).getTime()
 				});
 			 break;
 
 			case 'ancient':
-				  resultado.sort((a,b)=>{
+				 return  resultado.sort((a,b) => {
 				  	new Date(a.fechaSubida).getTime() - new Date(a.fechaSubida).getTime();
-				  })
+				  });
 				break;
-			case 'author': 
-				  resultado.sort((a,b)=>{
+			case 'author':
+				return  resultado.sort((a,b)=>{
 				  	new Date(a.nombreAlumno.localeCompare(b.nombreAlumno))
 				  });
 				break;
@@ -572,12 +575,12 @@
 	});
 
 	/**
-	 * Materiales unicos disponibles en materiales pendientes
+	 * Materiales unicos disponibles en materiales pendientes [cambio]** 580
 	 *  @computed
      **/ 
 	const materialesDisponibles = computed(() => {
 		const materiales = new Set(
-			pendigsMaterials.value.map( m=> m.material)
+			pendigsMaterials.value.map( m => m.clasify_material)
 		);
 		  return Array.from(materiales).sort();
 	});
@@ -592,10 +595,10 @@
 	});
 
 	/**
-	 * Validacion del comentario nuevo
-	 * @computed*/
+	 * Validacion del comentario nuevo  [cambio]**
+	 * @computed*/  
 	const esComentarioValido = computed(() => {
-	 	 newComment.value.message.trim().length > 0;
+	 	return newComment.value.message.trim().length > 0;
 	});
 
 	/**
@@ -605,7 +608,7 @@
 	async function handleActualizarDatos(): Promise<void> {
 		try{
 			await Promise.all([
-				moderationStore.loadListMaterialsOfComments(),
+				moderationStore.loadPendingsMaterials(),
 				moderationStore.updateStatistics()
 			]);
 		}catch(error){
@@ -616,9 +619,9 @@
 	/**
 	 * Handler: Selecciona el material para revision
 	 * @param materialId ID del material a Seleccionar
-	 * @resposibility Delegar seleccion al store
+	 * @resposibility Delegar seleccion al store [cambio]** 621 enc tipo Promesa
 	 * */
-	async function handleSeleccionarMaterial(materialId: string): void {
+	async function handleSeleccionarMaterial(materialId: string): Promise <void> {
 		if(!materialId){
 			console.warn('ModeracionView: Id del material invalido');
 			return;
@@ -781,7 +784,6 @@
 	// ─────────────────────────────────
 	// 	   Utilidades de Formato
 	// ─────────────────────────────────
-
 	function formatearFecha(fecha: Date | string): string {
 		const dataObj = typeof fecha === 'string' ? new Date(fecha) : fecha;
 
@@ -809,9 +811,7 @@
 	// =================================================================
 	onMounted( async ()=> {
 	 	console.log('El commponente ha sido montado, cargando los datos..');
-
 	 	 await handleActualizarDatos();
-
 	 	 console.log(' [ModeracionVw] Los datos principales fueron cargados ');
 	});
 
@@ -822,24 +822,24 @@
 	 /**
 	 * Watcher: Resetea los Filtros cuando se cargan los nuevos materiales
 	 * @responsability los materiales pendientes
-	 * */
+	 * */  /*[cambio]  830**/
 	watch(
 	 	 () => pendigsMaterials.value.length,
 	 	(newLength, oldLength) => {
 	 	  	if(newLength>0 && oldLength === 0){
-	 	  	 	filtros.value.busqueda = '';
+	 	  	 	filtros.value.search = '';
 	 	  	 	filtros.value.clasify_material = '';
 	 	  	}
 	 	}
 	);
 
 	/** Cierra el panel, si el material actual se elimina de pendientes
-	 * @responsability materialActual
+	 * @responsability materialActual 842[negar cierpa panel, cuando no hay mats pendings]
 	 * */
 	watch(
 	  () => currentMaterial.value,
 	   (material) => {
-	   	   if(material && pendigsMaterials.value.find( m => m.id === material.id)){
+	   	   if(material && !pendigsMaterials.value.find( m => m.id === material.id)){
 	   	  	  console.warn(' [ModeracionVw] El Material actual ya no esta disponible en Pendientes');
 	   	  	  handleCerrarPanel();
 	   	  }

@@ -11,7 +11,9 @@
  *  -  Utilizado por profileStore p/gestion de Profesores
  *  -  Delega operaciones base a BaseProfileService*/ 
 
+  import {MaterialBseService} from './materials/MaterialBaseService.ts';
   import {BaseProfileService} from './BaseProfileService.ts';
+  import { addDoc,collection} from 'firebase/firestore';
   // import { StorageService } from './StorageService';
   import type {Profile} from '@/types/interfaces.ts';
 
@@ -23,50 +25,77 @@
   }
 
    export class ProfileTeacherService {
-   	  private static readonly COLLECTION_2 = 'teachers';
+   	  private static readonly COLLECTION_02 = 'teacher_register';  //*cambio_2
    	  private static readonly STORAGE_PATH = 'profiles/teachers';
 
    	  /**
    	   * Guarda un perfil de profesor con foto opcional
    	   * @param data - Datos del perfil
    	   * @param photoOptions - Opciones de foto(opc) 
-   	   * */
-   	    static async saveTeacherProfile(data: Partial<Profile>,
-   	  	 photoOptions?: ProfilePhotoOptions
+   	   * */   //cambio_03
+   	    static async saveTeacherProfile(data: Partial<Profile>,uid_teacher:string
+   	  	 /*photoOptions?: ProfilePhotoOptions*/
    	    ): Promise<void> {
-
+   	    	// console.log('Metadatos > ', data.nombre); 
+   	    	console.log('Metadatos > ', data.name); //*
+   	    	console.log('Metadatos > ', data.lname);
+   	    	console.log('Metadatos > ', data.numCuenta);
+   	    	console.warn('Uid Prof >',data.uid_teacher);
 	   	  	try{
-	   	  	 	if (!data.uid) {
+	   	  	 	if (!uid_teacher) {  
 	   	  	 		throw new Error('El UID del profesor es requerido');
 	   	  	 	}	
-	   	  	 		console.log('[ProfileTeacherService]: Guardando el Perfil del Profesor');
+	   	  	 		console.log('[ProfileTeacherService]: Comenzado el proceso de guardando el Perfil del Profesor');
 
-	   	  	 		let photoUrl = data.photoURL 
-
-	   	  	 	if (data?.photoUrl && photoOptions.photoFile) {
+	   	  	 		// let photoUrl = data.photoURL [cuando guarde todo el payload, ahora si guardar foto]
+	   	  	 	/*if (data?.photoUrl && photoOptions.photoFile) {
 	   	  	 		console.log('[ProfileTeacherService]  Subiendo Foto de Perfil... ');	
 	   	  	 		  photoURL = this.uploadProfilePhoto(uid, photoOptions.photoFile);
-	   	  	 	}
-
+	   	  	 	}*/
 	   	  	 	const teacherData: Partial<Profile> = {
-	   	  	 		...data,
-	   	  	 		role: 'teacher' as const,
-	   	  	 		uid_prof: data.uid,
-	   	  	 		photoURL,
+	   	  	 		// ...dataRole2, la informacion no llega a pesar de tener naming correcto vista, store
+	   	  	 		role: 'teacher' as const,  //*
+	   	  	 		uid_teacher: uid_teacher,  //* no importa si es uid o
+	   	  	 		  nombre: data.name ?? '',
+               lname: data.lname ?? '',
+               email: data.email ?? '',
+               cuenta: data.numCuenta ?? '',
+               password: data.password ?? '',
+               area: data.area ?? '',
 	   	  	 		updateAt: new Date(),
 	   	  	 		createdAt: data.createdAt || new Date(),
+	   	  	 		  // photoURL,
 	   	  	 	};
+	   	  	 		console.log('Datos Rol Profesor:', teacherData);
+							console.log('uid Profesor:', uid_teacher); // C2.1 Base: El uid lo reconoce pero nunca se reciben los valores
+							await BaseProfileService.saveProfile(this.COLLECTION_02,uid_teacher, teacherData);
+	   	  	 	    // const docRefRole2 = await addDoc(collection(db, this.COLLECTION_02), teacherData);
 
-	   	  	 	await BaseProfileService.saveProfile(this.COLLECTION_2,data.uid, teacherData);
+	   	  	 	 return data.uid;
 	   	  	}catch(error: any){
 	   	  		console.error('[ProfileTeacherService]❌ Error al guardar perfil:', error);
 	   	  		throw new Error(`Error al guardar perfil de profesor: ${error.message}`);
 	   	  	}
    	    }
 
+   	    /** Guardar data de Profesor en la Firestore [eliminar code]
+  static async saveTeacherProfile(data_teacher:{nombre:string;apellido:string;correo:string;passwd:string,cuenta:string,areaJob:string,role: 'student' | 'teacher';uid_teacher: string| null;}) {
+    try {
+      const docRef = teacher.id ? doc(db, this.collectionNameR2, teacher.id) : doc(collection(db, this.collectionNameR2));
+      const data_role2 = {
+        ...data_teacher
+      };
+      await setDoc(docRef, data, { merge: true });
+      return { id: docRef.id, ...data };
+    } catch (error) {
+      console.error('[ProfileTeachersService]: Error al guardar perfil Profesor', error);
+      throw error;
+    }
+  } **/
+
    	    static async getTeacherById(uid: string): Promise< Profile|null>{
    	    	 console.log('[ProfileTeacherService] 🔍 Obteniendo perfil del profesor:', uid);
-   	    	try{
+   	    	try{  //se modifico a coleccion existente
 	   	    	const profile = BaseProfileService.getProfile(this.COLLECTION_2,uid);
 
 	   	    	if (profile) {

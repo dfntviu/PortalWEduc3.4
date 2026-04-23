@@ -1,16 +1,15 @@
 <template>
   <div class="student-materials-container">
-    <!-- Card Externo: Verde oscuro -->
+    <!-- Card Externo -->
     <div class="card-ext-student main-card">
       <h1 class="page-title">📚 Mis Materiales Educativos</h1>
 
-      <!-- Formulario de Subida -->
-      <div v-if="authStore3.user?.email" class="upload-section">
-        <!-- Card Interno: Blanco semi-intenso -->
+      <!-- Formulario de Subida — solo visible para alumnos -->
+      <div v-if="authStore3.userRole === 'student'" class="upload-section">
         <div class="card-int-student upload-form">
           <h2 class="section-title">
-            <span class="icon">📤</span>
-            Subir Nuevo Material
+            <span class="icon">{{ isEditMode ? '✏️' : '📤' }}</span>
+            {{ formTitle }}
           </h2>
 
           <form @submit.prevent="handleSubmit" class="form-grid">
@@ -39,6 +38,18 @@
               ></textarea>
             </div>
 
+            <!-- Tags -->
+            <div class="form-field">
+              <label for="tags" class="field-label">Tags (separados por coma)</label>
+              <input
+                id="tags"
+                v-model="tagsInput"
+                type="text"
+                placeholder="Ej: física, cuántica, introducción"
+                class="field-input"
+              />
+            </div>
+
             <!-- Archivo PDF -->
             <div class="form-field">
               <label for="file" class="field-label">Archivo PDF *</label>
@@ -48,7 +59,6 @@
                 accept="application/pdf"
                 @change="handlePDFUpload"
                 class="field-file"
-                required
               />
               <p v-if="pdfBase64" class="file-selected">
                 ✅ Archivo seleccionado: {{ file?.name }}
@@ -59,13 +69,25 @@
             <div class="form-actions">
               <button
                 type="submit"
-                :disabled="materialStore.loading || !form.titulo || !file"
+                :disabled="materialStore.loading || !form.titulo"
                 class="btn-submit"
               >
-                <span v-if="!materialStore.loading">📤 Subir Material</span>
-                <span v-else>⏳ Subiendo...</span>
+                {{ submitButtonText }}
               </button>
-              <button type="button" @click="resetForm" class="btn-reset">
+              <button
+                v-if="isEditMode"
+                type="button"
+                @click="cancelEdit"
+                class="btn-reset"
+              >
+                ❌ Cancelar Edición
+              </button>
+              <button
+                v-else
+                type="button"
+                @click="resetForm"
+                class="btn-reset"
+              >
                 🔄 Limpiar Formulario
               </button>
             </div>
@@ -81,7 +103,7 @@
         </div>
       </div>
 
-      <!-- Mensajes de Error/Éxito -->
+      <!-- Mensajes de Error -->
       <transition name="slide">
         <div v-if="materialStore.error" class="alert alert-error">
           ❌ {{ materialStore.error }}
@@ -94,35 +116,99 @@
         <div class="section-header">
           <h2 class="section-title">
             <span class="icon">📖</span>
-            Mis Materiales ({{ materialStore.myStats.total }})
+            Mis Materiales: ({{ materialStore.myStats.total }})
           </h2>
 
           <!-- Estadísticas Rápidas -->
           <div class="quick-stats">
-            <span class="stat-badge badge-pending"> 
+            <span class="stat-badge badge-pending">
               ⏳ Pendientes: {{ materialStore.myStats.pending }}
             </span>
             <span class="stat-badge badge-approved">
               ✅ Aprobados: {{ materialStore.myStats.approved }}
             </span>
             <span class="stat-badge badge-rejected">
-               Rechazados {{ materialStore.myStats.rejected}}
+              ❌ Rechazados: {{ materialStore.myStats.rejected }}
             </span>
           </div>
         </div>
 
-        <!-- Buscador -->
-        <div class="search-box">
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="🔍 Buscar materiales..."
-            class="search-input"
-            @input="handleSearch"
-          />
+        <!-- Filtro y Búsqueda -->
+        <div class="controls-row">
+          <div class="search-box">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="🔍 Buscar materiales..."
+              class="search-input"
+              @input="handleSearch"
+            />
+          </div>
+
+          <!-- FIX: selectedFilter descomentado + watch restaurado -->
+          <div class="filter-material">
+            <label for="filter-select" class="field-label">Mostrar Materiales</label>
+            <select
+              id="filter-select"
+              v-model="selectedFilter"
+              class="filter-materials"
+            >
+              <option value="all">📦 Todos los Materiales</option>
+              <option value="today">🕒 Materiales de Hoy</option>
+            </select>
+              <!-- <pre> Valor: { selectedFilter } </pre>  disabled en caso de testear valor selector-->
+               <pre>Materiales Totales<strong> {{materialStore.materials.length }} </strong></pre>
+            <table v-if="selectedFilter === 'today'" class="w-full text-sm border-collapse" border="1">
+              <thead class="bg-gray-100 text-left text-xs uppercase tracking-wide text-gray-500">
+                <tr>
+                  <th class="px-3 py-2 w-[30%] truncate">Título Asig Firebase</th>
+                  <th class="px-3 py-2 w-[25%] truncate ">Dir. Personal</th>
+                  <!-- <th class="px-3 py-2 w-[30%] truncate">URL Firebase</th> -->
+                  <th class="px-3 py-2 w-[15%] withespace-nowrap">Fecha</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                <tr v-for="m in materialStore.materials" :key="m.autorId" 
+                class="hover:bg-gray-50 transition-colors">
+                   <td class="px-3 py-2 truncate max-w-0"> {{m.NombreFile}} </td>
+                   <td class="px-3 py-2 truncate max-w-0 text-gray-500 text-xs">{{ m.PathCustom }}</td>
+                   <!-- <td class="px-3 py-2 truncate max-w-0 text-blue-500 text-xs">{ m.archivoURL }</td> #La fecha se imprime con error d obj#-->
+                   <td class="px-3 py-2 whitespace-nowrap text-gray-600">{{ formatearFecha(m.fecha, {locale: 'long'}) }}</td>
+                   <!-- Los estilos no estan siendo aplicados; detalle menor con la fecha -->
+                </tr>
+              </tbody>
+            </table>
+
+          <table v-if="selectedFilter === 'all'" border="1" >
+            <thead>
+              <tr>
+                <th>Uid Firebase</th>
+                <th>Título Oficial</th>
+                <th>Tít. Archivo</th>
+                <th>Formato</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="m in materialStore.materials" :key="m.uid">
+                 <td class="px-3 py-2 truncate max-w-0 text-blue-500 text-xs">{{m.autorId}}</td>
+                 <td>{{ m.nombreArchivo }}</td>
+                 <td>{{ m.titulo }}</td> 
+                <td>{{m.tipoArchivo}}</td> 
+              </tr>
+            </tbody>
+          </table>
+            <pre>Materiales Totales<strong> {{materialStore.materials.length }} </strong></pre> <!-- ** -->
+          </div>
+
+           <!-- Crear en formato tabla y organizarlo en una sola condicion -->
+
+           <!--  <div v-for="m in materialStore.materials" :key="m.autorId">
+              {m.archivoURL}
+              { m.NombreFile }
+            </div> -->
         </div>
 
-        <!-- Loading State -->
+        <!-- Loading -->
         <div v-if="materialStore.loading" class="loading-state">
           <div class="spinner"></div>
           <p>Cargando materiales...</p>
@@ -142,7 +228,7 @@
             :key="material.uid"
             class="card-int-student material-card"
           >
-            <!-- Header del Material -->
+            <!-- Header -->
             <div class="material-header">
               <h3 class="material-title">{{ material.titulo }}</h3>
               <span :class="['status-badge', `badge-${material.status}`]">
@@ -157,16 +243,17 @@
 
             <!-- Metadata -->
             <div class="material-metadata">
-              <span class="metadata-item">
-                📅 {{ formatDate(material.createdAt) }}
-              </span>
+              <span class="metadata-item">📅 {{ formatDate(material.createdAt) }}</span>
               <span v-if="material.tags?.length" class="metadata-item">
                 🏷️ {{ material.tags.join(', ') }}
               </span>
             </div>
 
-            <!-- Razón de Rechazo (si aplica) -->
-            <div v-if="material.status === 'rejected' && material.rejectionReason" class="rejection-reason">
+            <!-- Razón de Rechazo -->
+            <div
+              v-if="material.status === 'rejected' && material.rejectionReason"
+              class="rejection-reason"
+            >
               <strong>Razón del rechazo:</strong>
               <p>{{ material.rejectionReason }}</p>
             </div>
@@ -202,325 +289,364 @@
 </template>
 
 <script setup lang="ts">
-	import {ref, computed, onMounted} from 'vue';
-	import {useMaterialStudentStore} from '@/stores/materialStudentStore';
-	import {useAuthStore3} from '@/stores/authStore3';
-   import {useFormMaterial} from '@/composables/useFormMaterial';
-	import type { Material} from '@/types/inteface.index.js';  //interfaceRules u otro file interf limpio
-	
-	// =============================
-	//  ESTADOS
-	// =============================
-	 const materialStore = useMaterialStudentStore();
-	 const authStore3 = useAuthStore3();  //e1
+import { ref, computed, watch, onMounted }    from 'vue';
+import { storeToRefs } from 'pinia';
+import { useMaterialStudentStore }            from '@/stores/materialStudentStore';
+import {useMatBaseStore}                      from '@/stores/materialBaseStore';
+import { useAuthStore3 }                      from '@/stores/authStore3';
+import { useFormMaterial }                    from '@/composables/useFormMaterial';
+import { useDateFormatter }                   from '@/composables/useDateFormatter';
+import type { Material }                      from '@/types/interface.index';
 
-    const { useFormMaterial, form} = useDateFormatter();
-    pdfBase64 = useFormMaterial;
-	 
-   // =================================
-	 //			ESTADO DEL FORMULARIO
-	 // =================================
-/*	const form = ref({
-	 	titulo: '',
-	 	description: '',
-	 	tags: [] as string[],//*
-	});
-*/
-	 const tagsInput = ref(''); //temporal para tags *
+// ============================================================
+// STORES Y COMPOSABLES
+// ============================================================
+const materialStore = useMaterialStudentStore();
+const baseStore = useMatBaseStore(); //*
+const authStore3    = useAuthStore3();
 
-	   const  originMaterial = ref<Material| null>(null);  //**/
+// form, pdfBase64 y file vienen del composable
+const { form, pdfBase64, file } = useFormMaterial();
+const {uid_auth, currentUser} = storeToRefs(authStore3);
+console.log('Usuarion con Id  -->',uid_auth.value);
 
-	   // ============================
-	   //  	ELEMENTOS COMPUTADOS
-	   // ============================
-	  const displayedMaterials = computed(()=>{
-  	 	if (searchQuery.value.trim()) {
-  	 		return  materialStore.filteredMaterials;
-  	 	}
-	  	return  materialStore.myMaterials;
-	  });
-	  
-     // Apoyo para la Edición del Material
-	  const submitButtonText = computed(()=>{
-	 	   if (materialStore.loading) {
-	 		  return isEditMode.value ? '⏳ Actualizando...' : '⏳ Subiendo...';
-	 	   }
+const { formatearFecha} =  useDateFormatter();
 
-	 	  return isEditMode.value ? '✅ Guardar Cambios' : '🔼Subir Material';
-	  });
-	  
-     // Titulo Dinamico ente funcionalidades
-	  const formTittle = computed(()=>{
-	 	  return isEditMode.value ? 'Editar Material' :  'Subir Material';
-	  });
-	 
-	  // ==========================
-	  // 			METODOS
-	  // ==========================
-	 /**
- 	 * Maneja la subida del archivo PDF
-	 */
-	  function handlePDFUpload(event: Event): void {
-		  const target = event.target as HTMLInputElement;
-		  const uploaded = target.files?.[0];
+// ============================================================
+// BLOQUE: UI STATE
+// ============================================================
+const tagsInput      = ref<string>('');
+const searchQuery    = ref<string>('');
+const isEditMode     = ref<boolean>(false);
+const editingId      = ref<string | null>(null);        // ID del material en edición
+const originMaterial = ref<Material | null>(null);      // snapshot para detectar cambios
 
-  			if (!uploaded) return;
+// FIX: selectedFilter estaba comentado pero referenciado en el template
+const selectedFilter = ref<'all' | 'today'>('all');
 
-		  if (uploaded.type !== 'application/pdf') {
-		     materialStore.setError('Solo se aceptan archivos PDF');
-		    return;
-		  }
+// ============================================================
+// COMPUTADOS
+// ============================================================
 
-  			file.value = uploaded;
+/** Lista visible según búsqueda activa */
+const displayedMaterials = computed((): Material[] => {
+  if (searchQuery.value.trim()) return materialStore.filteredMaterials as Material[];
+  return materialStore.myMaterials;
+});
 
-			  const reader = new FileReader();
-			  reader.onload = () => {
-			    pdfBase64.value = reader.result as string;
-			  };
-  			reader.readAsDataURL(uploaded);
-	  }
+/** Texto del botón submit según modo */
+const submitButtonText = computed((): string => {
+  if (materialStore.loading) {
+    return isEditMode.value ? '⏳ Actualizando...' : '⏳ Subiendo...';
+  }
+  return isEditMode.value ? '✅ Guardar Cambios' : '📤 Subir Material';
+});
 
-	  // ====================
-	  //  	MET. DE TAGS
-	  // ====================
-		function processTags(): void{
-      // ln 290*
-		 	if (tagsInput.value.trim) {
-		 		form.value.tags = tagsInput.value.split(',')
-								.map(tag => tag.trim
-								.filter(tag => tag.length>0));
-		 	}
-		}//*** * review ***
+/** Título dinámico del formulario */
+const formTitle = computed((): string =>
+  isEditMode.value ? 'Editar Material' : 'Subir Nuevo Material'
+);
 
-	 /**
- 		* Maneja el envio del formulario
- 	 */
-	async function handleSubmit(): Promise<void>{
-		if (!authStore.user?.uid) {
-			materialStore.setError('Debes iniciar sesión');
-			 return;
-		}
+// ============================================================
+// WATCHERS
+// ============================================================
 
-		if (!file.value) {
-			 materialStore.setError('Debes seleccionar un archivo PDF');
-			 return;
-		}
-
-		const materialData: Partial<Material> = {
-			titulo: form.value.titulo,
-			description:  form.value.description,
-			tags: form.value.tags,
-			autorNombre: form.value.displayName || 'Sin Nombre',
-		};
-
-    if(!form.value.titulo.trim()){
-       materialStore.setError('El título es Obligatorio');
+// FIX: watch restaurado — estaba comentado con selectedFilter
+watch(selectedFilter, async (value) => {
+    if (!uid_auth.value) return;
+    if (value === 'today') {
+        await materialStore.fetchTodayMaterials(uid_auth.value);
+    } else if( value === 'all') { //*
+        await materialStore.fetchMyMaterials(uid_auth.value);
+    } else{ //*
+      baseStore.resetState();
     }
+}, {immediate: true});
 
-		const result =  materialStore.uploadMaterialFile(file.value,materialData);
+// ============================================================
+// LIFECYCLE
+// ============================================================
+onMounted(selectedFilter, async () => {
+     // const uid = uid_auth.value;
+    console.log('Id de Autorizacion -> ',uid_auth.value);
+    if(uid_auth) return;
+    if(value==='all')
+       return await materialStore.fetchMyMaterials(uid_auth.value);
+  if (!current_uid) return;
+  else if(current_uid){
+    await materialStore.fetchMyMaterials(uid_auth.value);
+  }
+});
 
-    processTags();
+// ============================================================
+// HANDLERS — FORMULARIO
+// ============================================================
 
-		if (result) {
-			alert(`Meterial ${form.value.titulo} subido correctamente`);
-			resetForm();
-		}
+/**
+ * Captura el archivo PDF seleccionado y genera la preview en base64.
+ * FIX: declarada void — eliminado el return incorrecto al final
+ */
+function handlePDFUpload(event: Event): void {
+  const target   = event.target as HTMLInputElement;
+  const uploaded = target.files?.[0];
+  if (!uploaded) return;
 
-    if (isEditMode.value && editingMaterial.value) {
-      await updateMaterial();
-    }else {
-       await createMaterial();
-    }
-	}
-
-	/**
- 	 * Resetear Formulario Correctamente
- 	 */
-	function resetForm(){
-		form.value = {
-			titulo: '',
-			description: '',
-			tags: []
-		};
-		file.value = null;
-		pdfBase64.value = null;
-	}
-
-	/* Manip de Busqueda sencilla */
-	function controladoraSearch(): void {
-		materialStore.searchMaterials(searchQuery.value);
-	}
-
-  function handleView(material: Material): void {
-     console.log('Ver Material: ', material);
-
-     if(material.fileUrl){
-        window.open(material.fileUrl, '_blank');
-     } else {
-        alert('Este material no tiene archivo asociado');
-     }
+  if (uploaded.type !== 'application/pdf') {
+    materialStore.setError('Solo se aceptan archivos PDF');
+    return;
   }
 
-	async function handleEdit(material: Material): void {
-		/* Bloque de Intento*/
+  file.value = uploaded;
 
-		try{
-			 if(material.status!== 'pending') {
-			 	 alert('⚠️Solo se puede editar materiales pendientes');
-			 	  return;
-			 }
-			  if(material.autorId !== authStore.user?.uid) {
-			 	  alert('❌ No tienes permiso para editar este material')
-           return;
-			  }
+  const reader    = new FileReader();
+  reader.onload   = () => { pdfBase64.value = reader.result as string; };
+  reader.readAsDataURL(uploaded);
+}
 
-			 isEditMode.value = true;
-			 editingMaterial.value = material.uid;
-			 originalMaterial.value = {...material};
+/**
+ * Parsea el input de tags en un array limpio.
+ * FIX: .trim sin () → .trim() + filter correctamente encadenado
+ */
+function processTags(): void {
+  if (tagsInput.value.trim()) {
+    form.value.tags = tagsInput.value
+      .split(',')
+      .map(tag => tag.trim())          // FIX: era tag.trim (referencia, no llamada)
+      .filter(tag => tag.length > 0);  // FIX: filter ahora opera sobre strings
+  }
+}
 
-			  form.value ={
-			 	    titulo: material.titulo || '',
-      			description: material.description || '',
-      			tags: material.tags || [],
-			  };
-			
-	   		// 3. Guarda los datos del material de Edicion
-			 tagsInput.value = material.tags?.join(', ') || '';
-			 pdfBase64.value = null;
-			 file.value = null
-				
-				scrollFrom();
-				console.log('🖊️Modo edición activado para:', material.titulo);
-		}catch(error){
-  				console.error('❌Error al activar la edicición:', material);
-  				materialStore.setError('Error al cargar materiles para Edición');
-		}
-	}
-
-  async function updateMaterial(): Promise<void> {
-    try{
-        if(editingMaterial.value){
-           throw new Error('No hay materiales de Edición');
-        }
-
-        const updates: Partial<Material> = {
-            titulo: form.value.titulo.trim(),
-            description: form.value.description.trim(),
-            tags:form.value.tags
-        };
-
-             const success = materialStore.updateMyMaterial(editingMaterial.value, updates);
-          if(success){
-             alert(`✅ Material "${form.value.titulo}" actualizado correctamente.`);
-
-             isEditMode.value = false;
-             editingMaterial.value = null;
-             originMaterial.value = null;
-
-             resetForm();
-          }
-    }catch(error: any){
-       console.log('Error al actualizar el Material');
-       materialStore.setError(error.message || 'Error al Actualizar el nuevo material');
-    }
+/**
+ * Entry point del formulario — decide entre crear o actualizar.
+ * FIX: eliminada la doble ejecución (uploadMaterialFile + createMaterial en el mismo submit)
+ */
+async function handleSubmit(): Promise<void> {
+  if (!authStore3.isAuthenticated) {
+    materialStore.setError('Debes iniciar sesión');
+    return;
   }
 
-  async function createMaterial(): Promise<void> {
-    try{
-        if(!file.value){
-           materialStore.setError('Debes de Seleccionar un Archivo PDF');
-            return;
-        }
+  processTags();
 
-        const materialData: Partial<Material> = {
-            titulo:  form.value.titulo.trim(),
-            description: form.value.description.trim(),
-            tags: form.value.tags,
-            autorNombre: authStore.user.displayName || 'sin Nombre',
-        };
+  if (isEditMode.value) {
+    await updateMaterial();
+  } else {
+    await createMaterial();
+  }
+}
 
-         const result = await materialStore.uploadMaterialFile(file.value, materialData);
-
-          if(result){
-           alert(`Material ${form.value.titulo} subido correctamente`);
-            resetForm();
-          }
-    }catch(error: any){
-       console.log('Error al actualizar el Material');
-       materialStore.setError(error.message || 'Error al Actualizar el nuevo material');
-    }
+/**
+ * Crea un nuevo material delegando al store.
+ * FIX: authStore → authStore3
+ */
+async function createMaterial(): Promise<void> {
+  if (!file.value) {
+    materialStore.setError('Debes seleccionar un archivo PDF');
+    return;
+  }
+  if (!form.value.titulo.trim()) {
+    materialStore.setError('El título es obligatorio');
+    return;
   }
 
-	function cancelEdit():void{
-	 	if (hasChanges() ){
-	 		if (!confirm('Descartar los cambios realizados?'))
-	 				return;
-   }
+  try {
+    const materialData: Partial<Material> = {
+      titulo:      form.value.titulo.trim(),
+      description: form.value.description.trim(),
+      tags:        form.value.tags,
+      autorNombre: authStore3.user?.displayName || 'Sin Nombre', // FIX: authStore → authStore3
+    };
 
-  		isEditMode.value = false;
-  		editingMaterialId.value = null;
-  		originalMaterial.value = null;
+    const result = await materialStore.uploadMaterialFile(file.value, materialData);
 
-  			resetForm();
-
-  			console.log('❌Edición Cancelada');
-	}
-
-		function hasChanges(): boolean{
-				// TODO logica para guardar el cambio (Edicion)
-			if(!originalMaterial.value) return false
-
-			return (
-              form.value.titulo !== originalMaterial.value.titulo ||
-              form.value.description !== originalMaterial.value.description||
-              JSON.stringify(originalMaterial.value.tags) || 
-                            file.value !== null);
-		}	
-
-	  async function handleDelete(materialId: Material){
-		  if (confirm('Estas seguro de eliminar este material?')) return;
-
-		   const success = await materialStore.deleteMyMaterial(materialId);
-		    if (success) {
-		      alert('Material eliminado correctamente');
-		    }
-	  }
-
-		function scrollFrom():void {
-			const formElement = document.querySelector('.upload-form');
-			if (formElement) {
-				formElement.scrollIntoView({behavior: 'smoth', block: 'start'});
-			}
-		}
-
-    function formatDate(date: any): string{
-      if(!date) return 'Sin Fecha';
-
-       const d = date.toDate ? date.toDate() : new Date();
-        return d.toLocaleDateString('es-MX',{
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-        }); //ES
+    if (result) {
+      alert(`✅ Material "${form.value.titulo}" subido correctamente`);
+      resetForm();
     }
-		
-		/**
-	    * Obtiene el texto del estado
-	    */
-		function getStatusText(status: string): string {
-		  const statusMap: Record<string, string> = {
-		     pending: '⏳ Pendiente',
-		    approved: '✅ Aprobado',
-		    rejected: '❌ Rechazado',
-		  };
-		  return statusMap[status] || status;
-	  }
+  } catch (error: any) {
+    materialStore.setError(error.message || 'Error al subir el material');
+  }
+}
 
-	    onMounted(async ()=>{
-	   		await materialStore.fetchMyMaterials();
-	    });
+/**
+ * Actualiza el material en edición.
+ * FIX: condición invertida (if sin !) lanzaba error cuando SÍ había material
+ * FIX: editingMaterial → editingId (ref local correcto)
+ */
+async function updateMaterial(): Promise<void> {
+  if (!editingId.value) {   // FIX: era "if (editingMaterial.value)" sin negación
+    materialStore.setError('No hay material en edición');
+    return;
+  }
+  if (!form.value.titulo.trim()) {
+    materialStore.setError('El título es obligatorio');
+    return;
+  }
+
+  try {
+    const updates: Partial<Material> = {
+      titulo:      form.value.titulo.trim(),
+      description: form.value.description.trim(),
+      tags:        form.value.tags,
+    };
+
+    const success = await materialStore.updateMyMaterial(editingId.value, updates);
+
+    if (success) {
+      alert(`✅ Material "${form.value.titulo}" actualizado correctamente`);
+      resetEditState();
+      resetForm();
+    }
+  } catch (error: any) {
+    materialStore.setError(error.message || 'Error al actualizar el material');
+  }
+}
+
+/**
+ * Resetea el formulario al estado vacío.
+ */
+function resetForm(): void {
+  form.value     = { titulo: '', description: '', tags: [] };
+  tagsInput.value = '';
+  file.value      = null;
+  pdfBase64.value = null;
+}
+
+// ============================================================
+// HANDLERS — ACCIONES DE MATERIAL
+// ============================================================
+
+function handleView(material: Material): void {
+  if (material.fileUrl) {
+    window.open(material.fileUrl, '_blank');
+  } else {
+    alert('Este material no tiene archivo asociado');
+  }
+}
+
+/**
+ * Activa el modo edición para un material.
+ * FIX: manipulación de estado delegada a variables locales de la vista (SSV correcto)
+ * FIX: async function handleEdit(...): void → Promise<void>
+ */
+async function handleEdit(material: Material): Promise<void> {
+  try {
+    if (material.status !== 'pending') {
+      alert('⚠️ Solo se pueden editar materiales pendientes');
+      return;
+    }
+    if (material.autorId !== authStore3.user?.uid) {
+      alert('❌ No tienes permiso para editar este material');
+      return;
+    }
+
+    isEditMode.value   = true;
+    editingId.value    = material.uid;       // FIX: era editingMaterial (no declarado)
+    originMaterial.value = { ...material };  // FIX: era originalMaterial (no declarado)
+
+    form.value = {
+      titulo:      material.titulo      ?? '',
+      description: material.description ?? '',
+      tags:        [...(material.tags   ?? [])],
+    };
+    tagsInput.value = material.tags?.join(', ') ?? '';
+    pdfBase64.value = null;
+    file.value      = null;
+
+    scrollToForm();
+    console.log('✏️ Modo edición activado para:', material.titulo);
+  } catch (error) {
+    materialStore.setError('Error al cargar el material para edición');
+  }
+}
+
+/**
+ * Cancela el modo edición con confirmación si hay cambios.
+ */
+function cancelEdit(): void {
+  if (hasChanges() && !confirm('¿Descartar los cambios realizados?')) return;
+  resetEditState();
+  resetForm();
+  console.log('❌ Edición cancelada');
+}
+
+/**
+ * Elimina un material tras confirmación.
+ * FIX: condición invertida — era "if (confirm) return" eliminaba al confirmar
+ * FIX: tipo del parámetro era Material, debe ser string
+ */
+async function handleDelete(materialId: string): Promise<void> {
+  if (!confirm('¿Estás seguro de eliminar este material?')) return; // FIX: faltaba negación
+
+  const success = await materialStore.deleteMyMaterial(materialId);
+  if (success) {
+    alert('✅ Material eliminado correctamente');
+  }
+}
+
+// ============================================================
+// HANDLERS — BÚSQUEDA
+// ============================================================
+
+// FIX: handleSearch no existía — el template lo referenciaba pero el método se llamaba controladoraSearch
+function handleSearch(): void {
+  materialStore.searchMaterials(searchQuery.value);
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+
+/**
+ * Detecta si hay cambios respecto al material original.
+ * FIX: JSON.stringify mal aplicado como OR — ahora es comparación correcta
+ */
+function hasChanges(): boolean {
+  if (!originMaterial.value) return false;
+  return (
+    form.value.titulo      !== originMaterial.value.titulo      ||
+    form.value.description !== originMaterial.value.description ||
+    JSON.stringify(form.value.tags) !== JSON.stringify(originMaterial.value.tags) || // FIX: era || suelto sin comparación
+    file.value !== null
+  );
+}
+
+/** Limpia el estado de edición sin tocar el formulario */
+function resetEditState(): void {
+  isEditMode.value    = false;
+  editingId.value     = null;
+  originMaterial.value = null;
+}
+
+/** Hace scroll al formulario de subida */
+function scrollToForm(): void {
+  const formElement = document.querySelector('.upload-form');
+  if (formElement) {
+    formElement.scrollIntoView({ behavior: 'smooth', block: 'start' }); // FIX: 'smoth' → 'smooth'
+  }
+}
+
+function formatDate(date: any): string {
+  if (!date) return 'Sin Fecha';
+  const d = date.toDate ? date.toDate() : new Date(date);
+  return d.toLocaleDateString('es-MX', {
+    year:  'numeric',
+    month: 'short',
+    day:   'numeric',
+  });
+}
+
+function getStatusText(status: string): string {
+  const statusMap: Record<string, string> = {
+     pending: '⏳ Pendiente',
+    approved: '✅ Aprobado',
+    rejected: '❌ Rechazado',
+     deleted: '🗑️ Eliminado',
+  };
+  return statusMap[status] ?? status;
+}
 </script>
-<style >
+<style>
     @import '@/assets/styles/materialColors.css';
 	/* ============================================ */
   /* CONTENEDOR PRINCIPAL                        */
@@ -973,6 +1099,14 @@
     }
   }
 
+  table {
+   border-collapse: collapse;
+  }
+
+  /*th, td {
+    border: 1px solid black;
+    padding: 8px;
+  }*/
    /*Cada vez que corrijo dos errores aparecen dos más. Esto ocurre porque la compilación es secuencial: el compilador analiza el código en orden y, en muchos casos, no puede continuar detectando errores posteriores hasta que se corrigen los anteriores. Una vez corregido un error, el compilador continúa leyendo el código de arriba hacia abajo y de izquierda a derecha hasta encontrar el siguiente. Si no hay errores, entonces comienza a analizar el siguiente archivo.*/
 
    /*En sumar cuando se corrigen errores aparecen nuevos porque el compilador analiza el código de forma secuencial.

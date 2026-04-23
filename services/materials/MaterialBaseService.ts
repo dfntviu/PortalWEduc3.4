@@ -3,29 +3,118 @@
  * @description Servicio Base con Métodos compartidos entre roles
  * @pattern*/
 
-  import  { getFirestore, collection, doc, getDoc, getDocs, query, where, OrderBy, type DocumentsSnapshot, type CollectionReference, Timestamp
-          } from 'firebase/firestore';
+  import  { getFirestore, collection, doc, getDoc, getDocs, setDoc, query, where, OrderBy, type DocumentsSnapshot, 
+   type CollectionReference, Timestamp,addDoc } from 'firebase/firestore';
+   import { getStorage, ref, uploadBytes, getDownloadURL} from 'firebase/storage';
+   import { initializeFirebaseStorage } from '@/config/initializeFirebaseConf.ts';
   import type {Material} from '@/types/indexInterface.ts';
 
+  const { auth,db } = initializeFirebaseStorage();  //exportar mas abajo si es necesario
+ 
   export class MaterialBseService {
-  	 protected static readonly COLLECTION = 'materials';
+  	 private static readonly COLLECTION = 'Students_Materials'; //*
+
+     /*static getPathCustomize(userId: string): CollectionReference {
+            const PATH_CUSTOMIZE = `${this.COLLECTION}/${userId}`
+            console.log('Rta Pers. origen -', PATH_CUSTOMIZE);
+        return PATH_CUSTOMIZE;
+     }*/
   	 /**
   	  * ===========================
   	  *   MÉTODOS COMPARTIDOS (DRY)
   	  * ===========================*/
-  	 
+
   	 /**
   	  * Obtiene la Referencia de la coleccion de Materiales
   	  * */
-  	 static getMaterialsCollection(): CollectionReference {
+  	 static getMaterialsCollection(userId: string): CollectionReference {
   	 	const db = getFirestore();
   	 	  return collection(db,this.COLLECTION);
   	 }
 
+     /**
+      * Crear Materiales
+      * */
+     /**  static async saveMaterialsEduc(material: 
+         { id?: string; titulo: string;
+            descripcion: string;
+             archivoURL?: string;
+              fechaCreacion?: Date;
+               autor?: string }){
+      try{
+        // Obligar a llenar los campos elementales(obligatorios)
+          if(!material.titulo && !material.descripcion){  //*
+             throw new ('El titulo y la descripcion del material son obligatorios');
+          }
+
+         const docRef = material.id 
+           ? doc(db,this.COLLECTION,material.id) 
+           : doc(collection(db,this.COLLECTION))
+        
+        const dataToSave = {
+                titulo: material.titulo,  //#good
+        descripcion_extract: material.descripcion  ?? null, //#bad in english not Sp
+              archivoURL: material.archivoURL ?? null,
+           fechaCreacion: material.fechaCreacion || new Date(),
+             autorNombre: material.autorNombre ?? null,
+                 autorId: material.autorId ?? null,
+           // autor: material.autor || null,   # no existe en firebase
+        }   // .--.--.--.--.--.--.--.--.--.--.--.--.--.--.--.--.--.--.--.--.--.--.--.--
+            console.log('Material completo: =[', JSON.stringify(material),']=');
+            console.log('Descripcion raw: [', material.description,']');
+            console.log('Tipo de Nat de File: [', typeof material.description,']');
+            console.log('Guardado de Datos: [', JSON.stringify(dataToSave),']');
+          await setDoc(docRef,dataToSave,{ merge: true});//* importado tarde
+      }catch(error){
+          console.error('[MaterialDeployService]: Error al guardar material', error);
+          throw error;
+      }
+    } **/
+
+    static async saveMaterialEdStorageStudent(titulo: string, descripcion: string, file: File, userId: string): Promise<string> {
+        console.log('ing a la f(n)');
+        try {
+                // Validacion de datos escenciales
+            if(!titulo && !descripcion){  
+                throw new Error('El titulo y la descripcion del material son obligatorios');
+            }
+
+            console.log('extension/nombre de archivo [', file,']');  //dom html
+            // Acceso al alamcenamiento de Firebase
+            const storage = getStorage();
+            const storageReference = ref(storage, `${this.COLLECTION}/${userId}/${Date.now()}_${file.name}`);
+
+            console.log('Nomb. Archivo ',file.name);
+                // Subir el archivo y obtener  la URL
+            const snapshot = await  uploadBytes(storageReference,file);
+            const fileURL =  await getDownloadURL(snapshot.ref);
+            // Preparar informacion para firestore
+            const dataCollection = {
+                autorId: userId,
+                titulo: titulo,
+                descripcion: descripcion ?? '', //nula
+                nombreArchivo: file.name ?? '',  //vacia
+                archivoURL: fileURL,
+                fechaCreacion: Timestamp.now(),
+                tipoArchivo: file.type,
+            }
+                //* validar la data completa
+            console.log('Data a guardar:', dataCollection);
+            // console.log('Data a guardar:', dataCollection);
+
+                // Subir la informacion a la firetore
+            const docRef = await addDoc(collection(db, this.COLLECTION), dataCollection);
+                // regresar identificacion unica de la coleccion
+            return docRef.id;
+        }catch(error){
+            console.error('[MtBase] Error al guardar en el Stg',error);
+            throw error;
+        }
+    }
   	 /**Obtiene un material por ID(En ambos roles)
   	  *@param materialId -  Id del material
   	  * */
-  	static async getMaterialById(materialId:string): Promise<Material| null>{
+        static async getMaterialById(materialId:string): Promise<Material| null>{
  			try{   
  		  		    console.log(`[MaterialBaseService] 🔍Obteniendo el Material: ${materialId}`);
  		   	   		  const db = getFirestore();

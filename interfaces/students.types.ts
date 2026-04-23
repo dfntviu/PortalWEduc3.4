@@ -109,7 +109,7 @@
  /**
   * Mensajes de la Aplicacion
   * */
- const MESSAGES = {
+ export const MESSAGES = {
  	REGISTRO_EXITOSO: 'Registro completo exitosamente',
  	PERFIL_ACTUALIZADO: 'Perfil actualizado exitosamente',
  	PERFIL_ELIMINADO: 'Perfil eliminado satisfactoriamente',

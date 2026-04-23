@@ -298,6 +298,15 @@
               Cancelar
             </button>
           </div>
+          <!-- ═══════════════════════════════════════-->
+          <!-- FIRST USING - [AUTOMATIC ACCT]  -->
+          <!-- ═══════════════════════════════════════-->
+          <!-- <div v-else-if="registrationType === 'noneusers'" class="inital-bootraps-use">
+            <h2>Registro del Primer Usuario</h2>
+             <button  @click="handleBootstrap" class="f-register">
+               Crear
+             </button>
+          </div> -->
         </article>
       </Transition>
     </section>
@@ -475,6 +484,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, nextTick } from 'vue';
+import {storeToRefs} from 'pinia';
 import { useRouter } from 'vue-router';
 import { useProfileStore } from '@/stores/profileStore';
 import { useAuthStore3 } from '@/stores/authStore3'; 
@@ -483,13 +493,15 @@ import { useFormValidation } from '@/composables/useFormValidation';
 import { useRegistrationForm } from '@/composables/useRegistrationForm';
 import type { RegistrationType, RegistrationTypeOption, UserRole } from '@/types/registration.types';
 
+
+
 // ══════════════════════════════════════════════════════
 // COMPOSABLES
 // ══════════════════════════════════════════════════════
 
 const router = useRouter();
 const profileStore = useProfileStore();
-const authStore = useAuthStore();
+const authStore3 = useAuthStore3();
 const { showNotification, activeNotifications, dismissNotification } = useNotifications();
 const { validateField, hasFieldError, getFieldError, clearErrors } = useFormValidation();
 const { 
@@ -497,7 +509,8 @@ const {
   profileFormData, 
   validateTraditionalForm, 
   syncProfileToForm, 
-  resetForm 
+  resetForm,
+  uid_auth,
 } = useRegistrationForm();
 
 // ══════════════════════════════════════════════════════
@@ -507,7 +520,7 @@ const {
 const registrationType = ref<RegistrationType>('tradicional');
 const isSubmitting = ref<boolean>(false);
 const showProfileEditor = ref<boolean>(false);
-
+  /*No existe showNotification*/
 // ══════════════════════════════════════════════════════
 // CONSTANTS
 // ══════════════════════════════════════════════════════
@@ -527,8 +540,18 @@ const REGISTRATION_TYPES: readonly RegistrationTypeOption[] = [
     id: 'google', 
     label: 'Google', 
     icon: '🔍' 
-  }
+  },
+ /* {
+    id: 'noneusers',
+    label: 'None',
+    icon: '❌👥'
+  }*/
 ] as const;
+
+  const ROLE_MAP: Record<string, 'student' | 'teacher'> = {
+    alumno: 'student',
+    profesor: 'teacher'
+  }
 
 const ROLE_ROUTES: Record<UserRole, string> = {
   profesor: '/vw-bienvenida-teacher',
@@ -540,7 +563,14 @@ const ROLE_ROUTES: Record<UserRole, string> = {
 // ══════════════════════════════════════════════════════
 
 const currentUserProfile = computed(() => profileStore.profile);
-const isAuthenticated = computed(() => authStore.isAuthenticated);
+const isAuthenticated = computed(() => authStore3.isAuthenticated);
+
+//  ═════════════════════════════
+//   CONSTANTS REFERENCEDES
+//  ═════════════════════════════
+
+  const isBootstrapMode = ref(false);
+  const bootrapError = ref('');
 
 // ══════════════════════════════════════════════════════
 // WATCHERS
@@ -593,11 +623,22 @@ const handleTypeChange = (type: RegistrationType): void => {
   clearErrors();
 };
 
+  /*async function handleBootstrap(){
+    const result = await RoleFirstUsingService.initialingFirstUse();
+
+      if(result?.success){
+        console.log('[Bootstrap] Sistema inicializado:', result.credentials);
+         router.push({name: 'viewLoginMultiuser'});
+      } else {
+        bootrapError.value = result?.message ?? 'Error al inicializar el Sistema';
+      }
+  }*/
 /**
  * Maneja el envío del formulario tradicional
  */
 const handleTraditionalSubmit = async (): Promise<void> => {
   clearErrors();
+  const {uid_auth} = storeToRefs(authStore3);
 
   const validationResult = validateTraditionalForm();
 
@@ -613,13 +654,14 @@ const handleTraditionalSubmit = async (): Promise<void> => {
 
   try {
     await profileStore.registerTraditional({
-      nomb: formData.name,
+      nombre: formData.name, //*
       apellido: formData.lname,
       correo: formData.email,
       passwd: formData.password,
       cuenta: formData.numCuenta,
-      areaTr: formData.area,
-      role: formData.role as UserRole
+      areaTrab: formData.area, //*
+      role: ROLE_MAP[formData.role],
+      uid_teacher: uid_auth.value
     });
 
     showNotification({
@@ -629,7 +671,7 @@ const handleTraditionalSubmit = async (): Promise<void> => {
 
     await nextTick();
 
-    const targetRoute = ROLE_ROUTES[formData.role as UserRole];
+    const targetRoute = ROLE_ROUTES[formData.role];
     await router.push(targetRoute);
   } catch (error) {
     console.error('Error al registrar usuario:', error);
@@ -771,6 +813,7 @@ const handleDeleteProfile = async (): Promise<void> => {
   }
 };
 
+
 /**
  * Cierra el modal de edición de perfil
  */
@@ -786,16 +829,23 @@ const handleCloseModal = (): void => {
 // ══════════════════════════════════════════════════════
 
 onMounted(async () => {
-  const uid = authStore.user?.uid;
+  const uid = authStore3.currentUser?.uid;
 
   if (uid) {
     try {
-      await profileStore.fetchProfiles(uid);
+      await profileStore.getStudentById(uid);
     } catch (error) {
       console.error('Error al cargar el perfil:', error);
     }
   }
 });
+
+/*onMounted(async () => {
+   const completed = await RoleFirstUsingService.initialingFirstUse();
+   isBootstrapMode.value = !completed;
+});*/
+
+   // await handleBootstrap();
 </script>
 
 <style scoped>

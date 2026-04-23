@@ -142,23 +142,23 @@
 										<!-- Badge de Estado -->
 										<div class="relative">
 											<div class="absolute top-4 rigth-4 z-10">
-											<span>{{getStatusLabel(material.status)}}</span>
+											<span>{{getStatusLabel(materials.status)}}</span>
 											</div>
 
 											<div class="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white">
 												<div class="text-6xl font-bold line-clamp mb-2"></div>
 												<h3 class="text-xl font-bold line-clamp">
-												 {{material.titulo}}
+												 {{materials.titulo}}
 												 </h3>
 												 <p class="text-indigo-100 text-sm line-clamp-2">
-													{{material.description ||  'Sin descripción'}} 
+													{{materials.description ||  'Sin descripción'}} 
 												 </p>
 											</div>
 										</div>
 											<!-- Contenido del Material -->
 										<div class="p-6">
 											 <!-- Tags -->
-											<div v-if="material.tags && material.tags.length>0" class="flex flex-wrap gap-2 mb-2">
+											<div v-if="materials.tags && materials.tags.length>0" class="flex flex-wrap gap-2 mb-2">
 												<span
 												  v-for="tag in material.tags.slice(0,3)"
 												  :key="tag"
@@ -166,10 +166,10 @@
 												 dark:text-indigo-300 rounded-md text-x font-medium">
 												  # {{tag}}
 												</span>
-												<span v-if="material.tags.length > 3"
+												<span v-if="materials.tags.length > 3"
 												 class="px-2 py-1 bg-gray-100:dark:bg-gray-700 text-gray-600
 												 dark: text-gray-400">
-													+{{material.tags.length - 3}}
+													+{{materials.tags.length - 3}}
 												</span>
 											</div>
 
@@ -177,13 +177,13 @@
 											 <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
 												<div class="flex items-center gap-2">
 													 <span>📅</span>
-													 <span>{{formateDate(material.createdAt)}}</span>
+													 <span>{{formateDate(materials.createdAt)}}</span>
 												</div>
-												 <div v-if="material.views !== undefined" class="flex items-center gap-2">
+												 <div v-if="materials.views !== undefined" class="flex items-center gap-2">
 													  <span>👁️</span>
-														<span>{{material.views}}</span>
+														<span>{{materials.views}}</span>
 												  </div>
-												  <div v-if="material.downlonads !== undefined" class="flex items-center gap-2">
+												  <div v-if="materials.downlonads !== undefined" class="flex items-center gap-2">
 													<span>⬇️</span>
 													<span>{material.downloads}</span>
 												  </div>
@@ -195,7 +195,7 @@
 													 Motivo del Rechazo:
 												</p>
 												<p class="text-sm text-red-700 dark:text-red-400"> 
-												  {{material.reactionReason}}
+												  {{materials.reactionReason}}
 												</p>
 											</div>
 
@@ -218,8 +218,8 @@
 													Estado
 												 </button>
 													<!-- Elimar materiales(del usuario propio) -->
-												 <button v-if="material.autorId === currentUserId"
-													 @click="confirmDelete(material)"
+												 <button v-if="materials.autorId === currentUserId"
+													 @click="confirmDelete(materials)"
 												  class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg 
 												  font-medium transition-colors flex items-center justify-center">
 													<span v-if="!deleting">🚮</span>
@@ -400,7 +400,7 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 	import {ref, computed, onMounted} from 'vue';
 	import {useMaterialStudentStore} from '@/stores/materialStudentStore.ts';
 	import {useAuthStore3} from '@/stores/authStore3.ts';
@@ -467,7 +467,7 @@
 		  id: 'pending' as const,
 		  label: 'Pendientes',
 		  icon: '⌛',
-		  count: materialStore.pendingMaterial.length
+		  count: materialStore.pendingMaterials.length
 		},
 	 ]);
 
@@ -518,7 +518,7 @@
 
 	const refreshMaterials = async() => {
 		try{
-			await materialStore.fetchMaterials();
+			await materialStore.fetchMyMaterials();
 		}catch(error){
 			console.log('Error al refrescar(actualizar) los materiales',error);
 		}

@@ -5,7 +5,7 @@
  	 @note La navegación ahora está optimizad por LayoutNavBar.vue en el script base -> App.vue -->
  	<div class="layout-teacher">
  		<div class="layout-content">
- 			<router-view/>
+ 			<RouterView/>
  		</div>
  	</div>
  </template>
@@ -17,7 +17,7 @@
  <style scoped>
  	.layout-teacher{
  		width: 100%;
- 		min-height: calc(100vh - 200px); //Ajuste con respecto a la altunar del navbar
+ 		min-height: calc(100vh - 200px); /** Ajuste con respecto a la altunar del navbar **/
  	}
  	.layout-content{
  		width: 100%;
@@ -29,7 +29,7 @@
 
  	 @media (max-width: 768px); {
  	 	.layout-content{
- 			padding: 1rem; adek
+ 			padding: 1rem;
  		}
  	 }
 
