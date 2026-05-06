@@ -59,10 +59,10 @@ interface TeacherMetrics {
    * Cantidad de usuarios en el sys. derivado de las metricas de
    * administracion esto evitara calculos redundantes en la vista
    * */
-   const totalUsers = computed(() => {
+   const totalUsers = computed(() => 
       (adminMetrics.value?.totalStudents ?? 0) +
       (adminMetrics.value?.totalTeachers?? 0)
-   });
+   );
 
    /**
     * Porcentajes aprobados sobre el total.
@@ -85,11 +85,11 @@ interface TeacherMetrics {
               return Math.round((rejected / total)* 100);
     });
 
-     /**
+     /** [ready]
      * Porcentaje de materiales pendientes sobre el total
      * */
     const pendingRate = computed<number> (()=> {
-          const total    = adminMetrics.value?.totalMaterials ?? 0;
+          const total    = adminMetrics.value?.materialsPending ?? 0;
           const pending = adminMetrics.value?.materialsApproved ?? 0;
             if (total === 0) return 0;
               return Math.round((pending / total)* 100);
@@ -121,7 +121,8 @@ interface TeacherMetrics {
     function _startLoading(): void {
       console.log('F(n) de load visitada');
        loading.value = true;
-       error.value = null;  console.log('Carga del Almac a [+,-]: ', currentUser.value);
+       error.value = null;  
+        //console.log('Carga del Almac a [+,-]: ', currentUser.value);
     }
 
 
@@ -157,7 +158,7 @@ interface TeacherMetrics {
            adminMetrics.value = await StaticsServiceUn.getAdminStatistics();
             _markFetch();
         } catch(err: any){
-          _setError('Error al cargar el resumen diario');
+          _setError('Error al cargar el resumen diario',err);
         } finally{
           _stopLoading();
         }
@@ -169,9 +170,9 @@ interface TeacherMetrics {
      * */
       async function loadTeacherMetrics(): Promise<void> {
         _startLoading();
-
+          // [ready]
         try {
-           adminMetrics.value = await StaticsServiceUn.getTeacherStatistics();
+           teacherMetrics.value = await StaticsServiceUn.getTeacherStatistics();
          } catch(err: any){
             _setError('Error al cargar las metricas globales');
          } finally {
@@ -191,9 +192,9 @@ interface TeacherMetrics {
              date:            summary.date,
              activitiesCount: summary.activitiesCount,
             };
-
+            // [ready]
          }catch(err: any){
-            setError('Error al cargar el resumen diario', err);
+            _setError('Error al cargar el resumen diario', err);
          } finally {
            _stopLoading();
          }
@@ -204,6 +205,7 @@ interface TeacherMetrics {
        * @param profesorId - UID del profesor - es requerido en el resumen diario
        * */
       async function loadAll(profesorId: string): Promise<void> {
+        console.log('Main: Cargando todas las metricas disponibles')
          _startLoading();
           try{
              await Promise.all([

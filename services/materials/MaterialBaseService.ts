@@ -3,7 +3,7 @@
  * @description Servicio Base con Métodos compartidos entre roles
  * @pattern*/
 
-  import  { getFirestore, collection, doc, getDoc, getDocs, setDoc, query, where, OrderBy, type DocumentsSnapshot, 
+  import  { getFirestore, collection, doc, getDoc, getDocs, setDoc, query, where, OrderBy, type DocumentsSnapshot,
    type CollectionReference, Timestamp,addDoc } from 'firebase/firestore';
    import { getStorage, ref, uploadBytes, getDownloadURL} from 'firebase/storage';
    import { initializeFirebaseStorage } from '@/config/initializeFirebaseConf.ts';
@@ -11,7 +11,7 @@
 
   const { auth,db } = initializeFirebaseStorage();  //exportar mas abajo si es necesario
  
-  export class MaterialBseService {
+  export class MaterialBaseService {
   	 private static readonly COLLECTION = 'Students_Materials'; //*
 
      /*static getPathCustomize(userId: string): CollectionReference {
@@ -97,6 +97,7 @@
                 archivoURL: fileURL,
                 fechaCreacion: Timestamp.now(),
                 tipoArchivo: file.type,
+                estado: 'pendiente',  //*
             }
                 //* validar la data completa
             console.log('Data a guardar:', dataCollection);
@@ -120,14 +121,14 @@
  		   	   		  const db = getFirestore();
  		             const docRef = doc(db, this.COLLECTION, materialId);
  		            const docSnap = await getDoc(docRef);
- 		 
- 		              if (docSnap.exists()) {
-                      console.log('[MaterialBaseService] ✅ Material encontrado');
+                  // [*cambio*]
+ 		              if (!docSnap.exists()) {return null 
+                        console.log('[MaterialBaseService] ✅ Material encontrado');}
  		              	 return{
  		              	 	uid:docSnap.id,
  		              	 	...docSnap.data()
  		              	 } as Material;
- 		              }
+ 		              // }
  		   	}catch(error: any){
            console.error('[MaterialBaseService]❌ Error al obtener material: ',error);
             throw new Error(`Error al obtener Material: ${error.message}`);
@@ -140,13 +141,13 @@
      * @param materials -  Materiales donde buscar
      * */
     static async searchMaterials(searchTerm:string, materials: Material[]): Promise<Material[]>{
-        
+          // [*cambio -> 150*]
         try{
            const searchLower = searchTerm.toLowerCase().trim();
            // filtrada & Validada
            const filtered = materials.filter(material =>
                material.titulo?.toLowerCase().includes(searchLower) ||
-               material.description?.toLowerCase().includes(searchLower) ||
+               material.descripcion?.toLowerCase().includes(searchLower) ||
                material.tags?.some(tag => tag.toLowerCase().includes(searchLower))
             );
 
@@ -161,8 +162,9 @@
     /**
      * Valida datos del material
      * */
-    protected static validateMaterialData(data: Partial<Material>): void{
-       if (!data.titulo.trim()) {
+    protected static validateMaterialData(data: Partial<Material>): void{ 
+      // [*cambio*]
+       if (!data.titulo?.trim()) {
           throw new Error(`El título es requerido`);
        }
        if (!data.autorId.trim()) {

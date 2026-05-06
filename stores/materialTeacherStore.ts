@@ -76,12 +76,23 @@ export const useMaterialTeachStore = defineStore('teacher_materials',{
 	    				state.loading &&
 	    				state.error === null);
 	    },
+
+	     /*materialsByAuthor(): Record<string, Material[]>  {
+	     	console.log('leyendo la f(n) agrup por autor');
+					return this.materials.reduce((groups, material) => {
+						const key = material.uploadedBy ?? 'Anonimo';
+							if (!groups[key]) groups[key] = [];
+							 groups[key].push(material);
+								return groups;
+					}, {} as Record<string, Material[]>);
+				},*/
 	},
  		// ═══════════════════════════════════════════════════════════
  				// 			ACTIONS(ACCIONES)
  		// ═══════════════════════════════════════════════════════════
 	actions: {
 		async fetchMaterialsByFilter(filterOption: number): Promise<void> {
+			  console.warn('Filtrando lo escencial para desp Materiales...');
 	      // ─────────────────────────────────────────────────────────
 	      // VALIDACIÓN DE ENTRADA
 	      // ─────────────────────────────────────────────────────────
@@ -103,19 +114,20 @@ export const useMaterialTeachStore = defineStore('teacher_materials',{
 	        // ─────────────────────────────────────────────────────────
 	        // INSTANCIACIÓN DEL SERVICIO
 	        // ─────────────────────────────────────────────────────────
-	        const service = MaterialDeployServiceR2();
+	        const service_admTeacher = new DesplegarMaterialServiceR2();
 	        
 	        // ─────────────────────────────────────────────────────────
 	        // MAPEO DE FILTROS A MÉTODOS DE SERVICIO
 	        // Patrón Strategy: cada filtro ejecuta una estrategia diferente
 	        // ─────────────────────────────────────────────────────────
 	        const filterStrategies: Record<number, () => Promise<Material[]>> = {
-	          1: () => service.getAllStudentsMaterials(),
-	          2: () => service.getMaterialsSortedByLatest(),
-	          3: () => service.getMaterialsByUsername(),
-	          4: () => service.getMaterialsToday(),
-	          5: () => service.getMaterialLast2Days(),
-	          6: () => service.getMaterialsLastWeek(),
+	          1: () => service_admTeacher.getAllStudentsMaterials(),
+	          2: () => service_admTeacher.getMaterialsSortedByLatest(),
+	          3: () => service_admTeacher.getMaterialsByUsername(),
+	          4: () => service_admTeacher.getMaterialsToday(),
+	          5: () => service_admTeacher.getMaterialLast2Days(),
+	          6: () => service_admTeacher.getMaterialsLastWeek(),
+	          // 7: () => service_admTeacher.getMaterialsByAuthorFill7(),
 	        };
 
 	        // ─────────────────────────────────────────────────────────
@@ -145,7 +157,10 @@ export const useMaterialTeachStore = defineStore('teacher_materials',{
 	        this.materials = fetchedMaterials;
 	        this.lastFetchTimestamp = new Date();
 
-	      } catch (err: any) {
+	      } catch (err: any) {  //el error estaba siendo sileciado, es correcto crear
+	      	// tu propio metodo de errores, pero nunca sustituirla por el error de la coleccion
+	      	// oficial pues esta, casi siempre, nos brinda informacion importante de la causa raiz
+	      	console.error('[RAW FIRESTORE ERROR] ',err);
 	        // ─────────────────────────────────────────────────────────
 	        // MANEJO DE ERRORES
 	        // ─────────────────────────────────────────────────────────
@@ -256,15 +271,29 @@ export const useMaterialTeachStore = defineStore('teacher_materials',{
       		 filter, 
       		 stackTrace,
       		});
-
+      		// no es ISOString sino toISOString importante en spelling de las f(n)s no conocidas
       		if (import.meta.DEV) {
       			console.error('[MaterialTeacherStore] Error:', {
 		          message,
 		          filter,
 		          stackTrace,
-		          timestamp: new Date().ISOString(),
+		          timestamp: new Date().toISOString(),
 		       });
       		}
 				},
+
+				/* ===================== GETTERS =======================*/
+				
+				// Getter [F(n) Auxiliar ] p/la Agrupacion de Materiales: Por Autor
+
+				/*get materialesByAuthor(): Record<string, Material[]>  {
+					return this.materials.reduce((groups, material) => {
+						const key = material.uploadedBy ?? 'Anonimo';
+							if (!groups[key]) groups[key] = [];
+							 groups[key].push(material);
+								return groups;
+					}, {} as Record<string, Material[]>);
+				},*/
+				/* ================= GETTERS ===========================*/
 	}
  });

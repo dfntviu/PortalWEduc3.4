@@ -221,15 +221,15 @@
 
 					<!-- Paginacion:_Materiales_Individuales -->
 					<nav v-if="totalPages>1" class="pagination" aria-label="Paginación">
-						<button @click="handlePreviousPage" :disabled="currrentPage===1"
+						<button @click="handlePreviousPage" :disabled="currentPage===1"
 							class="pagination-btn" type="button" aria-label="Pag. Anterior" >⬅️Anterior</button>
 						
 						<div class="pagination-info">
-							Página {{currrentPage}} de {{totalPages}}
+							Página {{currentPage}} de {{totalPages}}
 							({{filteredMaterials.length}} materiales)
 						</div>
 
-						<button @click="handleNextPage" :disabled="currrentPage===totalPages"
+						<button @click="handleNextPage" :disabled="currentPage===totalPages"
 							class="pagination-btn" type="button" aria-label="Pag. Siguiente">Siguiente➡️</button>
 					</nav>
 				</div>
@@ -545,7 +545,7 @@ const handleDownloadMaterial = async (material: Material | null): Promise<void> 
 }
 
 const handleRetry = async (): Promise<void> => {
-  const uid = authStore.user?.uid
+  const uid = authStore3.user?.uid
   if (uid) {
     await materialStore.fetchStudentMaterials(uid)
   }

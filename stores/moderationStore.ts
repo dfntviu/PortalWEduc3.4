@@ -2,10 +2,10 @@ import {defineStore} from 'pinia';
 import {ModerationService} from '@/services/ModerationServices';
 import type {Material, Comentario, Moderation} from '@/interfaces/Profile.types.ts';
 	// not fatal error 's singular, not plural, subject to correction
-// ===============================
-//     TIPOS LOCALES
-// ===============================
- type ModerationStatus = 'aprovado' |'rechazado' |'pendiente'; //*
+	// ===============================
+	//     TIPOS LOCALES
+	// ===============================
+ type ModerationStatus = 'aprobado' |'rechazado' |'pendiente'; //*
 
   	interface ModerationState {
   		// Est. de Materiales pendientes
@@ -13,7 +13,8 @@ import type {Material, Comentario, Moderation} from '@/interfaces/Profile.types.
   	  currentMaterial: Material | null;
   	  // modulo de comentarios de profesores
   	  comments: Comentario[];
-      commentsForMaterial: Map<string, Comentario[]>;
+      commentsForMaterial: Record<string, Comentario[]>;
+      // commentsForMaterial: Map<string, Comentario[]>;
       // Control de estado general
       loading: boolean;
       error: string;
@@ -36,7 +37,7 @@ import type {Material, Comentario, Moderation} from '@/interfaces/Profile.types.
 			 currentMaterial: null, //*
 			// Comentarios
 			comments: [],
-			commentsForMaterial: new Map(),
+			commentsForMaterial: {},
 
 			loading: false,
 			error: '',
@@ -61,33 +62,33 @@ import type {Material, Comentario, Moderation} from '@/interfaces/Profile.types.
   			},
 
   			/**
-  			 * Obtien comentarios de un material escpecífico
+  			 * Obtiene comentarios de un material escpecífico
   			 * */
   			comentarioDeMaterial: (state)=> {
   				return (materialId: string): Comentario[] => {
-  					return state.commentsForMaterial.get(materialId) || [];
+  					return state.commentsForMaterial[materialId] || [];
   				};
   			},
   			/**
   			 * Verifica si hay materiales Pendientes
   			 * */  //*
   			hasPending: (state): boolean => {
-  				state.pendigsMaterials.length > 0;
+  				return state.pendigsMaterials.length > 0;
   			},
 
   			/**
   			 * Cuenta de Materiales por estado
   			 * */
   			countStatistics:(state) => {
-  				return {  // *cbio 3 *
-  					  pendings:  state.stats.pendigsTotal,
-  					 approveds:  state.stats.approvedsTotal,
-  					rejecteds: state.stats.rejectedsTotal,
-  					total: state.stats.pendigsTotal +
-  						  state.stats.rejectedsTotal
+  				return {  // *cbio 3 * al esp
+  					  pendientes:  state.stats.pendigsTotal,
+  					 aprovados:  state.stats.approvedsTotal,
+  					rechazados: state.stats.rejectedsTotal,
+  					total: state.stats.pendigsTotal +  //4
+  						  state.stats.rejectedsTotal  //0
   				};
   			},	
-
+  					// state.stats.approvedsTotal+  //0
   			/**
   			 *  Material actual en revision
   			 * */
@@ -145,12 +146,12 @@ import type {Material, Comentario, Moderation} from '@/interfaces/Profile.types.
   			 * Aprobar el material Educativo
   			 * */
   			async approvateMaterial(materialId: string, alumnoId: string):
-  			 Promise<void>{
+  			 Promise<void> {
   				this.loading = true;
   				  this.error = '';
 
-  				try{
-  					await ModerationService.approvateEducMaterial(materialId,alumnoId);
+  				try{		//* modificar al naming alieando al Servicio
+  					await ModerationService.aprobarMaterialEduc(materialId,alumnoId);
 
   					await this.removeOfPendings(materialId);
   					this.stats.approvedsTotal++;
@@ -168,7 +169,7 @@ import type {Material, Comentario, Moderation} from '@/interfaces/Profile.types.
   			/** Rechazar el material Educativo 
   			 * */
   			async rejectedMaterial(materialId: string, alumnoId: string,
-  				    reason?: string): Promise<void>{  //cmbio falta carg de edo
+  				    reason?: string): Promise<void> {  //cmbio falta carg de edo
   				this.loading = true;
   				this.error = '';
 
@@ -207,19 +208,18 @@ import type {Material, Comentario, Moderation} from '@/interfaces/Profile.types.
   			//  			MODULO DE COMENTARIOS
   			//  =========================================
 
-  			async addComment(materialId:string, message:string, highlighted: boolean = false):Promise <Comentario>{
+  			async addComment(materialId:string, mensaje:string, destacado: boolean = false):Promise <Comentario> {
   				this.loading = true;
 				this.error = '';
 
-  				try {
-  				 	 const newComment = await ModerationService.addCommentTeacher(materialId,message, highlighted);
-
+  				try {	//* aniadir comentario correcion al Espaniol
+  				 	 const newComment = await ModerationService.agregarCommentarioProff(materialId,mensaje, destacado);
 
   				 	 this.comments.push(newComment);
 
-  				 	 const materialComments = this.commentsForMaterial.get(materialId) ?? [];
+  				 	 const materialComments = this.commentsForMaterial[materialId] ?? [];  //*
   				 	 materialComments.push(newComment);
-  				 	  this.commentsForMaterial.set(materialId,materialComments);
+  				 	  this.commentsForMaterial[materialId] = materialComments;  //*
 
   				 	   return newComment;
   				}catch(err: any){
@@ -236,9 +236,9 @@ import type {Material, Comentario, Moderation} from '@/interfaces/Profile.types.
   			 * Carga comentarios de una lista de Materiales
   			 * */
   			async loadListMaterialsOfComments(materials: Material[]):
-  			 Promise <void>{
-  				try{	// guarda nuevo pos si se invoca incorecto
-  					if (!materials || Array.isArray(materials)) {
+  			 Promise <void> {
+  				try{	// guarda nuevo pos si se invoca incorecto  -> [241]
+  					if (!materials || !Array.isArray(materials)) {
   						console.warn('ModerationStore: loadListMaterialsOfComments requiere un arreglo..');
   							return;
   					}
@@ -262,56 +262,73 @@ import type {Material, Comentario, Moderation} from '@/interfaces/Profile.types.
 			  * Actualiza el Comentario Existente
 			  * */
 			async updateComment(commentId:string ,newMessage:string ,highlighted?: boolean):
-			   Promise<void>{
+			   Promise<void> {
 			  	this.loading = true;
 				  this.error = '';
 
-				try{
-				  	 await ModerationService.updateComment(commentId, newMessage,highlighted);
+				try{	//* camb x  instancia a la f(n) en Espaniol
+				  	 await ModerationService.actualizarComentario(commentId, newMessage,highlighted);
 
 				  	 const comment = this.comments.find(c => c.id === commentId);
 
-				  	 if (comment) {
-				  	 	comment.message = newMessage;
-				  	 	 if (highlighted !== undefined) {
-				  	 	 	 comment.highlighted = highlighted;
-				  	 	 }
-				  	 }
+				  	if (comment) {
+				  	 	comment.mensaje = newMessage;
+				  	 	if (highlighted !== undefined) {
+				  	 	 	 comment.destacado = highlighted;
+				  	 	}
+				  	}
 				  	  console.log(`[ModerationStore]: Comentario ${commentId} actualizado `);
 				}catch(err: any){
 				  	 this.error = message || 'Error al actualizar el comentario, del Profesor';
 				  	 // console.error('[ModerationStore] Error:', this.error);
 				}finally {
 					this.loading = false;
-					}
+				}
 			},
+				/** Auxilia en la visibilidad antes de mostrar la moderacion [la elimine, por que no estaba alineada con el flujo]**/
+			async loadModerationStats(): Promise<void> {
+				try {
+					console.log('Cargando el estatus de los mats..');
+					const [pendings, approves, rejecteds] = Promise.all([
+						ModerationService.countedByStatus('pendiente'),
+						ModerationService.countedByStatus('aprobado'),
+						ModerationService.countedByStatus('rechazado'),
+					]);
 
+					  this.stats.pendigsTotal = pendings;
+					this.stats.approvedsTotal = approves;
+					this.stats.rejectedsTotal = rejecteds;
+				}catch(err: any){
+					this.error  = err.message  || 'Error a tiempo de carga de status'
+				}
+			},	
+			
 			/**
 			 * Eliminar  comentario del role2(Teacher)
 			 * */
-			async deleteComment(commentId: string , materialId: string): Promise<void>{
+			async deleteComment(commentId: string , materialId: string): Promise<void> {
 				this.loading = true;
 				  this.error = '';
 
-				try{
-					await ModerationService.deleteComment(commentId);
+				try{	//* aniadir comentario correcion al Espaniol
+					await ModerationService.eliminarComentario(commentId);
 
 					this.comments = this.comments.filter( c => c.id  !==commentId); //*
 
-					const commentMaterial = this.commentsForMaterial.get(materialId);
-					 if (commentMaterial) {
-					 	  const updates = commentMaterial.filter( c=>c.id !== commentId);
-					 	  this.commentsForMaterial.set(materialId, updates);  //*
-					 }
+					const commentMaterial = this.commentsForMaterial[materialId];  //*
+					if (commentMaterial) {
+					 	const updates = commentMaterial.filter( c=>c.id !== commentId);
+					 	this.commentsForMaterial[materialId] =  commentMaterial.filter(c => c.id !== commentId)  //*
+					}
 
-					 console.log(`[ModerationStore], Comentario ${commentId} eliminado`);
+						console.log(`[ModerationStore], Comentario ${commentId} eliminado`);
 				}catch(err: any){
-					this.error = err.message || 'Error al eliminar el comentario';
-					throw err;
+					  this.error = err.message || 'Error al eliminar el comentario';
+					  throw err;
 				} finally {
 					this.loading = false;
 				}
-			},	
+			},
 
 			 // ============================
 			 // 	UTILIDADES INTERNAS
@@ -332,11 +349,11 @@ import type {Material, Comentario, Moderation} from '@/interfaces/Profile.types.
 				 }
 			},
 			// todos a exp el ultimo
-			cleanState(): void{
+			cleanState(): void {
 			   this.pendigsMaterials = [];
 			   this.currentMaterial = null;
 			    this.comments = [];
-			    this.commentsForMaterial.clear();
+			    this.commentsForMaterial = {};
 			    this.error = '';
 			    this.stats = {
 			    	pendigsTotal: 0,
@@ -345,7 +362,12 @@ import type {Material, Comentario, Moderation} from '@/interfaces/Profile.types.
 			    };
 			    console.log('[ModerationStore]: El Estado fue sanitizado');
 			},
-
+				/**Limpieza de los materiales. Ayuda al collector de Firebase
+				 * new function - 24 de Abril del 2026*/
+			clearCurrentMaterial(): void {
+				this.currentMaterial = null;
+			},
+			/*|--Layer 2: 100% Accesible y Fluida --| */
 			async updateStatistics(): Promise<void> {
 				try{
 					const stats = await ModerationService.obtenerEstadisticas();

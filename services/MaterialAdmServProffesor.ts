@@ -14,7 +14,9 @@ import {
 } from 'firebase/firestore';
 
 // Config interna
-import { db } from '@/config/firebase';
+import { initializeFirebaseStorage } from '@/config/initializeFirebaseConf';
+
+const { db } = initializeFirebaseStorage();
 
 // Tipos TypeScript
 import type { Material } from '@/types';
@@ -22,7 +24,7 @@ import type { Material } from '@/types';
 // ═══════════════════════════════════════════════════════════
 // 2. CONSTANTES DE CONFIGURACIÓN
 // ═══════════════════════════════════════════════════════════
-const COLLECTION_NAME = 'materials';
+const COLLECTION_NAME = 'Students_Materials';
 const REQUEST_TIMEOUT = 15000; // 15 segundos
 const MAX_RETRIES = 3;
 
@@ -70,7 +72,9 @@ interface TimeFilterOptions {
 export class DesplegarMaterialServiceR2 {
   private readonly collectionRef;
 
+
   constructor() {
+   console.warn('Consumiendo servicio Alm. de Firebase...')
     this.collectionRef = collection(db, COLLECTION_NAME);
   }
 
@@ -86,8 +90,11 @@ export class DesplegarMaterialServiceR2 {
    * @throws {Error} Si falla la comunicación con Firebase
    */
   async getAllStudentsMaterials(): Promise<Material[]> {
+      console.log('Hiciste click en: Filtro "todos los materiales"');
     try {
+      console.log('Coleccion a mostrar', this.collectionRef);
       const snapshot = await getDocs(this.collectionRef);
+      console.log('Obj Coleccion cargada', snapshot);
       
       return snapshot.docs.map(doc => 
         this._transformFirebaseToMaterial(doc.id, doc.data())
@@ -96,26 +103,36 @@ export class DesplegarMaterialServiceR2 {
       throw this._handleFirebaseError(error, 'getAllStudentsMaterials');
     }
   }
-
+  
   /**
    * Obtiene materiales ordenados por fecha de subida (más recientes primero)
    * 
    * @returns Array de materiales ordenados descendentemente por uploadedAt
    * @throws {Error} Si falla la query a Firebase
+   * [Es correcta]
    */
   async getMaterialsSortedByLatest(): Promise<Material[]> {
+      console.warn('Hiciste click en: Materiales subidos "Las ultimas 2 semanas".')
+      // Los operadores estaban invertidos, imposible rankear, en limites inexistentes
     try {
+        const range = this._getLastNDaysRange(14);
       const q = query(
         this.collectionRef,
-        orderBy('uploadedAt', 'desc')
+        where('fechaCreacion', '>=', Timestamp.fromDate(range.startDate)),
+        where('fechaCreacion', '<=', Timestamp.fromDate(range.endDate)),
+          orderBy('fechaCreacion', 'desc')
       );
-
+      console.log('Colleccion Filtro 2 -> ', this.collectionRef);
+          // orderBy('fechaCreacion', 'desc')
       const snapshot = await getDocs(q);
       
-      return snapshot.docs.map(doc => 
+      const filter2 = snapshot.docs.map(doc => 
         this._transformFirebaseToMaterial(doc.id, doc.data())
       );
+      console.warn('Materiales de las ult. 2 filtrados  "Las ultimas 2 WEEKS" son: [', filter2,']');
+      return filter2;
     } catch (error) {
+      console.log('[ERROR de Firebase]: Debes Ingresar el indíce compuesto', error);
       throw this._handleFirebaseError(error, 'getMaterialsSortedByLatest');
     }
   }
@@ -127,19 +144,25 @@ export class DesplegarMaterialServiceR2 {
    * @throws {Error} Si falla la query a Firebase
    */
   async getMaterialsByUsername(): Promise<Material[]> {
-    try {
+    console.warn('Hiciste click en: Materiales organizados "por Nombre de AUTH/Usuario".')
+    try {   
+            /** se debio corregir el indice compuesto,  Unicamente por el nombre de ID(exactamente identico a la misma propiedad )de cuando
+             este fue registrado  -> MODIFQUE LA LINEA 152 **/
       const q = query(
         this.collectionRef,
-        orderBy('uploadedBy', 'asc'),
-        orderBy('uploadedAt', 'desc') // Secundario: más recientes primero dentro de cada usuario
+        orderBy('autorId', 'asc'),
+        orderBy('fechaCreacion', 'desc') // Secundario: más recientes primero dentro de cada usuario
       );
-
+      console.log('Colleccion Filtro 3 -> ', this.collectionRef);
       const snapshot = await getDocs(q);
       
-      return snapshot.docs.map(doc => 
+      const filter3 =  snapshot.docs.map(doc => 
         this._transformFirebaseToMaterial(doc.id, doc.data())
       );
+      console.warn('Materiales del FILTRo  "obtenidos por Autor" son: [', filter3,']');
+       return filter3;
     } catch (error) {
+      console.log('[ERROR Firebase]: Debes Ingresar el indíce compuesto', error);
       throw this._handleFirebaseError(error, 'getMaterialsByUsername');
     }
   }
@@ -152,20 +175,26 @@ export class DesplegarMaterialServiceR2 {
    */
   async getMaterialsToday(): Promise<Material[]> {
     try {
+      console.warn('Hiciste click en: Materiales filtrados "Por hoy".')
       const today = this._getTodayRange();
-      
+        console.log('Coleccion a mostrar ', this.collectionRef);
       const q = query(
         this.collectionRef,
-        where('uploadedAt', '>=', Timestamp.fromDate(today.startDate)),
-        where('uploadedAt', '<=', Timestamp.fromDate(today.endDate))
+        where('fechaCreacion', '>=', Timestamp.fromDate(today.startDate)),
+        where('fechaCreacion', '<=', Timestamp.fromDate(today.endDate)),
+        orderBy('fechaCreacion', 'desc')
       );
 
       const snapshot = await getDocs(q);
+      console.log('load of Colecction', snapshot);
       
-      return snapshot.docs.map(doc => 
+      const Filter4 = snapshot.docs.map(doc => 
         this._transformFirebaseToMaterial(doc.id, doc.data())
       );
+      console.error('Materiales del FILTRo  "Mats de Hoy" son: [', Filter4,']');
+      return Filter4;
     } catch (error) {
+      console.log('[ERROR de Firebase]: Debes Ingresar el indíce compuesto', error);
       throw this._handleFirebaseError(error, 'getMaterialsToday');
     }
   }
@@ -177,23 +206,32 @@ export class DesplegarMaterialServiceR2 {
    * @throws {Error} Si falla la query temporal
    */
   async getMaterialLast2Days(): Promise<Material[]> {
+    // console.warn('Hiciste click en: Materiales organizados "por los Ultimos 2 días"')
     try {
       const range = this._getLastNDaysRange(2);
       
       const q = query(
         this.collectionRef,
-        where('uploadedAt', '>=', Timestamp.fromDate(range.startDate)),
-        where('uploadedAt', '<=', Timestamp.fromDate(range.endDate)),
-        orderBy('uploadedAt', 'desc')
+        where('fechaCreacion', '>=', Timestamp.fromDate(range.startDate)),
+        where('fechaCreacion', '<=', Timestamp.fromDate(range.endDate)),
+        orderBy('fechaCreacion', 'desc'),
+        // orderBy('uploadDate', 'desc')
       );
-
+       console.log('Est. de Coleccion: ', this.collectionRef);
       const snapshot = await getDocs(q);
-      
+       console.log('Capt. de la Coll - Data >', snapshot);
       return snapshot.docs.map(doc => 
         this._transformFirebaseToMaterial(doc.id, doc.data())
       );
+      /*El index fue creado correctamente solo habra que subir 3 materiales diferentes: En 1 dia, 2 dias
+      y volver a realizar la consulta, para motrar los  cambios visibles.*/
     } catch (error) {
+      console.log('[ERROR de Firebase]: Debes Ingresar el indíce compuesto', error);
       throw this._handleFirebaseError(error, 'getMaterialLast2Days');
+      /**
+       * La tecnica esta en tener la excepsion trivial del catch para que el msg de advertencia
+       * sea visualizado. Una vez nos otorga el permiso, lo habilitamos y nos olvidamos de la linea
+       * Al  no tener la linea de excepcion propia del modulo catch, este la oculto*/
     }
   }
 
@@ -202,16 +240,18 @@ export class DesplegarMaterialServiceR2 {
    * 
    * @returns Array de materiales de los últimos 7 días
    * @throws {Error} Si falla la query temporal
+   * [Es correcta]
    */
   async getMaterialsLastWeek(): Promise<Material[]> {
+    console.warn('Hiciste click en: Materiales organizados "por la Semana Anterior(Pasada)".')
     try {
       const range = this._getLastNDaysRange(7);
       
       const q = query(
         this.collectionRef,
-        where('uploadedAt', '>=', Timestamp.fromDate(range.startDate)),
-        where('uploadedAt', '<=', Timestamp.fromDate(range.endDate)),
-        orderBy('uploadedAt', 'desc')
+        where('fechaCreacion', '>=', Timestamp.fromDate(range.startDate)),
+        where('fechaCreacion', '<=', Timestamp.fromDate(range.endDate)),
+        orderBy('fechaCreacion', 'desc')
       );
 
       const snapshot = await getDocs(q);
@@ -220,9 +260,14 @@ export class DesplegarMaterialServiceR2 {
         this._transformFirebaseToMaterial(doc.id, doc.data())
       );
     } catch (error) {
+      console.log('[ERROR de Firebase]: Debes Ingresar el indíce compuesto', error);
       throw this._handleFirebaseError(error, 'getMaterialsLastWeek');
     }
   }
+
+  /*async getMaterialsByAuthorFill7(): Promise<Material[]> {
+    alert('Autor con Datos Especificicos');
+  }*/
 
   // ───────────────────────────────────────────────────────────
   // MÉTODOS PRIVADOS - Helpers internos
@@ -237,17 +282,17 @@ export class DesplegarMaterialServiceR2 {
    * @returns Material tipado y transformado
    */
   private _transformFirebaseToMaterial(id: string, data: DocumentData): Material {
-    const fbData = data as FirebaseMaterialDTO;
+    const firebaseData = data as FirebaseMaterialDTO;
     
     return {
       id,
-      title: fbData.title || 'Sin título',
-      uploadedAt: fbData.uploadedAt || Timestamp.now(),
-      uploadedBy: fbData.uploadedBy || 'Anónimo',
-      type: fbData.type || 'PDF',
-      description: fbData.description,
-      url: fbData.url,
-      status: fbData.status || 'pending',
+      title: firebaseData.nombreArchivo || 'Sin título',
+      description: firebaseData.descripcion,
+      url: firebaseData.archivoURL,
+      uploadedBy: firebaseData.autorId || 'Anónimo',
+      uploadedAt: firebaseData.fechaCreacion || Timestamp.now(),
+      status: firebaseData.estado || 'pendiente',
+      type: firebaseData.tipoArchivo || 'PDF',
     };
   }
 
@@ -260,7 +305,7 @@ export class DesplegarMaterialServiceR2 {
    */
   private _getTodayRange(): TimeFilterOptions {
     const now = new Date();
-    
+      /*Verificar el timeStamp para que corresponda con El TimeStamp de Firebase*/
     const startDate = new Date(now);
     startDate.setHours(0, 0, 0, 0);
     
@@ -388,9 +433,13 @@ export class DesplegarMaterialServiceR2 {
  * Factory function para crear instancia del servicio
  * Permite dependency injection si se necesita en el futuro
  */
-export const MaterialDeployServiceR2 = (): MaterialDeployServiceR2 => {
-  return new MaterialDeployServiceR2();
-};
+  // Exportación por defecto (singleton)
+ /* const desplegarMatServiceR2 =  new DesplegarMaterialServiceR2();
+  export default desplegarMatServiceR2;*/
+  // return new DesplegarMaterialServiceR2();
+ // Exportación compuesta
 
-// Exportación por defecto (singleton)
-export default new MaterialDeployServiceR2();
+/*  export const desplegarMatServiceR2 = (): DesplegarMaterialServiceR2 => {
+    return new DesplegarMaterialServiceR2();
+  };
+};*/

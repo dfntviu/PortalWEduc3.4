@@ -23,7 +23,7 @@
   	 * Guarda un perfil de estudiante con foto opcional
   	 * @param data - Datos del perfil
   	 * @param photoOptions - Opciónes de la foto(opc)
-  	 * */
+  	 * Unica y exclusivamente para ESTUDIANTES [Alumnos] */
   	static async saveStudentProfile(
   		 data: Partial<Profile>,
          uid_student: string/*,
@@ -34,34 +34,34 @@
   			if (!uid_student) {
   				throw new Error('El Uid del Estudiante es requerido');
   			}
-  			console.log('[ProfileStudentService] Guardar perfil del Estudiante:',data.uid_profe);
+  			console.log('[ProfileStudentService] Guardar perfil del Estudiante:',data.uid_student);
 
-  			// Procesar foto que se requiere
-  			 // let photoURL = data.photoURL || '';
-
-  			/*if (photoOptions?.uploadPhoto && photoOptions.value.photoFile) {
-  			 	console.log('[ProfileStudentService] Subiendo foto de Perfil..');
-  			 	  photoURL: this.uploadProfilePhoto(data.uid_profe, photoOptions.photoFile);
-  			}*/
+  			// Procesar foto que se requiere // let photoURL = data.photoURL || '';
+  			/* Habilitar cuando este 100% funcional
+              if (photoOptions?.uploadPhoto && photoOptions.value.photoFile) { console.log('[ProfileStudentService] Subiendo foto de Perfil..');
+  			 	 photoURL: this.uploadProfilePhoto(data.uid_profe, photoOptions.photoFile); }*/
 
   			// Preparar datos para Firestore
   			const studentData: Partial<Profile> = {
   				...data,
   				role: 'student' as const,
-  				//uid: uid_student, parametro directo
-                uid_student: uid_student, //par. definido directo
-                name: data.name,
-                lname: data.lname,
+                uid_student, //el parametro unico definido
+
                 email: data.email ?? '',
-                account: data.numCuenta ?? '',
-  				updateAt: new Date(),
+                edad: data.edad ?? null,  // *apply change*
+                carrera: data.carrera ?? '',   // *apply change*
+                nombre: data.nombre,
+                apellido: data.apellido,
+                passwd : data.password,  // *apply change*
+                typeDoc: data.typeDocument ?? '',  // *apply change*
   				createdAt: data.createdAt || new Date(),
-  				// photoURL,
+  				/*updateAt: new Date(), photoURL,*/
   			};
             // El objeto enriquecido(directo), no crudo(su propiedad), para eso es el 2do arg
-  			await BaseProfileService.saveProfile(this.collectionNameR1,uid_student,studentData);
-  			console.log('[ProfileStudentService] Perfil guardado exitosamente ');
-
+  			const profile = await BaseProfileService.saveProfileRoles(this.collectionNameR1,uid_student,studentData);
+  			
+                console.log('[ProfileStudentService] Perfil guardado exitosamente ');
+            return profile; //pasao clave
   		}catch(error: any){
   			 console.error('[ProfileStudentService] Error al guardar perfil: ',error);
   			 throw new Error(`Error al guardar perfil de estudiante: ${error.message}`);
@@ -178,7 +178,7 @@
   	 * @param email  - Email del estudiante
   	 * @param Perfil del Estudiante
   	 * */
-  	static async getStudentByEmail(email: string): Promise<Profile | null>{
+  	static async getStudentByEmail(email: string): Promise<Profile | null> {
   	 	try{
   	 		console.log('[ProfileStudentService] 🔍 Buscando Estudiante por Correo-Elec:', email);
 
@@ -201,7 +201,7 @@
      * @param email  - Term de busqueda
      * @param Array de perfiles que coinciden
      * */
-    static async searchStudentByName(searchTer: string): Promise<Profile[]>{
+    static async searchStudentByName(searchTer: string): Promise<Profile[]> {
         try{
                 console.log('');
             const allStudents = await this.getAllStudents();
@@ -235,6 +235,7 @@
             throw error;
         }
     }
+
     /**
      * Sube la Foto de Perfil del estudiante
      * @param uid - UID del estudiante
@@ -252,7 +253,8 @@
             console.error('');
             throw new Error('');
         }
-    } 
+    }
+
     /**
      * Elimina la foto de perfil del Estudiante
      * @param uid  - UID del estudiante
@@ -280,7 +282,8 @@
          return false;
      }
     }
-            //*
+
+    //*
     static async hasProfilePhotoStudent(uid: string): Promise <{}>{
 
         try{

@@ -16,13 +16,61 @@ import {  getFirestore, doc, setDoc, getDoc,
   import type { Profile } from '@/types/interf.index.ts';
 
   export class BaseProfileService {
-  	/**
+   /*F(n) en Fase de RunTime(Ejecucion)*/
+   static async saveProfileRoles(collectionName: 'student_register' | 'teacher_register', uid: string, data:Partial<Profile>): Promise <void>{
+      try{
+         const db = getFirestore();
+         console.log(`[BaseProfileService] Guardando perfil en '${collectionName}':`, uid);
+
+         const role = collectionName === 'student_register' ? 'student' : 'teacher';
+         const uid_role_key = `uid_${role}`as const;
+
+          // --- Base compartida, los atributos que ambos roles comparten--- 
+           const baseData = {
+             uid,
+             [uid_role_key]: uid,
+             role,
+             nombre: data.nombre ?? '',
+             apellido: data.apellido ?? '',
+             email: data.email ?? '',
+           }
+
+           const profileData =
+               collectionName === 'student_register'
+                ? {
+                   ...baseData,
+                   uid_student: uid,
+                   createAt: data.createAt ?? serverTimestamp(),
+                   carrera: data.carrera ?? '', //*
+                   edad: data.edad ?? null, //*
+                   typeDoc: data.typeDocument ?? '', //*
+                   passwd: data.password,
+                }
+                :{
+                  // No guarda Numero de Cuenta y apellido del prof
+                   ...baseData,
+                   uid_teacher:  uid,
+                   // lname: data.lname ?? '',
+                   numCuenta: data.numCuenta ?? '',
+                 };
+
+                 const docReference = doc(db, collectionName, uid);
+                 await setDoc(docReference, profileData);
+                 console.log(`[BseProfileService] El perfil fue guardado Exitosamente en  ${collectionName} `)
+
+                 return profileData;
+      }catch(error: any){
+          console.error('[BaseProfileService] ❌ Error al guardar perfil:', error);
+            throw new Error(`Error al guardar perfil en ${collectionName}: ${error.message}`);
+      }
+   }
+   /**
      * Guarda un perfil completo en Firestore
      * @param collectionName - Nombre de la colección ('students' o 'teachers')
      * @param uid - ID del usuario (debe coincidir con Firebase Auth)
      * @param data - Datos del perfil a guardar
-     */        //students teacher
-   static async saveProfile(collectionName: 'student_register' | 'teacher_register', uid: string, data: Partial<Profile>): Promise<void> {
+     */        //es funcional solo para registro de Profesores
+   /*static async saveProfile(collectionName: 'student_register' | 'teacher_register', uid: string, data: Partial<Profile>): Promise<void> {
   	  	try {
             const db = getFirestore();
             console.log(`[BaseProfileService] Guardando perfil en '${collectionName}':`, uid);
@@ -53,7 +101,7 @@ import {  getFirestore, doc, setDoc, getDoc,
             console.error('[BaseProfileService] ❌ Error al guardar perfil:', error);
             throw new Error(`Error al guardar perfil en ${collectionName}: ${error.message}`);
       }
-   }
+   }*/
 
     	/**
      	* Obtiene un perfil por su UID
@@ -90,6 +138,7 @@ import {  getFirestore, doc, setDoc, getDoc,
             throw new Error(`Error al obtener perfil: ${error.message}`);
      	 }
    }
+
     /**
      	* Act. los campos especificos de tu perfil 
      	* @param collectionName - Nombre de la colección
@@ -97,7 +146,6 @@ import {  getFirestore, doc, setDoc, getDoc,
      	*  @param updates - Campos a actualizar
      	* 
     	 */
-
       static async updateProfile(collectionName: 'students' |'teachers', uid: string, updates: Partial<Profile>):Promise<void>{
        		try{
 
@@ -155,13 +203,11 @@ import {  getFirestore, doc, setDoc, getDoc,
     		}
    }
 
-
     /**
      * Busca perfs x email
      *  @param  collectionName - Nombra la coleccion
      * @param email - Email a buscar
      * @param Perfil encontrado o nulo*/
-
     static async getProfileByEmail(collectionName: 'students' | 'teachers', email: string):Promise<Profile[]> {
 
      	try{
@@ -193,7 +239,7 @@ import {  getFirestore, doc, setDoc, getDoc,
      * @param uid: ID del usuario
      * */
 
-    static async deleteProfile(collectionName: 'students' | 'teachers', uid: string):Promise<void>{
+   static async deleteProfile(collectionName: 'students' | 'teachers', uid: string):Promise<void>{
     	try{
     	    		
     	    			const db = getFirestore();
@@ -210,14 +256,14 @@ import {  getFirestore, doc, setDoc, getDoc,
     		  console.error('[BaseProfileService] ❌ Error al eliminar perfil:', error);
             throw new Error(`Error al eliminar perfil: ${error.message}`);
     	}
-    }
+   }
 
 
      /**
      * Busca permanentemente el perfil(hard-delete)
      *  @param  collectionName - Nombra la coleccion
      * @param uid: ID del usuario*/
-    static async hardDeleteProfile(collectionName: 'students' | 'teachers', uid: string): Promise<void>{
+   static async hardDeleteProfile(collectionName: 'students' | 'teachers', uid: string): Promise<void> {
 		try{
  	    		
  	    	const db = getFirestore();
@@ -232,6 +278,6 @@ import {  getFirestore, doc, setDoc, getDoc,
 		 console.error('[BaseProfileService] ❌ Error al eliminar permanentemente el perfil');
 		 throw new Error(`Error al eliminar Perfil ${error.message}`);
 	  }
-    }
-  
+   }
+
   }

@@ -13,7 +13,7 @@
  import {ProfileStudentService} from '@/services/ProfileStudentService';
  import type {StudentUser,StudentRegisterationData, StudentEditableData,ChangePasswordData,
 StudentProfileState, ServiceResponse} from '@/interfaces/tipos.estudiantes';
- import type MESSAGES from '@/interfaces/students.types';
+ import  {MESSAGES} from '@/interfaces/students.types';
 
  export const useStudentProfileStore = defineStore('studentProfile', {
   	 state: (): StudentProfileState  => ({
@@ -96,23 +96,24 @@ StudentProfileState, ServiceResponse} from '@/interfaces/tipos.estudiantes';
 					console.log('[Estado de Estudiante] Usuario creado con  UID:',uid);
 
 						// 2. Guardar Perfil en firestore
-					const result = await ProfileStudentService.saveStudentProfile(uid,data);  //**
+					const profile_student = await ProfileStudentService.saveStudentProfile(data,uid);  // movi accidentalmente los parametros**
 
-					if (!result.success || !result.data) { //*
+					/*if (!profile_student.success || !profile_student.data) { //*
 						console.log('Error al guardar el perfil del Estudiante');
-					}  //*
+					} */
+					 //*
 						// Cargar el perfil del estado
-					this.profile = result.data; //*
-					this.message = MESSAGES.REGISTRO_EXITOSO; //*
+					this.profile = profile_student; //*
+					this.message = MESSAGES.REGISTRO_EXITOSO; //* 
 
 					 console.log('[StudentStore] El registro fue completado exitosamente');
-					 console.log('[StudentStore] Email Universitario', result.data.email);
-					 console.log('[StudentStore] Número de cuenta:', result.data.accounNumber);
+					 console.log('[StudentStore] Email Universitario', profile_student.data.email);
+					 console.log('[StudentStore] Número de cuenta:', profile_student.data.accounNumber);
 
 						return { //* * * 
 							success: true,  // * * *
-							data: result.data, // * * *
-							message: this.message // * * *
+							data: profile_student, // * * *
+							message: this.message, // * * *
 						};//* * * 
 				}catch(error: any){
 						this.error = error.message ?? 'Error desconocido';

@@ -179,7 +179,6 @@
           </div>
         </Transition>
       </section>
-
       <!-- ═══════════════════════════════════════════════════════════════════
            CONTENT SECTION - Estados Mutuamente Excluyentes
            - Solo un estado se renderiza a la vez (v-if/v-else-if)
@@ -433,6 +432,7 @@
               </p>
             </div>
           </div>
+
         </section>
 
         <!-- ─────────────────────────────────────────────────────────────────
@@ -612,6 +612,40 @@
           </div>
         </div>
       </Transition>
+      <!-- <div>
+        <div class="material-card loading-spinner"  v-if="lastFilter === 3 && !loading && materials.length > 0">
+          <template v-for="(mats, autor) in materialsByAuthor" :key="autor"> 
+             coorreg interpolacion, comments
+            < --Encabezado de grupo -- --
+            <h3 class="text-lg font-semibold text-gray-700 mt-6 mb-3 border-b pb-2">
+              { autor }}
+            </h3>
+
+            <--Tarjetas del grupo -- --
+            <section v-for="(m, index) in mats" :key="m.id"
+              class="flex items-center gap-4 bg-white border border-gray-200 rounded-lg p-4 mb-2 shadow-sm">
+              
+              <span class="text-xs text-gray-400 w-6 text-center font-mono">
+                { index + 1 }}
+              </span>
+              <div class="flex-1">
+                <p class="font-medium text-gray-900">{ m.title }}</p>
+                <p class="text-sm text-gray-500">{ m.uploadedBy }}</p>
+              </div>
+              <p class="text-sm text-gray-400">
+                { m.uploadedAt?.toDate().toLocaleDateString('es-MX') }}}
+              </p>
+              <span class="text-xs px-2 py-1 rounded-full"
+                :class="m.status === 'pending' 
+                  ? 'bg-yellow-100 text-yellow-700' 
+                  : 'bg-green-100 text-green-700'">
+                { m.status }}
+              </span>
+
+            </section>
+          </template>
+        </div> 
+      </section> END_GROUPED-AUTHOR -->
     </Teleport>
   </main>
 </template>
@@ -624,6 +658,9 @@
 
 // Vue Core
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+
+// Libreria Pinia
+ import {storeToRefs } from 'pinia';
 
 // Stores
 import { useMaterialTeachStore } from '@/stores/materialTeacherStore';
@@ -662,8 +699,9 @@ const {
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
 const materialStore = useMaterialTeachStore();
+// const  { materials} = storeToRefs(materialStore);
 // const materialStore =  computed( () => useMaterialTeachStore());
-
+const { materials, loading, error, lastFilter, materialsByAuthor } = storeToRefs(materialStore);
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
 // ║                         VARIABLES REACTIVAS                               ║
@@ -688,7 +726,7 @@ const OPCIONES_FILTRO = [
   },
   {
     id: 2,
-    label: 'Más recientes primero',
+    label: 'Más recientes primero[De las últimas 2 semanas]',
     description: 'Materiales ordenados por fecha de subida (más nuevos primero)',
   },
   {
@@ -711,6 +749,7 @@ const OPCIONES_FILTRO = [
     label: 'Última semana',
     description: 'Materiales subidos en los últimos 7 días',
   },
+  // Aniadir opcion 7, cuando se corrija el Filtro con data imp todos los mats d c/uid, por secciones
 ] as const;
 
 /** Rango válido de IDs de filtro para validación */
@@ -792,9 +831,15 @@ watch(
         'success'
       );
     }
+
+    /*if (filtroSeleccionado === 7 && nuevosMateriales.length>0) {
+      alert('Mostrando autor con elementos Especificios.');
+    }*/
   }
 );
 
+/*watch(lastFilter, (newFilter) => { console.log('ingresaste al Watch de filtro'); if (newFilter === 3) 
+ {  materialStore.fetchMaterialsByFilter(3);  } .-> se fue al watch principal de ex. de conteo });
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
 // ║                              MÉTODOS                                      ║

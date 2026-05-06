@@ -10,7 +10,7 @@
  */
 import { defineStore }        from 'pinia';
 import { ref, computed }      from 'vue';
-import { MaterialBseService } from '@/services/materials/MaterialBaseService';
+import { MaterialBaseService } from '@/services/materials/MaterialBaseService';
 import type { MaterialBase }  from '@/interfaces/interfaceToast';
 
 // ============================================================

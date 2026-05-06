@@ -82,27 +82,46 @@ export class MaterialService {
         throw new Error('UID es requerido')
       }
 
-      const docRef = doc(db, this.COLLECTION_STUDENTS, uid)
-      const docSnap = await getDoc(docRef)
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('[Service] 🔎 Buscando Perfil para UID: ', uid);
+      console.log('[Service] 📁 Colección: ', this.COLLECTION_STUDENTS);
+      console.log('[Service] 🖇️ La RUTA Completa: ', `${this.COLLECTION_STUDENTS}/${uid}` );
 
+        const docRef = doc(db, this.COLLECTION_MATERIALS, uid);
+          // const docRef = doc(db, this.COLLECTION_MATERIALS, studentUidProfile, materialId);backup line
+      const docSnap = await getDoc(docRef);
+
+      console.log('[Service] 📄 El documento existe: ', this.COLLECTION_STUDENTS);
       if (!docSnap.exists()) {
-        return null
+        console.warn('[Service] El Perfil no fue ECNONTRADO');
+        console.warn('[Service] El UID buscado: ', uid);
+        console.warn('[Service] La Colección: ',this.COLLECTION_STUDENTS);
+        console.warn('[Service] Revisar en Firebase Console. La Herramienta');
+        console.warn(`[Service] 1. Existe ${this.COLLECTION_STUDENTS}?`);
+        console.warn(`[Service] 2. ¿Existe el documento con ID: ${uid}`);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        return null;
       }
 
       const data = docSnap.data()
+      console.log('[Service] El Perfil ha sido HALLADO/ENCONTRADO: ',data);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       return {
-        uid,
-        uid_alumno: uid,
-        username: data.email?.split('@')[0] || '',
-        name: data.nombre || data.name || '',
-        lname: data.apellido || data.lastName || '',
-        email: data.email || '',
+        uid: currentUser.uid,
+        uid_alumno: currentUser.uid,
+        username: currentUser.email?.split('@')[0] || 'estudiante',
+        name: currentUser.displayName?.split(' ')[0] || 'Estudiante',
+        lname: currentUser.displayName?.split(' ').slice(1).join(' ') || '',
+        email: currentUser.email || '',
         role: 'alumno',
         autorRole: 'alumno',
-        numCuenta: data.numCuenta || data.cuenta || ''
+        numCuenta: ''
       } as StudentUser
-
+        // console.log('¿Quien eres?: > ', profile_user.uid);
+       // return profile_user;
+        // console.log('UID procesado, comienza tú Descarga');
+        // deberia
     } catch (error: any) {
       console.error('[MaterialService] Error al obtener perfil:', error)
       throw new Error(`No se pudo obtener el perfil: ${error.message}`)
@@ -112,36 +131,58 @@ export class MaterialService {
   // ═══════════════════════════════════════════════════════════════════════
   // DOWNLOAD MATERIAL
   // ═══════════════════════════════════════════════════════════════════════
-  static async downloadMaterial(materialId: string): Promise<void> {
+  static async downloadMaterial(materialId: string, studentUid: string): Promise<void> {
     try {
       if (!materialId?.trim()) {
         throw new Error('ID de material inválido')
       }
 
       // Get material document
-      const docRef = doc(db, this.COLLECTION_MATERIALS, materialId)
-      const docSnap = await getDoc(docRef)
+      const docRef = doc(db, this.COLLECTION_MATERIALS,materialId);
+
+      console.log('[Service] Ruta Firestore:', `${this.COLLECTION_MATERIALS}/${materialId}`);
+
+      const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
-        throw new Error('Material no encontrado')
+        throw new Error('Material no encontrado');
       }
 
-      const data = docSnap.data()
-      const storagePath = data.storagePath || data.path
+      const data = docSnap.data();
+       /*console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+       console.log('[Service] 📄 DOCUMENTO COMPLETO:', JSON.stringify(data, null, 2));
+       console.log('[Service] 📄 CAMPOS DISPONIBLES:', Object.keys(data));
+       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        const storagePath = data.storagePath || data.path*/
 
-      if (!storagePath) {
+      const downloadURL =  data.archivoURL || data.storagePath || data.path || data.URL || data.downloadURL
+      
+      if (!downloadURL) {
+        console.log('[Service] 📄 CAMPOS DISPONIBLES:', Object.keys(data));
+        console.error('[Service] ❌ Valores:', data);
+        throw new Error('URL no Disponible');
+      }
+      const filename = 
+      data.titulo ||           
+      data.nombre_material ||
+      data.name ||
+      'material.pdf'
+
+      /*if (!storagePath) {
         throw new Error('Ruta de almacenamiento no disponible')
-      }
+      }*/
 
       // Get download URL from Storage
-      const fileRef = storageRef(storage, storagePath)
-      const downloadURL = await getDownloadURL(fileRef)
+      /*const fileRef = storageRef(storage, storagePath)
+      const downloadURL = await getDownloadURL(fileRef)*/
+      /*Solo es funcional con los usuario creados por la f(n) de crear usuarios independiente
+      en usuarios ya creados es infuncional*/
 
       // Trigger download
       const link = document.createElement('a')
       link.href = downloadURL
       link.download = data.nombre_material || 'material.pdf'
-      link.target = '_blank'
+      link.target = `${filename}.pdf`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)

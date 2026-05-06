@@ -1,13 +1,13 @@
  import { initializeFirebaseStorage } from '@/config/initializeFirebaseConf.ts';
 import  { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, getDocs, query, where, orderBy, Timestamp} from 'firebase/firestore';
 import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
- import { MaterialBseService } from './MaterialBaseService.ts';
+ import { MaterialBaseService } from './MaterialBaseService.ts';
  import { MaterialStatus } from '@/interfaces/materialTypes';
  import type {MaterialBase} from '@/intefaces/interfaceToast.ts';
 
  // const { db } = initializeFirebaseStorage();
 
-  export class MaterialStudentService extends MaterialBseService {
+  export class MaterialStudentService extends MaterialBaseService {
     // public static COLLECTION = 'Students_Materials';
     /** ==============================
      *      METODOS DE LECTURA(ALUMNO)
@@ -62,10 +62,32 @@ import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
                 uid: doc.id,
                 ...doc.data()
             } as MaterialBase));
-
+            console.log('Lista de Materiales APROBADOS...');
         }catch(error: any){
             console.error('[MaterialStudentService] ❌ Error:', error);
             throw new Error(`Error al obtener materiales aprobados: ${error.message}`);
+        }
+    }
+    /*Metodo Nuevo -- [28/04/2026] */
+     static async getRejectedMaterials(userId?:string): Promise<MaterialBase[]> {
+        try{
+                     const q = query(
+                this.getMaterialsCollection(), 
+                where('status', '==', MaterialStatus.REJECTED),
+                where('autorId', '!=', userId),
+                orderBy('autorId'),
+                orderBy('createdAt', 'desc')
+            );
+
+            const snapshot_rec = await getDocs(q);
+            return snapshot_rec.docs.map(doc => ({
+                uid: doc.id,
+                ...doc.data()
+            } as MaterialBase));
+            console.log('Lista de Materiales RECHAZADOS...');
+        }catch(error: any){
+            console.error('[MaterialStudentService] ❌ Error:', error);
+            throw new Error(`Error al obtener materiales Rechazados: ${error.message}`);
         }
     }
 
@@ -82,14 +104,14 @@ import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
             ]);
  
             const combined = [...myMaterials, ...approvedMaterials];
-            // Nuevo aplicar timestamp al despliegue
+            // Nuevo aplicar timestamp al despliegue  [*cambio*]
             combined.sort((a,b) => {
-                const toMillis = (d:any) => {
+                const toMillis = (d:any) => //{
                     d instanceof  Object && typeof d.toMillis === 'function'
                       ? (d as Timestamp).toMillis()
                       : 0;
                       return toMillis(b.createdAt) - toMillis(a.createdAt);
-                }
+                //}
             });
 
             console.log(`[MaterialStudentService] ✅ ${combined.length} materiales visibles, en total`);
@@ -196,8 +218,8 @@ import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
      * cuando es una composicion ente <> se declara con llaves*/
     static async getMyMaterialMyStatus(userId: string, materialId: string):Promise<{status:string; moderateAt?: Date; reason?: string}> {
         
-        try{    
-              const material = this.getMaterialById(materialId);
+        try{    //*
+              const material = await this.getMaterialById(materialId); 
       
               if (!material) {
                   throw new Error('Material no Encontrado');
@@ -244,15 +266,15 @@ import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
                 archivoURL: data.archivoURL,
                 fechaCreacion: new Date(),
                 tipoArchivo: data.type,
+                //estado: 'pendiente', 
             }
             console.log('Descripcion:', materialData.descripcion);
             console.log('Nombre del Archivo PDF:', materialData.nombreArchivo);
                 // F(n) composicion efectua todo el algoritmo de firebase
-            const docReference = await MaterialBseService.saveMaterialEdStorageStudent(
+            const docReference = await MaterialBaseService.saveMaterialEdStorageStudent(
                 materialData.titulo ?? '', materialData.descripcion ?? '', file, userId);
-
-            console.log( `✅ Material creado con Id: ${docReference}`);
-
+                console.log( `✅ Material creado con Id: ${docReference}`);
+            return docReference;  //*
         }catch(error: any){
             console.log('Error al crear el material: ', error);
             throw new Error(` Error al crear material: ${error.message}`);

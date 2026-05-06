@@ -80,7 +80,7 @@ export const useMaterialStudentStore = defineStore('materialStudent', () => {
   const approvedMaterials = computed((): Material[] => {
     const authStore3 = useAuthStore3();
     return baseStore.materials.filter(
-      m => m.status === 'approved' && m.autorId !== authStore3.user?.uid
+      m => m.estado === 'aprobado' && m.autorId !== authStore3.user?.uid
     ) as Material[];
   });
 
@@ -88,7 +88,7 @@ export const useMaterialStudentStore = defineStore('materialStudent', () => {
   const pendingMaterials = computed((): Material[] => {
     const authStore3 = useAuthStore3();
     return baseStore.materials.filter(
-      m => m.autorId === authStore3.user?.uid && m.status === 'pending'
+      m => m.autorId === authStore3.user?.uid && m.estado === 'pendiente'
     ) as Material[];
   });
 
@@ -96,7 +96,7 @@ export const useMaterialStudentStore = defineStore('materialStudent', () => {
   const myApprovedMaterials = computed((): Material[] => {
     const authStore3 = useAuthStore3();
     return baseStore.materials.filter(
-      m => m.autorId === authStore3.user?.uid && m.status === 'approved'
+      m => m.autorId === authStore3.user?.uid && m.estado === 'aprobado'
     ) as Material[];
   });
 
@@ -104,7 +104,7 @@ export const useMaterialStudentStore = defineStore('materialStudent', () => {
   const myRejectedMaterials = computed((): Material[] => {
     const authStore3 = useAuthStore3();
     return baseStore.materials.filter(
-      m => m.autorId === authStore3.user?.uid && m.status === 'rejected'
+      m => m.autorId === authStore3.user?.uid && m.estado === 'rechazado'
     ) as Material[];
   });
 

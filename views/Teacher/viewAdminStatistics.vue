@@ -1,7 +1,7 @@
-
  <script setup lang="ts">
-	import { ref, computed, onMounted, onUnmounted } from 'vue';
-	import { useStatisticsAdmStore } from '@/stores/statisticsAdmStore.ts';
+	import { ref, computed, watch, onUnmounted } from 'vue';
+	import {storeToRefs} from 'pinia';
+	import { useStatisticsAdmStore } from '@/stores/statisticsAdmStore.ts'; 
 	import { useAuthStore3 } from '@/stores/authStore3.ts';
 
 	// ════════════════════════════════════════════════
@@ -10,6 +10,10 @@
   // console.log('Leyendo correctamente la vista.');
  const  authStore = useAuthStore3();
  console.log('Vista corrriendo satisfactoriamente..');
+ 	// Proviene de Auth, sol mediante authStore lleva uid_auth consigo
+ const {currentUser} = storeToRefs(authStore);
+ // console.log('Que tengo? ', currentUser.value);
+
  const statsStore = useStatisticsAdmStore();
  console.log('[Almacen-Estadistícas]:',statsStore);
  // console.log('Error corregido correctamente..');
@@ -31,7 +35,7 @@
  	   return statsStore.lastFetch.toLocaleTimeString('es-MX', {
  	 	  hour: '2-digit',
  	 	  minute: '2-digit',
- 	   	secod: '2-digit',
+ 	   	second: '2-digit',
  	   });
     });
     console.log('contenido de Carga:' , statsStore.loading);
@@ -58,10 +62,19 @@
 	 * Carga inicial de todas las metricas en paralelo.
 	 * El store respeta el cache, no recarga con los datos recientes
 	 * */
-	onMounted( async () => {
-		const profesorId = authStore.currentUser?.uid ?? '';
-		  await statsStore.loadAll(profesorId);
-	});
+	watch(
+  () => currentUser.value?.uid,
+  async (uid) => {
+    console.log('[AdminStats] watch uid →', uid);
+    if (!uid) return;
+    await statsStore.loadAll(uid);
+    console.log('[AdminStats] post-loadAll error →', statsStore.error);
+    console.log('[AdminStats] adminMetrics →', statsStore.adminMetrics);   
+console.log('[AdminStats] teacherMetrics →', statsStore.teacherMetrics); 
+console.log('[AdminStats] dailySummary →', statsStore.dailySummary);   
+  },
+  { immediate: true }
+);
 
 	/**
 	 * limpieza al desmontar.
@@ -70,7 +83,6 @@
 	onUnmounted(() => {
 		statsStore.resetState();
 	});
-
  </script>
 
 <template>

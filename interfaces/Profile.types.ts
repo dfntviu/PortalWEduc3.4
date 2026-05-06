@@ -64,11 +64,22 @@ export interface Material {
       estado: MaterialStatus;
       fechaCreacion?: Date;
 }
-   export interface Comentario {
+  /* export interface Comentario {
     id: string;
     mensaje: string;
     destacado: boolean;
     fecha: Date;
+  }*/
+
+   export interface Comentario2 {
+    id: string;
+    materialId: string;
+    autorId: string;
+    autorNombre: string;
+    mensaje: string;
+    destacado: boolean;
+    fechaCreacion: Date;
+    fechaActualizacion: Date;
   }
 
   interface Moderation {

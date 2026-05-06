@@ -49,7 +49,7 @@
 				   </select>
 				</div>
 				<!-- ** nuevo Campo[Corro-Elect] testeable -->
-				<div class="campo-email">
+				<div class="campo-formulario">
 				   <label for="">Correo Electrónico *</label>
 				  	<input
 				  	 id="pasword"
@@ -76,9 +76,9 @@
 				  <small class="texto-ayuda">Mínimo 8 caracteres</small>
 				</div>
 				   <!-- Confirmar Contraseña -->
-				<div class="campo-fomulario">
+				<div class="campo-formulario">
 				 	<label for="confirmPassword">Confirmar Contraseña *</label>
-				 	 	<input id="confirmPassword" type="text"
+				 	 	<input id="confirmPassword" type="password"
 				 	 	   v-model="registrationForm.confirmPassword"
 				 	 	   placeholder="Repite tú contraseña"   required minlength="8"
 				 	 	   :disabled ="loading">

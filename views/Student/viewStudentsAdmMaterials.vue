@@ -137,12 +137,12 @@
 								</div>
 
 								<!-- Materiales Grid -->
-								<TransitionGroup class="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-									<div>
+								<TransitionGroup name="material-list"  tag="div" class="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+									<div v-for="material in filteredMaterials" :key="material.uid" class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden" >
 										<!-- Badge de Estado -->
 										<div class="relative">
 											<div class="absolute top-4 rigth-4 z-10">
-											<span>{{getStatusLabel(materials.status)}}</span>
+											  <span>{{getStatusLabel(materials.status)}}</span>
 											</div>
 
 											<div class="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white">
@@ -185,7 +185,7 @@
 												  </div>
 												  <div v-if="materials.downlonads !== undefined" class="flex items-center gap-2">
 													<span>⬇️</span>
-													<span>{material.downloads}</span>
+													<span>{{material.downloads}}</span>
 												  </div>
 											   </div>   <!--no siempre bien-->
 
@@ -234,7 +234,7 @@
 						</div>
 
 						<!-- Modal de Creacion -->
-						<Teleport>
+						<Teleport to="body">
 							<Transition>
 								<div class="fixed inset-0 bg-black-50 backgroup-blur-sm flex items-center justify-center p-4 z-50">
 									<div class="bg-white rounded-2xl max-w-2xl w-full p-6">
@@ -288,7 +288,7 @@
 																	<p class="font-medium text-gray-900 dark:text-white">
 																		  {{createForm.file.name}}
 																	</p>
-																	<p class="text-sm text-gray-600 dark:text-gray-400">{{formatFileSize(createrForm.file.size)}}</p>
+																	<p class="text-sm text-gray-600 dark:text-gray-400">{{formatFileSize(createForm.file.size)}}</p>
 																</div>
 																<button class="text-red-600 hover:text-red-700 text">x</button>
 															</div>
@@ -309,16 +309,16 @@
 							</Transition>
 						</Teleport>
 
-						<Teleport>
-							<Transition>
-								<div class="fixed iset-0 black backdrop-blur-sm items-center justify-center p-4 z-50">
+						<Teleport to="body">
+							<Transition name="modal">
+								<div  v-if="showStatusModal && selectedMaterial" class="fixed inset-0 bg-black/50 backdrop-blur-sm items-center justify-center p-4 z-50">
 									<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl">
 										<h3>Estado del Mat.</h3>
 										<span class="text-3xl">ℹ️</span>
 										<div class="space-y-4">
 											<div>
 												<p>Título</p>
-												<p>{{selectedMaterial.titulo}}</p>
+												<p>{{selectedMaterial?.titulo}}</p>
 											</div>
 										<!-- </div> -->
 
@@ -329,17 +329,17 @@
 
 										<div v-if="selectedMaterial?.moderateAt"> <!--revw-->
 											<p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Fechas de Moderación</p>
-											<p class="font-medium text-gray-900 dark:text-white">{{formateDate(moderateAt)}}</p>
+											<p class="font-medium text-gray-900 dark:text-white">{{formateDate(selectedMaterial?.moderateAt)}}</p>
 										</div>
 
 										<div>
 											<p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
 											 Moderador </p>
 											<p class="font-medium text-gray-900 dark:text-white">
-												  {selectedMaterial.moderatorNombre} </p>
+												  {{selectedMaterial.moderatorNombre}} </p>
 										</div>
 
-										<div v-if="selectedMaterial.moderatorNombre">
+										<div v-if="selectedMaterial?.moderatorNombre">
 											<p class="text-sm text-gray-600 dark:text-red-400">
 												  Motivo del Rechazo
 											</p>
@@ -368,7 +368,7 @@
 						<Teleport to="body">
 							<Transition name="modal">
 								<div  v-if="showDeleteModal && materialToDelete" 
-									 class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50" @click.self="showStatusModal = false">
+									 class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50" @click.self="showDeleteModal = false">
 									<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl  max-w-md w-full p-6">
 										<div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
 											<div class="text-center mb-6">
@@ -404,7 +404,7 @@
 	import {ref, computed, onMounted} from 'vue';
 	import {useMaterialStudentStore} from '@/stores/materialStudentStore.ts';
 	import {useAuthStore3} from '@/stores/authStore3.ts';
-	import type {Material,CreateMaterialForm } from '@/types/materialInterfaces';//##
+	import type {Material,CreateMaterialForm } from '@/interfaces/Profile.types';//##
 
 	// ================
 	//     STORES
@@ -414,7 +414,7 @@
 	// ================
 	//     STATE
 	// ================
-	const activeTab = ref <'all'| 'mine'| 'appoved' | 'pending' | 'rejected'>('all');
+	const activeTab = ref <'todos'| 'mio'| 'aprobado' | 'pendiente' | 'rechazado'>('todos');
 	const searchQuery = ref('');
 	const showCreateModal = ref(false);
 	const showStatusModal = ref(false); //*
@@ -424,7 +424,16 @@
 	const uploading= ref(false);
 	const deleting= ref(false);
 	const isDragging = ref(false); //*
-	const  sInput = ref('');
+	console.log('Consolidacion de la seleccion del Material ->',selectedMaterial);
+	console.log('Prop. de la seleccion del Material ->',selectedMaterial.titulo);
+	console.log('Prop. de la seleccion del Material ->',selectedMaterial.status);
+	console.log('Prop. de la seleccion del Material ->',selectedMaterial.moderatorNombre);
+	console.log('Prop. de la seleccion del Material ->',selectedMaterial.rejectionReason);
+
+
+	// const  sInput = ref('');
+ /* const tagsInpunt.value = '';   //? [*cambio*]
+  const tags = tagsInput.value.split(',');  // [*cambio*]*/
 
 	const createForm = ref<CreateMaterialForm>({
 		title:  '',
@@ -438,33 +447,33 @@
 	//     COMPUTED
 	// ================
 	const materials = computed(()=> materialStore.materials);
-	const  loading  = computed(()=> notificationStore.loading);
-	 const  error    = computed(()=> materialStore.error);
-	 const  currentUserId = computed(()=> authStore.user?.uid);
+	const  loading  = computed(()=> materialStore.loading);
+	const  error    = computed(()=> materialStore.error);
+      const  currentUserId = computed(()=> authStore.user?.uid);
 
 	 const stats = computed(()=> materialStore.myStats);
 
 	 const tabs = computed(() => [
 		{
-			 id: 'all' as const,
+			 id: 'todos' as const,
 			 label: 'Todos',
 			 icon: '📚',
 			 count: materialStore.materials.length
 		},
 		{
-			id: 'mine' as const,
-			label: 'Aprobados',
-			icon: '📝',
-			count: materialStore.approvedMaterials.length
-		},
-		{
-			  id: 'appoved' as const,
+			id: 'aprobado' as const,
 			label: 'Aprobados',
 			icon: '✅',
 			count: materialStore.approvedMaterials.length
 		},
 		{
-		  id: 'pending' as const,
+			  id: 'rechazado' as const,
+			label: 'Rechazados',
+			icon: '❌', 
+			count: materialStore.myRejectedMaterials.length
+		},
+		{
+		  id: 'pendiente' as const,
 		  label: 'Pendientes',
 		  icon: '⌛',
 		  count: materialStore.pendingMaterials.length
@@ -474,23 +483,27 @@
 	 const filteredMaterials = computed(() => {
 		let filtered: Material[] = [];
 
-		// Filtrar por tab
-		switch(adjectiveTab.value){
-			case 'mine':
+		// Filtrar por tab -> [*cambio*]
+		switch(activeTab.value){
+			case 'todos':
 				filtered = materialStore.myMaterials;
 			break;
 
-			case 'approved': 
+			case 'aprobado': 
 				 filtered = materialStore.approvedMaterials;
 			break;
+			/*Nuev filtro para 'student' [No aprobados]*/
+			case 'rechazado': 
+				filtered = materialStore.rejectedMaterials;
+			break;
 
-			case 'pending':
+			case 'pendiente':
 				filtered = materialStore.pendingMaterials;
 			break;
 
 			default:
 				filtered = materials.value;
-			  break;
+			break;
 		}
 
 		// Filtrar por Busqueda
@@ -505,20 +518,20 @@
 
 			return filtered;
 	 }); 
-
+   // [*cambio 510,511 (t x n)*]
 	 const canSumbitCreate = computed(() => {
-		 createForm.value.titulo.trim() &&
-		 createForm.value.description.trim() &&
+		 !!createForm.value.titulo?.trim() &&
+		 !!createForm.value.descripcion?.trim() &&
 		 createForm.value.file !== undefined;
 	 });
 
 	 // ================
 	//     METHODS
 	// ================
-
+   // [*cambio* Ln 523 se añadio parametro]
 	const refreshMaterials = async() => {
 		try{
-			await materialStore.fetchMyMaterials();
+			await materialStore.fetchMyMaterials(authStore.user!.uid);
 		}catch(error){
 			console.log('Error al refrescar(actualizar) los materiales',error);
 		}
@@ -572,14 +585,14 @@
 
 	const controllCreateMaterial = async() => {
 		if(!canSumbitCreate.value) return;
-
+    // [*cambio* Ln 584]
 		uploading.value = true;
 		try{
 			// Procesar Tags
 			const tags =  tagsInput.value
 			 .split(',')
-			 .map(t =>t.trim())
-			 .filter(t>t.length > 0);
+			 .map(t => t.trim())
+			 .filter(t => t.length > 0);
 
 			const materialData = {
 				title:  createForm.value.title.trim(),
@@ -587,8 +600,8 @@
 				tags,
 				category: createForm.value.category.trim(),
 			}
-
-				await materialStore.uploadMaterialFile(!createForm.value.file, materialData);
+        // [*cambio 591 se quito !*]
+				await materialStore.uploadMaterialFile(createForm.value.file, materialData);
 		}catch(error){
 			console.error('Error al crear el Material:',error);
 		}finally{
@@ -609,19 +622,19 @@
 		selectedMaterial.value = material;
 		showStatusModal.value = true;
 	};
-
+  /* [*cambio* Ln 621]*/
 	const confirmDelete = (material: Material) => {
 		materialToDelete.value = material;
 		showDeleteModal.value = true;
 	};
-
+  // [*cambio 619 rel eliminar*]
 	const controllDelete = async () => {
-		if(!materialStore.value) return;
+		if(!materialToDelete.value) return;
 
 		deleting.value = true;
-
+    // [*cambio* 623 > falto 'My']
 		try{
-			const success =  await materialStore.deleteMaterial(materialToDelete.value.uid);
+			const success =  await materialStore.deleteMyMaterial(materialToDelete.value.uid);
 			 
 			 if(success){
 				showDeleteModal.value = false;
@@ -633,14 +646,14 @@
 			deleting.value = false;
 		}
 	}
-
+  // [*cambio* ln 645]
 	const getStatusLabel = (status: string): string => {
 		const labels = {
 			 pending: '⌛Pendiente',
 			approved: '✅Arpobado',
 			rejected: '❌Rechazado'
 		};
-		return labels[status as keyof labels] || status;
+		return labels[status as keyof typeof labels] || status;
 	};
 
 	const getEmptyMessage = (): string => {
@@ -667,25 +680,25 @@
 
 	const formateDate = (date: any): string => {
 		if(!date) return 'Fecha no disponible';
-
+    // [*cambio 677*]
 		 try{
 			const d = date.toDate ? date.toDate() : new Date(date);
 			 return d.toLocaleDateString('es-MX', {
 				day: 'numeric',
-				moth: 'short',
+				month: 'short',
 				year: 'numeric'
 			 });
 		 }catch(error){
 			return 'Fecha inválida';
 		 }
 	}
-
+  // [*cambio* Ln 690]
 	const formatFileSize = (bytes: number): string => {
 		if(bytes === 0) return '0 Bytes';
 		 const k = 1024;
 		  const sizes = ['Bytes','KB','MB', 'GB'];
 		  const i = Math.floor(Math.log(bytes) / Math.log(k));
-			return Math.round(bytes/ Math.pow(k,i) * 100 / 100 +' '+ sizes[i]);
+			return `${Math.round((bytes/ Math.pow(k,i)) * 100) / 100} ${sizes[i]};`;
 	};
 
 	// ================

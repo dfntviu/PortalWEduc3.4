@@ -2,19 +2,21 @@
 	<div class="moderacion-vw-container min-h-screen bg-gray-50">
 		<header class="page-header bg-white shadow-sm border-b border-gray-200">
 			<div class="max-w-7-xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-				<div class="flex items-center justify-between-mb-6">
+				<div class="flex items-center justify-between mb-6">
 					<h1 class="text-3xl font-bold text-gray-900">Moderacion de Materiales+</h1>
 					<p class="mt-1 text-sm text-gray-600">Rev. Los materiales Educativos, subidos por los Estudiantes</p>
-
 					<button class="btn-secondary flex-items-center gap-2">
-					    <svg class="w-5 h-5">
-					   	   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-					    </svg>
-				     Actualizar</button>
+						<!-- CAMBIO # 2-->
+					     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+							  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+							</svg>
+						Actualizar
+					</button>
 				</div>
 
 				<!-- Cards de Estadisticas  -->
-				<div class="grid-grid-cols-1 md-grid-cols-4 gap-4">
+				<div class="grid grid-cols-1 md-grid-cols-4 gap-4">
 					<div class="flex-items-center justify-between">
 						<div>
 							<p class="text-sm font-medium text-blue-600">Total</p>
@@ -22,7 +24,7 @@
 						</div>
 						<div class="p-3 bg-yellow-100 rounded-100 rounded-full">
 							<svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+								<path  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6 -3a9 9 0 11 -18 0 9 9 0 0 1 18 0z"></path>
 							</svg>
 						</div>
 					</div>
@@ -63,11 +65,11 @@
 				<div class="flex flex-col md:flex-row gap-4">
 					<div class="flex-1">
 						<div class="relative">
-							<input type="text" v-model="filtros.search" class="w-full-p-10 pr-4 py-2 border-gray-300 rounde-lg focus:ring-blue-500 focus-border-blue-500">
+							<input type="text" v-model="filtros.search" class="w-full-p-10 pr-4 py-2 border-gray-300 rounded-lg focus:ring-blue-500 focus-border-blue-500">
 								<svg class="absolute left-3 top-25 w-5-h-5 text-gray-400" fill="none" 
 								stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-									d="M21 2ll-6m2-57a 7 0 11-14 0 7 7 0 0114 0z"/>
+									d="M21 2l-6 6m2-57a 7 0 11-14 0 7 7 0 0114 0z"/>
 								</svg> 
 						</div>
 					</div>
@@ -82,7 +84,7 @@
 					 </div>
 
 					 <!-- seccion de Ordenamiento -->
-					 <div class="w-full md-48">
+					 <div class="w-full md: w-48">
 					 	<select v-model="filtros.order" name="" id="" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
 					 		<option value="recent">mas Reciente</option>
 					 		<option value="ancient">mas Antiguos</option>
@@ -129,7 +131,8 @@
 					 	  		</div>
 
 					 	  		<!-- Indicador de Seleccion -->
-					 	  		<div class="ml-2 p-2 bg-blue-100 rounded-full">
+					 	  		<div	v-if="esMaterialSeleccionado(material.id)"
+					 	  			class="ml-2 p-2 bg-blue-100 rounded-full">
 					 	  			<svg class="w-5 h-5 text-blue-600" fill="currentColor">
 					 	  				<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
 					 	  			</svg>
@@ -178,10 +181,10 @@
 
 			</div>
 		</section> <!-- endRegion -->
-	     
+	
 	    <Teleport to="body">
-	     	<Transition>
-	     		<div  v-if="currentMaterial !== null" class="fixed-iset-0 z-50 overflow-hidden">
+	     	<Transition name="slide-over">
+	     		<div  v-if="currentMaterial !== null" class="fixed iset-0 z-50 overflow-hidden">
 	     			  <!-- Overlay Obscuro -->
 	     			<div class="absolute inset-0 bg-gray-900 bg-opacity-50"></div>
 	     			  <!-- Panel deslizante -->
@@ -193,7 +196,7 @@
 	     				<div class="text-xl font-bold text-gray-900">
 	     					<h2>{{currentMaterial}}</h2>
 	     					<p class="mt-1 text-sm text-gray-600">
-	     						Subido por:{{ currentMaterial.nameStudent}} 
+	     						Subido por:{{ currentMaterial.nombreAlumno}}
 	     					</p>
 	     				</div>	
 	     					<!-- Boton de Cerrar -->
@@ -217,7 +220,7 @@
 	     								18c-1.746 0-3.332.477-4.5 1.253"
 	     							/>
 	     					</svg>
-	     					<span class="text-gray-700">{{currentMaterial.materia}}</span>
+	     					<span class="text-gray-700">{{currentMaterial.material}}</span>
 	     				</div>
 
 	     				<div class="flex items-center">
@@ -249,7 +252,7 @@
 	     						<div class="flex items-start justify-between mb-2">
 	     						    <div class="flex items-center gap-2">
 		     							<span class="tex-sm font-medium text-gray-700">
-		     								{{comentario.nameAuth || 'default'}}
+		     								{{comentario.autorNombre || 'Profesor'}}
 		     						   </span>
 		     						   <span v-if="comentario.destacado" 
 		     						      class="text-xs font-semibold text-yellow-700 bg-yellow-200 px-2 py-0 5 rounded">
@@ -265,16 +268,23 @@
 	     					      	     title="Editar"
 	     					      	     >
 	     					      		<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-	     					      		  	<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828
-	     					      		  	15H9v-2 2.8218.586-8.586z" />
-	     					      		  		
+	     					      		  	<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11 16H9v-218.586-8.586z" />
 	     					      		</svg>
 	     					      	</button>
 	     					      </div>
+	     					      <!-- Eliminar Comentario  Modificado [26/04/24] -->
+	     					      <button @click="handleEliminarComentario(comentario.id)"
+									    class="text-gray-400 hover:text-red-600 transition-colors"
+									    title="Eliminar">
+									    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+									        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+									    </svg>
+									</button>
 								</div>
 								    <!-- Contenido del Comentario -->
 								<p class="text-gray-800 text-sm whitespace-pre-wrap">
-									{{comentario.message}}
+									{{comentario.mensaje}}
 								</p>
 									<!-- Footer del Comentario -->
 								<div class="mt-2 text-xs text-gray-500">
@@ -285,21 +295,21 @@
 	     					</TransitionGroup>
 	     				</div>
 
-	     				<div class="text-center py-8">
+	     				<div v-else class="text-center py-8">
 	     					<svg class="mx-auto w-12 h-12 text-gray-300">
 	     						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 	     						 d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 01-2-2V6a2 2 0
 	     						 0 012-2h14a2 2 012 2v8a2 2 01-2 2h-5l-5 5v-5z" />
 	     					</svg>
      						<p class="mt-2 text-sm text-gray-500">
-     							No hay comentarios
+     							No hay comentarios aún.
      						</p>
 	     				</div>
 
 	     				<div class="nuevo-comentario-form bg-white border-gray-300 rounded-lg-p4">
 	     					<h4 class="text-sm font-semibold text-gray-700 mb-3">Agregar Comentario</h4>
 	     						
-	     					<textarea v-model="newComment.message" rows="4"
+	     					<textarea v-model="newComment.mensaje" rows="4"
 	     					placeholder="Escribe tu retroalimentación para el Alumno"
 	     					 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:rigth-2 focus:ring-blue-500 
 	     					 focus:border-blue-500 resize-none">
@@ -307,7 +317,7 @@
 	     					
 	     					<div class="mt-3 flex items-center justify-between">
 	     						 <label for="msg" class="flex items-center gap-2 cursor-pointer">
-	     							<input v-model="newComment.highlighted" row="4" placeholder="Escribe tu retroalimentacion para el estudiante" 
+	     							<input v-model="newComment.destacado" row="4" placeholder="Escribe tu retroalimentacion para el estudiante" 
 	     							class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"/>
 	     							<span class="text-sm text-gray-700">Marcar como leído</span>
 	     						</label>
@@ -327,14 +337,14 @@
 	     		<!-- Acciones de Moderacion -->
 	     		<footer class="px-6 py-4 items-center gap-4">
 	     			<div class="flex items-center gap-4">
-		     			<button  @click="handleAprobar"   disabled="!currentMaterial"  class="flex-1 px-6 py-3 bg-green-600 text-white font-semibold ronded-lg hover:bg-green-700 text-white font-semibold rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transtion-colors flex items-center justify-center gap-2">
+		     			<button  @click="handleAprobar"   :disabled="!currentMaterial"  class="flex-1 px-6 py-3 bg-green-600 text-white font-semibold ronded-lg hover:bg-green-700 text-white font-semibold rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transtion-colors flex items-center justify-center gap-2">
 		     				<svg class="w-5 h-5">
 		     					<path/>
 		     				</svg>
 		     				Aprobar Material
 		     			</button>
 
-		     			<button  @click="handleMostrarRechazo"  disabled="!currentMaterial" class="flex-1 px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:cursor-not-allowed transition-colors flex items-center justify-between gap-2">
+		     			<button  @click="handleMostrarRechazo"  :disabled="!currentMaterial" class="flex-1 px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:cursor-not-allowed transition-colors flex items-center justify-between gap-2">
 		     				<svg class="w-5 h-5"  fill="none" stroke="currentColor" viewBox="0 0 24 24">
 		     						<path stroke-linecap="round" stroke-linejoin="round"
 		     						 stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -348,7 +358,6 @@
      		 </div>
 	     	</Transition>
 	    </Teleport> <!-- #endRegion -->
-
 
 	    <div v-if="loading && pendigsMaterials.length === 0" 
 	       class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-90 z-40" > 
@@ -390,9 +399,52 @@
 		    		</div>
 	    	    </div>
 	    	</div>
-	    </div> <!-- endRegion_Moderate -->
+	    	<!-- ============ BEGGIN-CAMBIOS APLICADSO [2026/04/27]  ================ -->
+	    	 <!-- Estado: Carga -->
+				<div v-if="loading"
+				  class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-90 z-40">
+				  <div class="text-center">
+				    <svg class="animate-spin h-12 w-12 text-blue-600 mx-auto" fill="none" viewBox="0 0 24 24">
+				      <path class="opacity-75" fill="currentColor"
+				        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+				    </svg>
+				    <p class="mt-4 text-gray-600 font-medium">Cargando materiales...</p>
+				  </div>
+				</div>
+					<!-- Estado: Sin datos -->
+				<div v-else-if="!loading && !error && pendigsMaterials.length === 0"
+				  class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+				  <svg class="mx-auto w-24 h-24 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+				      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+				  </svg>
+				  <h3 class="mt-4 text-lg font-medium text-gray-900">Sin materiales pendientes</h3>
+				  <p class="mt-2 text-gray-500">No hay materiales pendientes de moderación en este momento.</p>
+				</div>
+					<!-- Estado: Error -->
+				<div v-else-if="error"
+				  class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+				  <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+				    <div class="flex items-start gap-3">
+				      <svg class="w-6 h-6 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+				          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+				      </svg>
+				      <div class="flex-1">
+				        <h3 class="text-red-800 font-semibold">Error al cargar los materiales</h3>
+				        <p class="mt-1 text-red-700">{{ error }}</p>
+				        <button @click="handleActualizarDatos"
+				          class="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+				          Reintentar
+				        </button>
+				      </div>
+				    </div>
+				  </div>
+				</div>
+				<!-- ============ END_CAMBIOS APLICADSO [2026/04/27]  ================ -->
+		</div> <!-- endRegion_Moderate -->
 
-	    <Teleport to="body">
+		<Teleport to="body">
 	    	<Transition name="modal">
 	    		<div
 	    		   v-if="rejectOfModal.visible"
@@ -435,11 +487,11 @@
 	    				</div>
 	    	 		</div>
 	    	</Transition>
-	    </Teleport>
+		</Teleport>
 	    	<!-- [Use]: Modal de Confirmacion para aprobacion -->
 	    	<!-- [Objetive]: Proviene aprobaciónes accidentales -->
 
-	    <Teleport to="body">
+		<Teleport to="body">
 	    	<Transition name="modal">
 	    	<div v-if="confirmationModal.visible" 
 	    	   class="fixed inset-0 z-[60] flex items-center justify-center p-4"
@@ -450,7 +502,7 @@
 	    		    <!-- ModalContent -->
 	    		    <div class="relative bg-white rounded-lg shadow-lg shadow-2xl max-w-md w-full p-6">
 		    			<div class="text-center">
-		    				<div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gree-100 mb-4">
+		    				<div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
 		    					<svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 		    							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
 		    					</svg>
@@ -477,15 +529,18 @@
 		 <!-- #endRegion: ConffirModal() -->
 	</div>
 </template>
-
+	
 <script setup lang="ts">
 	import {ref, computed, onMounted, watch} from 'vue';
 	import {useRouter} from 'vue-router';
 	import {storeToRefs} from 'pinia';
 	import {useModerationStore} from '@/stores/moderationStore';
-	import type { Comentario } from '@/intefaces/Profile.types.ts';
+	import type { Comentario2 } from '@/intefaces/Profile.types.ts';
 	// import {getActivePinia} from 'pinia';
-
+	/**
+	 * La vista actual esta completa con respec Arquitectura. Solo se rompe en tiempo de ejecucion
+	 * por imagen vectorial. Aun no carga nada pues tiene trascendencia con la vista predecesora
+	 * vwAdminMaterialStudent*/
 	const router = useRouter();
 	const moderationStore = useModerationStore();
 
@@ -497,6 +552,7 @@
 		error,
 		stats
 	} = storeToRefs(moderationStore);
+	console.log('Material Actual --> ',currentMaterial.value);
 
 	 // Getters computados del store
 	const {
@@ -516,8 +572,8 @@
 	});
 	 // const {search, clasify_material, order } = toRefs(filtros);
 	const newComment = ref({
-		message: '',
-		highlighted: false
+		mensaje: '',
+		destacado: false
 	});
 
 	const rejectOfModal = ref({
@@ -550,23 +606,28 @@
 			 	material.clasify_material === filtros.value.clasify_material
 			 );
 		}
-
+			/* Eran identics la notacion es mayor a menor prioridad. Diferencia de tiempo b-a** */
 		  // Ordenamiento [cambio]** abajo de c/opc
 		switch(filtros.value.order){
 			case 'recent':
-				return resultado.sort((a,b) =>{
-					 new Date(a.fechaSubida).getTime() - new Date(a.fechaSubida).getTime()
+				// alert('Pulsaste la opcion reciente');
+				return resultado.sort((a,b) =>{		//distitnos
+					 new Date(b.fechaSubida).getTime() - new Date(a.fechaSubida).getTime()
 				});
 			 break;
 
-			case 'ancient':
+			case 'ancient': 	//alert('Pulsaste la opcion antiguos');
 				 return  resultado.sort((a,b) => {
-				  	new Date(a.fechaSubida).getTime() - new Date(a.fechaSubida).getTime();
+				  	new Date(a.fechaSubida).getTime() - new Date(b.fechaSubida).getTime();
 				  });
 				break;
-			case 'author':
+			case 'author': 		// Sin formato de clase Tiempo
+				// alert('Pulsaste la opcion x Autor');
 				return  resultado.sort((a,b)=>{
-				  	new Date(a.nombreAlumno.localeCompare(b.nombreAlumno))
+					/*Nuevos Cambios Aplicados*/
+					 const nombreA = a.nombreAlumno ?? '';
+					 const nombreB = b.nombreAlumno ?? '';
+						 nombreA.localeCompare(nombreB,'es-MX');
 				  });
 				break;
 		}
@@ -580,7 +641,7 @@
      **/ 
 	const materialesDisponibles = computed(() => {
 		const materiales = new Set(
-			pendigsMaterials.value.map( m => m.clasify_material)
+			pendigsMaterials.value.map( m=> m.clasify_material)
 		);
 		  return Array.from(materiales).sort();
 	});
@@ -598,7 +659,7 @@
 	 * Validacion del comentario nuevo  [cambio]**
 	 * @computed*/  
 	const esComentarioValido = computed(() => {
-	 	return newComment.value.message.trim().length > 0;
+	 	return newComment.value.mensaje.trim().length > 0;
 	});
 
 	/**
@@ -635,9 +696,12 @@
 	 * @resposibility Limpiar la seccion actual
 	 **/
 	function handleCerrarPanel(): void {
-		moderationStore.currentMaterial = null;
-		 // Limpiar formulario de comentario
-		newComment.value =  {message: '', highlighted: false};
+		moderationStore.removeOfPendings('');
+		 		// moderationStore.currentMaterial = null;
+		 		// Limpiar formulario de comentario
+		//  limpiar solo los materiales de la ses. actual (currentMaterial)
+		moderationStore.clearCurrentMaterial();
+		newComment.value =  {mensaje: '', destacado: false};
 	}
 
 	/**
@@ -647,6 +711,7 @@
 	 **/
 	function esMaterialSeleccionado(materialId: string): boolean {
 		 return currentMaterial.value?.id === materialId;
+		 console.warn('Material Seleccionado', currentMaterial);
 	}
 
 	/**
@@ -665,9 +730,9 @@
 		}
 
 		try{
-			await moderationStore.addComment(currentMaterial.value.id, newComment.value.message,newComment.value.highlighted);
+			await moderationStore.addComment(currentMaterial.value.id, newComment.value.mensaje,newComment.value.destacado);
 
-			 newComment.value = { message: '', highlighted: false};
+			 newComment.value = { mensaje: '', destacado: false};
 		}catch(err){
 			console.warn('ERROR al Agregar comentario:',err);
 		}
@@ -693,7 +758,6 @@
 			console.warn('[ModeracionVw]:Error al Eliminar comentario', err);
 		}
 	}
-
 
 	function contarComentariosXMaterial(materialId: string): number {
 	 	return	comentarioDeMaterial(materialId).length;
@@ -813,6 +877,10 @@
 	 	console.log('El commponente ha sido montado, cargando los datos..');
 	 	 await handleActualizarDatos();
 	 	 console.log(' [ModeracionVw] Los datos principales fueron cargados ');
+	 	 await Promise.all([
+			moderationStore.loadPendingsMaterials(),
+			moderationStore.loadModerationStats(),
+		]);
 	});
 
 	 // =======================================
@@ -876,7 +944,7 @@
 			transform: translateY(-20px);
 		}
 
-		.material-list-leave-to-active {
+		.material-list-leave-active {
 			position: absolute;
 		}
 
@@ -907,12 +975,12 @@
 	  }
 
 	  .modal-enter-from,
-	  .modal-leavet-to {
+	  .modal-leave-to {
 	  		opacity: 0;
 	  }
 	  		/*Pseudoclases para  el Transition*/
 		.modal-enter-from > div:last-child,
-		.modal-leavet-to > div:last-child {
+		.modal-leave-to > div:last-child {
 			transform: scale(0.95);
 		}
 
@@ -961,7 +1029,7 @@
 			scrollbar-width: thin;
 			scrollbar-color: rgba(156, 163, 175, 0.5);
 		}-
-		.overflow-y-auto:-webkit-scrollbar {
+		.overflow-y-auto::-webkit-scrollbar {
 	    	width: 6px;
 		}
 

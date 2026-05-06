@@ -44,11 +44,12 @@
   		materialsRejected: number;
   		materialsPending: number;
   }
-
+  	// NO actualiza el contador, falta iun store para invocar al metodo getStudents de este servicio
+	// El Segmento: Bloque-3 de la interfaz es infuncional. Verificar la interfaz: 'TeacherMetrics' para depurar y consolidar errores
 	export class StaticsServiceUn {
-		private static readonly MATERIALS_COLL   =  'materials'
-		private static readonly STUDENTS_COLL    = 'students';
-		private static readonly TEACHERS_COLL    = 'teachers';
+		private static readonly MATERIALS_COLL   =  'Students_Materials' //materials
+		private static readonly STUDENTS_COLL    = 'student_register';
+		private static readonly TEACHERS_COLL    = 'teacher_register';
 		private static readonly NOTIFICAION_PROF = 'notifications';
 				//  ── Profesor ─────────────────────
 		static async getTeacherStatistics(): Promise <TeacherStatistics> {
@@ -58,26 +59,34 @@
 				 const [allSnap, approvedSnap, rejectedSnap, pendingSnap, inReviewSnap] = 
 				 	await Promise.all([
 				 		getDocs(query(reference)),
-				 		getDocs(query(reference, where('status', '==', 'approved'))),
-				 		getDocs(query(reference, where('status', '==', 'rejected'))),
-				 		getDocs(query(reference, where('status', '==', 'pending'))),
-				 		getDocs(query(reference, where('status', '==', 'in_review'))),
+				 		getDocs(query(reference, where('estado', '==', 'aprovado'))),
+				 		getDocs(query(reference, where('estado', '==', 'rechazado'))),
+				 		getDocs(query(reference, where('estado', '==', 'pendiente'))),
+				 		// getDocs(query(reference, where('estado', '==', 'in_review'))),
 				 	]);
 
 				 	let rejectedCommentsCount = 0;
 
-				 	rejectedSnap.docs.forEach( doc => {
+				 	rejectedSnap.docs.forEach(doc =>{
 				 		if (doc.data().rejectionReason) rejectedCommentsCount++;
 				 	});
+
 				 	return {
-				 		totalMaterials:     allSnap.alumnoId,
-				 		approvedMaterials:  approvedSnap.tipoMaterial,
-				 		rejectedMaterials:  rejectedSnap.size,
-				 		pendingReview:     pendingSnap.size,
-				 		inReview:          inReviewSnap.size,
-				 		rejectedCommentsCount,
-				 	};
-				
+						totalMaterials:    allSnap.size,
+						approvedMaterials: approvedSnap.size,
+						rejectedMaterials: rejectedSnap.size,
+						pendingReview:     pendingSnap.size,
+						// inReview:          inReviewSnap.size,
+						rejectedCommentsCount: rejectedCommentsCount,
+					};  /*value*/
+					 	/*return {
+					 		totalMaterials:     allSnap.alumnoId,
+					 		approvedMaterials:  approvedSnap.tipoMaterial,
+					 		rejectedMaterials:  rejectedSnap.size,
+					 		pendingReview:     pendingSnap.size,
+					 		inReview:          inReviewSnap.size,
+					 		rejectedCommentsCount,
+					 	};*/
 			}catch(error: any){
 				 throw new Error(`Error al obtener estadísticas del profesor ${error.message}`);
 			}
@@ -105,7 +114,7 @@
 
 		static async getRejectedMaterials(): Promise < number> {
 			try {
-				const qy = query(collection(db, this.MATERIALS_COLL), where('status', '==', 'rejected'));
+				const qy = query(collection(db, this.MATERIALS_COLL), where('status', '==', 'rechazado'));
 
 				const snap = await getDocs(qy);
 				return snap.size;
@@ -116,7 +125,7 @@
 
 		static async getPendingMaterials(): Promise < number> {
 			try {
-				const qy = query(collection(db, this.MATERIALS_COLL), where('status', '==', 'pending'));
+				const qy = query(collection(db, this.MATERIALS_COLL), where('estado', '==', 'pendiente'));
 
 				const snap = await getDocs(qy);
 				return snap.size;
@@ -124,10 +133,10 @@
 				throw new Error(`Error al obtener los materiales pendientes: ${error.message}`);
 			}
 		}
-
+			// [ready]
 		static async getInReviewMaterials(): Promise < number> {
 			try {
-				const qy = getDocs(collection(db, this.MATERIALS_COLL), where('status', '==', 'in_review'));
+				const qy = query(collection(db, this.MATERIALS_COLL), where('estado', '==', 'in_review'));
 
 				const snap = await getDocs(qy);
 				return snap.size;
@@ -138,7 +147,7 @@
 
 		static async getRejectedCommentsCount(): Promise <number>{
 			try{
-				const qy = query(collection(db, this.MATERIALS_COLL), where('status', '==', 'rejected'));
+				const qy = query(collection(db, this.MATERIALS_COLL), where('estado', '==', 'rejected'));
 				const snap = await getDocs(qy);
 				let count = 0;
 
@@ -159,9 +168,9 @@
 
 				const [allSnap, approvedSnap,rejectedSnap, pendingSnap] = await Promise.all([
 					getDocs(query(reference, where('autor_id', '==', studentId))),
-					getDocs(query(reference, where('autor_id', '==', studentId)), where('status', '==', 'approved')),
-					getDocs(query(reference, where('autor_id', '==', studentId)), where('status', '==', 'rejected')),
-					getDocs(query(reference, where('autor_id', '==', studentId)), where('status', '==', 'pending')),
+					getDocs(query(reference, where('autor_id', '==', studentId)), where('status', '==', 'aprobado')),
+					getDocs(query(reference, where('autor_id', '==', studentId)), where('status', '==', 'rechazado')),
+					getDocs(query(reference, where('autor_id', '==', studentId)), where('status', '==', 'pendiente')),
 				]);
 
 				const total = allSnap.size;
@@ -192,10 +201,10 @@
 				throw new Error(`Error al calcular la tasa de aprobación:  ${error.message}`);
 			}
 		}
-		  // ── Administrador del Sys ──────────────────────────────────────────────────
+		  // ── Administrador del Sys ────────────────────────────────────────────────── [fixed]
 		static async getAdminStatistics(): Promise<AdminStatistics> {
 			try{
-				const matRef = collection(db,this.MATERIAL_COLL);
+				const matRef = collection(db,this.MATERIALS_COLL);
 
 				const [
 					studentsSnap,
@@ -206,10 +215,11 @@
 					pendingSnap,
 				] = await Promise.all([
 					getDocs(collection(db, this.STUDENTS_COLL)),
-					getDocs(collection(db,this.MATERIALS_COLL)),
-					getDocs(query(matRef, where('status', '==', 'approved'))),
-					getDocs(query(matRef, where('status', '==', 'rejected'))),
-					getDocs(query(matRef, where('status', '==', 'pending'))),
+					getDocs(collection(db,this.TEACHERS_COLL)),
+					getDocs(collection(db, this.MATERIALS_COLL)),
+					getDocs(query(matRef, where('estado', '==', 'aprobado'))),
+					getDocs(query(matRef, where('estado', '==', 'rechazado'))),
+					getDocs(query(matRef, where('estado', '==', 'pendiente'))),
 				]);
 
 				const stats: AdminStatistics = {
@@ -265,7 +275,7 @@
 								studentId:  data.alumnoId || 'N/A',
 								materialType:  data.tipoMaterial ||  'Material',
 								timestamp:  data.timestamp?.toDate() || new Date(),
-								 status: data.estado || 'pending',
+								 status: data.estado || 'pendiente',
 								message: data.mensaje || '',
 							}
 					});
@@ -279,28 +289,34 @@
 				throw new Error(`Error al obtener el resumen Semestral: ${error.message}`);
 			}
 		}
-
-		static async getDailySummary(professorId: string): Promise<number>{
+		// [ready]
+		static async getDailySummary(profesorId: string): Promise<number>{
 			try{
 				const now = new Date();
 				const  startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(),-6, 1);
 				const endOfPeriod = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 23, 59,59);
 				
-				const snap = await getDocs(qy);
+				const query_SumDaily = query(collection(db, this.NOTIFICAION_PROF),
+					where('profesorId', '==', profesorId),
+					where('timestamp', '>=', Timestamp.fromDate(startOfDay)),
+					where('timestamp', '<=', Timestamp.fromDate(endOfPeriod)),
+				);
+
+				const snap = await getDocs(query_SumDaily);
 				const activities = snap.docs.map(doc => {
 					const data = doc.data();
 							return {
 								studentId:  data.alumnoId  || 'N/A',
 								materialType:  data.tipoMaterial ||  'Material',
 								timestamp:  data.timestamp?.toDate() || new Date(),
-								status: data.estado || 'pending',
+								status: data.estado || 'pendiente',
 								message: data.mensaje || '',
 							}
 					});
 
 					return {
-					 date: 			  `${sixMonthAgo}.toLocaleDateString('es-MX') -  ${endOfPeriod}.toLocaleDateString('es-MX')`,
-					 activitiesCount:  activities.length,
+					 date: 			now.toLocaleDateString('es-MX'),
+					 activitiesCount:   activities.length,
 					 activities,
 				 };
 			}catch(error: any){

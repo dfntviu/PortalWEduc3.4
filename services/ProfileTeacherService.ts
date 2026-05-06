@@ -68,7 +68,7 @@
 	   	  	 	};
 	   	  	 		console.log('Datos Rol Profesor:', teacherData);
 							console.log('uid Profesor:', uid_teacher); // C2.1 Base: El uid lo reconoce pero nunca se reciben los valores
-							await BaseProfileService.saveProfile(this.COLLECTION_02,uid_teacher, teacherData);
+							await BaseProfileService.saveProfileRoles(this.COLLECTION_02,uid_teacher, teacherData);
 	   	  	 	    // const docRefRole2 = await addDoc(collection(db, this.COLLECTION_02), teacherData);
 
 	   	  	 	 return data.uid;

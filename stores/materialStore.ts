@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
 import { MaterialService } from '@/services/MaterialService'
+import { useAuthStore3 } from '@/stores/authStore3';
 import type { StudentUser } from '@/types/interf.index'
 
-interface Material {
+export interface Material {
   id_material: string
   nombre_material: string
   fechaSubida: string
@@ -59,9 +60,20 @@ export const useMaterialStore = defineStore('materials', {
           MaterialService.getStudentProfile(uid)
         ])
 
+        // const profileStudent = MaterialService.getStudentProfile(uid);s
+        console.warn(`El perfil del Estudiante Actual: ->[${profile}]`);
+
+        console.log('[Store] Los materiales obtenidos: ',materials.length);
+        console.log('[Store] El Perfil obtenido: ',profile);
+
         this.studentMaterials = materials
-        this.studentProfile = profile
-        this.message = 'Materiales cargados correctamente'
+        this.studentProfile = profile;
+        
+        console.log('[Store] El estado después de asignar...');
+        console.log(' - studentMaterials: ',this.studentMaterials.length);
+        console.log(' - Edo Perfil del Estudiante: ',this.studentProfile);
+
+        this.message = 'Materiales cargados correctamente';
 
       } catch (error: any) {
         this._handleError(error, 'Error al cargar los materiales')
@@ -80,7 +92,20 @@ export const useMaterialStore = defineStore('materials', {
           throw new Error('ID de material inválido')
         }
 
-        await MaterialService.downloadMaterial(materialId)
+        /** INICIO - Cambio Aplicado [02/Mayo/2026]
+         * MODIFY_STARTING
+         * */
+        const authStore = useAuthStore3();
+        const studentUid = authStore.uid_auth;
+        console.log('Uid del Estudiante -> ', studentUid);
+        if (!studentUid) {
+           throw new Error('ERROR: No fue posible identificar al estudiante. POR-FAVOR, recarga la página');
+        }
+
+        await MaterialService.downloadMaterial(materialId, studentUid); 
+        /**FIN  - ambio Aplicado [02/Mayo/2026]
+         * MODIFY_ENDING
+         * */
         this.message = 'Material descargado correctamente'
 
       } catch (error: any) {
