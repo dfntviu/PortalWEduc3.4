@@ -1,5 +1,5 @@
     // Material Extendido(Generico)
-export interface MaterialT {
+export interface MaterialToast {
       id: string;
       titulo: string;
       descripcion: string;

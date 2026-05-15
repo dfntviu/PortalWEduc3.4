@@ -20,7 +20,7 @@
 				</div>
 
 					<!-- Error Alert -->
-				<div class="mt-4 p-4 bg-red-50">
+				<div v-if="error" class="mt-4 p-4 bg-red-50">
 					<div class="flex items-start gap-3">
 						<span class="text-2xl">⚠️</span>
 						<div class="flex-1">
@@ -36,7 +36,7 @@
 				</div>
 					<!-- Estadisticas -->
 					<div class="grid grid-cols2">
-						<div class="from-blue-50 to-blue-100">
+						<div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-4">
 							<div class="flex items-center justify-between">
 								<div>
 									<div class="text-sm font-medium">
@@ -136,9 +136,9 @@
 									</button>
 								</div>
 
-								<!-- Materiales Grid -->
+								<!-- Materiales Grid  [modifique uid-> id]-->
 								<TransitionGroup name="material-list"  tag="div" class="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-									<div v-for="material in filteredMaterials" :key="material.uid" class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden" >
+									<div v-for="material in filteredMaterials" :key="material.id" class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden" >
 										<!-- Badge de Estado -->
 										<div class="relative">
 											<div class="absolute top-4 rigth-4 z-10">
@@ -235,8 +235,8 @@
 
 						<!-- Modal de Creacion -->
 						<Teleport to="body">
-							<Transition>
-								<div class="fixed inset-0 bg-black-50 backgroup-blur-sm flex items-center justify-center p-4 z-50">
+							<Transition name="modal">
+								<div v-if="showCreateModal" class="fixed inset-0 bg-black-50 backgroup-blur-sm flex items-center justify-center p-4 z-50">
 									<div class="bg-white rounded-2xl max-w-2xl w-full p-6">
 										  <div class="flex justify-between items-center mb-6">
 											<h3 class="text-2xl font-bold text-gray-900k flex items-center gap-3"> 
@@ -344,7 +344,7 @@
 												  Motivo del Rechazo
 											</p>
 											<p class="text-red-700 dark:text-red-400">
-											 {{selectedMaterial.rejectionReason}}
+											 {{selectedMaterial.razonRechazo}}
 											</p>
 										</div>
 											
@@ -380,7 +380,7 @@
 
 											<div class="flex gap-3">
 												<button  @click="controllDelete"
-														:disabled="delentig"
+														:disabled="deleting"
 												 class="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 dark:gray-700 text-white rounded-lg font-medium
 													transition-colors disabled:opacity-50 flex items-center justify-center font-medium gap-2"
 												>
@@ -401,7 +401,7 @@
 </template>
 
 <script setup lang="ts">
-	import {ref, computed, onMounted} from 'vue';
+	import {ref, computed, /*onMounted,*/watch} from 'vue';
 	import {useMaterialStudentStore} from '@/stores/materialStudentStore.ts';
 	import {useAuthStore3} from '@/stores/authStore3.ts';
 	import type {Material,CreateMaterialForm } from '@/interfaces/Profile.types';//##
@@ -424,11 +424,11 @@
 	const uploading= ref(false);
 	const deleting= ref(false);
 	const isDragging = ref(false); //*
-	console.log('Consolidacion de la seleccion del Material ->',selectedMaterial);
+	/*console.log('Consolidacion de la seleccion del Material ->',selectedMaterial);
 	console.log('Prop. de la seleccion del Material ->',selectedMaterial.titulo);
 	console.log('Prop. de la seleccion del Material ->',selectedMaterial.status);
 	console.log('Prop. de la seleccion del Material ->',selectedMaterial.moderatorNombre);
-	console.log('Prop. de la seleccion del Material ->',selectedMaterial.rejectionReason);
+	console.log('Prop. de la seleccion del Material ->',selectedMaterial.rejectionReason);*/
 
 
 	// const  sInput = ref('');
@@ -440,7 +440,7 @@
 		description: '',
 		tags: [],
 		category: 'Libros',
-		file: 'PDF' | undefined 
+		file: undefined as File | undefined  //*
 	});
 
 	// ================
@@ -494,7 +494,7 @@
 			break;
 			/*Nuev filtro para 'student' [No aprobados]*/
 			case 'rechazado': 
-				filtered = materialStore.rejectedMaterials;
+				filtered = materialStore.myRejectedMaterials;
 			break;
 
 			case 'pendiente':
@@ -506,12 +506,12 @@
 			break;
 		}
 
-		// Filtrar por Busqueda
+		// Filtrar por Busqueda  -> [opciona en atr descripion]
 		if (searchQuery.value.trim()) {
 			 const query = searchQuery.value.toLowerCase();
 				filtered = filtered.filter(m => 
 					m.titulo.toLowerCase().includes(query)   ||
-					m.description.toLowerCase().includes(query) ||
+					m.description?.toLowerCase().includes(query) ||
 					m.tags?.some(tag =>tag.toLowerCase().includes(query))
 				);
 		}
@@ -520,9 +520,11 @@
 	 }); 
    // [*cambio 510,511 (t x n)*]
 	 const canSumbitCreate = computed(() => {
+	 	return(
 		 !!createForm.value.titulo?.trim() &&
 		 !!createForm.value.descripcion?.trim() &&
-		 createForm.value.file !== undefined;
+		 createForm.value.file !== undefined
+		 );
 	 });
 
 	 // ================
@@ -632,9 +634,9 @@
 		if(!materialToDelete.value) return;
 
 		deleting.value = true;
-    // [*cambio* 623 > falto 'My']
+    // [*cambio* 623 > falto 'My'; uid -> id (ln. 639)]
 		try{
-			const success =  await materialStore.deleteMyMaterial(materialToDelete.value.uid);
+			const success =  await materialStore.deleteMyMaterial(materialToDelete.value.id);
 			 
 			 if(success){
 				showDeleteModal.value = false;
@@ -649,31 +651,31 @@
   // [*cambio* ln 645]
 	const getStatusLabel = (status: string): string => {
 		const labels = {
-			 pending: '⌛Pendiente',
-			approved: '✅Arpobado',
-			rejected: '❌Rechazado'
+			 pendiente: '⌛Pendiente',
+			aprobado: '✅Arpobado',
+			rechazado: '❌Rechazado'
 		};
 		return labels[status as keyof typeof labels] || status;
 	};
 
 	const getEmptyMessage = (): string => {
 		const messages = {
-			 all: 'No hay materiales disponibles',
-			mine: 'Aún no has subido materiales',
-			approved: 'No hay materiales aprobados',
-			pending: 'No tienen materiales pendientes',
-			rejected:  'No tienes materiales rechazados'
+			todos: 'No hay materiales disponibles',
+			mio: 'Aún no has subido materiales',
+			aprobado: 'No hay materiales aprobados',
+			pendiente: 'No tienen materiales pendientes',
+			rechazado:  'No tienes materiales rechazados'
 		};
 		 return messages[activeTab.value];
 	}
 
 	const getEmptyDescription = (): string => {
 		const descriptions = {
-			all: 'Sube tu primer Material para comenzar',
-			mine: 'Comparte tus apuntes, libros o artículos con la comunidad',
-			approved: 'Los materiales aprobados se mostrarán aquí',
-			pending: 'Tus materiales en revisión se mostrarán aquí',
-			rejected: 'Los materiales rechazados se mostrarán aquí'
+			todos: 'Sube tu primer Material para comenzar',
+			mio: 'Comparte tus apuntes, libros o artículos con la comunidad',
+			aprobado: 'Los materiales aprobados se mostrarán aquí',
+			pendiente: 'Tus materiales en revisión se mostrarán aquí',
+			rechazado: 'Los materiales rechazados se mostrarán aquí'
 		};
 		return descriptions[activeTab.value];
 	}
@@ -704,9 +706,17 @@
 	// ================
 	//     LIFECYCLE
 	// ================
-	onMounted( async()=> {
+	/*onMounted( async()=> {
 		await refreshMaterials();
-	});
+	});*/
+
+	watch(
+		() => authStore.user?.uid,
+		async (uid) => {
+			if(uid) await refreshMaterials();
+		},
+		{inmediate: true}
+	);
 
 </script>
   <!-- Errores sintacticos

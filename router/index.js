@@ -21,9 +21,9 @@
            const authStore3 = useAuthStore3();
           // const { authStore3 } = requiere('@/stores/authStore3.ts');
             if(authStore3.isAuthenticated) {
-              return authStore3.role === 'teacher'
-              ? { name: 'viewBienvenidaStudents'} 
-              : { name: 'viewWelcomeTeachers'}; //viewBienvenidaTeachers
+              return authStore3.userRole === 'teacher'
+              ? { name: 'viewWelcomeTeachers'} 
+              : { name: 'viewBienvienidaStudents'}; //viewBienvenidaTeachers
             }
             return  { name: 'viewLoginMultUser'};
         }

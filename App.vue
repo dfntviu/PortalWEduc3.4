@@ -7,7 +7,7 @@
         </span>
       </div>
 
-      <LayoutNavBar/>
+      <LayoutNavBar v-if="showNavBar" />
 
       <!-- ========================== -->
       <!--      CONTENIDO PRINCIPAL   -->
@@ -26,9 +26,12 @@
 </template>
 <script setup lang="ts">  // Code_new: 2025-Nov-02
   import { computed, onMounted } from 'vue';
+  import { useRoute } from 'vue-router'; //*
   // import { useAuthStore3 } from '@/stores/authStore3.ts'; 
   import LayoutNavBar from '@/components/LayoutNavBar.vue';
   
+  const route = useRoute();
+  const showNavBar = computed(() => route.meta.requiresAuth === true);
   // ===============
   //    COMPOSABLES
   // ===============

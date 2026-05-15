@@ -76,11 +76,12 @@
 </template>
 
 <script setup lang="ts">
-	import {ref, computed, onMounted} from 'vue';
+	import {ref, computed, onMounted, watch} from 'vue';
 	import {useRouter} from 'vue-router';
 	import {useAuthStore3} from '@/stores/authStore3.ts';
 	import type {UserRole} from '@/interfaces/interfacefVUn.ts';  //interefaceRules
-
+	/*MINIMIZAMOS A LO MINÍMO EL REDIRECTROLE, QUITAMOS EL setTimeout, 
+	  estaba bloqueando el tiempo de getAuth de Firebase firebaseAuth*/
 		// =========================
 	  	//     COMPOSABLES
 		// =========================
@@ -173,7 +174,7 @@
 		 * Redirigir al Usuario segun su rol
 		 * */
 	    function redirectByRole(): void {
-	    	const role = form.value.role; //authStore.userRole;
+	    	const role = authStore.userRole; //form.value.role;
 	    	console.log('Bienvenido: ');
 	    	if(role === 'teacher'){ 		//{name: viewBienvenidaTeachers}
 	    		console.log('Condicion de rol ha sido aprobada');
@@ -204,10 +205,20 @@
 					successMsg.value = result.message;
 					 showInitButton.value = false;  //Bloquea
 
-					 // Inicia Sesion automaticamente a los 2.5 segundos
-					  setTimeout(()=>{
+					 // Inicia Sesion automaticamente a los 2.5 segundos, funcional para leer directo del formulario
+					/*const unwatch = watch(
+						() => authStore.userRole,
+						  (role) =>{
+						  	if(role) => {
+						  		 unwatch();*/
+						  		 redirectByRole();
+						/*  	}
+						  },
+						  {inmediate: true}
+						);*/
+					 /* setTimeout(()=>{
 					  	 controllSubmit();
-					  },2500);
+					  },2500);*/
 				}else {
 				  error.value = result.message;
 				}

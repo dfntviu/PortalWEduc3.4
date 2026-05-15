@@ -33,9 +33,9 @@
 					@animation-complete="onAnimationComplete"
 				/> -->
 
-      		<router-link to="/" class="nav-link" @click="closeMobileMenu" >
+      		<router-link :to="{name:'viewProfileUser'}" class="nav-link" @click="closeMobileMenu" >
 				  <span class="nav-icon">🏠</span>
-				  <span>Pág. de Inicio</span>
+				  <span>Perfil</span>
 				</router-link>
 			
 				<!-- Enlaces de Redireccion p/Estudiantes -->
@@ -150,10 +150,14 @@
 		         <span>Moderar Materiales</span>
 	         </router-link>
 
-	           	<!-- <router-link>
-	              <span class="nav-icon">🚪</span>
-		          <span>Cerrar</span>
-	           </router-link> -->
+	         <router-link
+					:to="{name: 'viewLoginMultUser'} "
+					@click="logoutInProgress"
+					aria-label="Salir-Portal Ed."
+	             >
+	            <span class="nav-icon">🚪</span>
+		         <span class="nav-label">Cerrar Sesión</span>
+	         </router-link>
 		 	</template>
 
 	   <div class="navbar-actions mobile-only">
@@ -224,7 +228,7 @@
 	    <!-- ====================================== -->
 	    <!--     	ACCIONES DE USUARIO (MOBILE)     -->
 	    <!-- ====================================== -->
-	     <div class="navbar-actions mobile-only">
+	   <div class="navbar-actions mobile-only">
 	        <button
 	          class="action-btn notifications-btn"
 	          @click="toggleNotifications"
@@ -299,7 +303,20 @@
   import { useAuthStore3 } from '@/stores/authStore3.ts';
   import  LogoutAnimation  from '@/components/Session_Close/LogoutAnimation.vue';
   // import { useNotificationStore } from '@/stores/notificationStore';
- 
+ 	
+ 	/*09/05/2026:
+	 El Sistema cierra sesion con ambos roles correctamente, [sin value]
+	 - "NO MOVER MAS NINGUNA LINEA DE CODIGO"
+	 algunas cuentas son infucionales se solucionará, cuando limpiemos el Storage
+	 La vista de Materiales individuales de rol profesor sigue infuncional
+
+	 Falta
+	  Corregir la ausencia de datos del segmento-3 de Estatdisticas - Profesor
+	  - Corregir estilos Tailwind de Administracion de Materiales - Estudiante
+	  Visuales
+	   Añadir libreria de MaterialDesign a Estadisticas, Moderacion y AdminMateriales 
+	   p/estudiante y profesor respectivamente
+ 	*/
   // ====================================
 	// PROPS
 	// ====================================
@@ -345,6 +362,7 @@
    	});*/
 
 		const {userRole: role} = storeToRefs(authStore3);
+		console.log('[NavBar] role al renderizar: ', role.value);
       // const refs = storeToRefs(authStore3);
       // const role = refs.userRole;
 
@@ -358,41 +376,41 @@
       * Clases CSS Dinámicas del navbar segun el rol
    * */
     const navbarClasses = computed(()=>({
-    	'navbar-student': role === 'student',
-    	'navbar-teacher': role === 'teacher'
+    	'navbar-student': role.value === 'student',
+    	'navbar-teacher': role.value === 'teacher'
     }));
 
     const userName = computed(()=> {
 
-    	 if(!authStore3.user) return 'Usuario';
+    	 if(!authStore3.currentUser) return 'Usuario';
 
-    	  const firstName = authStore3.user.firstName || '';
-    	  const lastName = authStore3.user.lastName  || '';
+    	  const firstName = authStore3.currentUser.firstName || '';
+    	  const lastName = authStore3.currentUser.lastName  || '';
 
     	  return firstName && lastName
     	         ? `${firstName} ${lastName}`
-    	         :  authStore3.user.displayName || 'Usuario';
+    	         :  authStore3.currentUser.displayName || 'Usuario';
     });
 
     /**
      * Email del Usuario
      * */
      const userEmail = computed(()=>{
-     	 authStore3.user?.email || '';
+     	 authStore3.currentUser?.email || '';
      });
 
     const userInitials = computed(()=>{
      	  if(!authStore3.user) return 'U';
 
-     	  const firstName = authStore3.user.firstName  || '';
-		   const lastName = authStore3.user.lastName  || '';
+     	  const firstName = authStore3.currentUser.firstName  || '';
+		   const lastName = authStore3.currentUser.lastName  || '';
 
 		  if(firstName && lastName){
 		  	 return (firstName[0] + lastName[0].toUpperCase());  // con o sin Comp
 		  }
 
 		  if(authStore3.user.displayName){
-		  	 const names = authStore3.user.displayName.split(' ');
+		  	 const names = authStore3.currentUser.displayName.split(' ');
 
 		  	 return names.length > 1
 		  	    ? (names[0][0] + names[1][0].toUpperCase())
@@ -405,7 +423,7 @@
      * Etiqueta Rol en Espaniol
      * */
     const roleLabel = computed(()=> {
-    	 return role === 'teacher' ? 'Profesor': 'Alumno';
+    	 return role.value === 'teacher' ? 'Profesor': 'Alumno';
     });
 
      /**
@@ -413,7 +431,7 @@
      * */
      /*Importante: sobraran 2 parentesis. Siembre se inicia con (est. es bloque comp y da pauta al inicio). Es una sola exp compuesta*/
    const profileRoute = computed(()=> {
-         	 return role === 'student'
+         	 return role.value === 'student'
          		?  '/view-register-base'
          		:  '/view-register-teacher1';
    });
@@ -474,9 +492,9 @@
 
 				try{
 					 await authStore3.logout();
+						await router.push({name: 'viewLoginMultUser'});
 					 /*Seguridad con la clase guardiana. Proteccion Interna (verificar si es asi), eliminar 
 					 no tiene sentido*/
-						await router.push({name: 'viewLoginMultUser'});
 					/** Conseguir nombre antes de que el store se limpie
 					const rawName = 
 						authStore3.user?.displayName ||
@@ -490,8 +508,9 @@
 						 showLogoutAnimation.value = true; **/
 				}catch(error){
 					console.error('[Ctrl de Navegacion] Error al cerrar tú Sesión: ', error);
+				}finally {
 					logoutin_progress.value = false;
-				}				
+				}
 	}
 	/**
 	 * Cierra los Menús al hacer clic fuera de ellos
@@ -524,7 +543,7 @@
 	});
 
 	onUnmounted(() =>{
-		document.removeEventListener('click', controlLogout);
+		document.removeEventListener('click', logoutInProgress);
 	});
 
  		// const notifications = ref<(any[])>([]);

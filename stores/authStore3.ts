@@ -8,6 +8,7 @@ import { initializeFirebaseStorage } from '@/config/initializeFirebaseConf.ts';
 import {  AuthService} from '@/services/AuthService.ts';
 import { RoleFirstUsingService } from '@/services/CloseBoostrap/FirstUsingClSys.ts';
 import type { ProfileTeacher, ProfileStudent, UserRole } from '@/interfaces/interfacefVUn';
+import { useRouter } from 'vue-router';
 
 
 /**
@@ -75,7 +76,7 @@ export const useAuthStore3 = defineStore('auth', () => {
    * Inicializa el listener de autenticación de Firebase
    * Debe llamarse una sola vez al inicio de la aplicación
    */
-
+  //Metodo Importante, pero debe mejorarse genericamente
   onAuthStateChanged(getAuth(), (firebaseUser) => {
     currentUser.value = firebaseUser ?? null;
   });
@@ -218,15 +219,42 @@ export const useAuthStore3 = defineStore('auth', () => {
       /**
        * Segmento f(n) vital para el registro de rol 'student'***/
       if (teacherSnap.exists()) {
+      const roleInDoc = teacherSnap.data().role;
+    // Si el doc dice 'student', no es profesor
+      if (roleInDoc === 'teacher') {
           userRole.value = 'teacher';
-            console.log('[authStore3] userRole seteado:', userRole.value);
       } else {
           const studentSnap = await getDoc(doc(db, 'student_register', user.uid));
-          if (studentSnap.exists()) {
-              userRole.value = 'student';
-          }
-            console.log('[authStore3] user.uid:', user.uid);
+          if (studentSnap.exists()) userRole.value = 'student';
       }
+      } else {
+          const studentSnap = await getDoc(doc(db, 'student_register', user.uid));
+           if (studentSnap.exists()) userRole.value = 'student';
+    }
+      // }
+     /** if (teacherSnap.exists()) {
+          const roleInDoc = teacherSnap.data().role;
+           if (roleInDoc === 'teacher') {
+             userRole.value = 'teacher'
+           } else {
+             const studentSnap = await getDoc(doc(db, 'student_register', user.uid));
+             if (studentSnap.exists()) userRole.value ='student';
+           }
+          /*userRole.value = 'teacher';
+            console.log('[authStore3] userRole seteado:', userRole.value);*
+      } else {
+        /*  const studentSnap = await getDoc(doc(db, 'student_register', user.uid));
+          if (studentSnap.exists()) {
+              userRole.value = 'student';  *
+         const studentSnap = await getDoc(doc(db, 'student_register', user.uid));
+            if (studentSnap.exists()) userRole.value = 'student';
+               //linea nueva:[26/05/08] Si no existe uid_nuevo dara acceso mal, se hara nulo, y mostrara incosistencia
+          } else {  
+              const studentSnap = await getDoc(doc(db, 'student_register', user.uid));
+             if (studentSnap.exists()) userRole.value = 'student';
+            // throw new Error('ERROR: No ha sido HALLADO/ENC eL perfil del usuario.');
+            // console.log('[authStore3] user.uid:', user.uid);
+          }  **/
 
       isAuthenticated.value = true;  // *chge **
       // Solo retornamos éxito
@@ -248,25 +276,28 @@ export const useAuthStore3 = defineStore('auth', () => {
   /**
    * Cierra la sesión actual
    */
-  async function logout(): Promise<{
-    success: boolean;
-    message: string;
-  }> {
+  async function logout(){
+    /*success: boolean;
+    message: string;*/
+  // {
     try {
       loading.value = true;
-      error.value = null;
+        error.value = null;
       
-      this.uid_auth.value = null;
+      const exit = await authService.logout();
+      console.log('Cierra de Sesión, CONFIRMADO...');
+       this.uid_auth = null;
       this.isAuthenticated = false;
-      
-      await authService.logout(auth);
-      
+      console.log('Estado limpiado - ES-AUTENTICADO: [', this.isAuthenticated,']');
       // Limpiar estado
       resetState();
+
+      await router.push({name: 'viewLoginMultUser'});
+      // console.log('An. de Salida ',exit);
       
       return {
         success: true,
-        message: 'Sesión cerrada exitosamente'
+        message: 'Sesión cerrada exitosamente',
       };
     } catch (err: any) {
       error.value = err.message;

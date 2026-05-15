@@ -188,31 +188,31 @@ console.log('[AdminStats] dailySummary →', statsStore.dailySummary);
 			 		    </h2>
 			 		    <div class="stats-grid stats-grid--4">
 				 		    <div class="stats-grid stats-card--total">
+				 		     	 <span class="stats-card__label">Total: </span>
 				 		    	 <span class="stats-card__value">
-				 		    	 	 {{statsStore.adminMetrics?.materialApproved ?? 0}}
+				 		    	 	 {{statsStore.adminMetrics?.totalMaterials ?? 0}}
 				 		     	</span>
-				 		     	 <span class="stats-card__label"> Total</span>
 				 		    </div>
 
 				 		    <div class="stats-card stats-card--approved">
 				 		    	<span class="stats-card__value">
-				 		    		{{statsStore?.materialApproved ?? 0}}
+				 		    		{{statsStore?.adminMetrics.materialsApproved ?? 0}}
 				 		        </span>
-				 		    	<span class="stats-card__label">✅ Aprobados</span>
+				 		    	<span class="stats-card__label">✅ Aprobados: </span>
 				 		     	 <span class="stats-card__rate">{{statsStore.approvalRate}}%</span>
 				 			</div>
 
 				 			<div class="stat-card stat-card--rejected">
-				 				 <span class="stats-card__value"> {{statsStore.adminMetrics?.materialRejected ?? 0}} </span>
-				 				<span class="stats-card__label">❌ Rechazados</span>
+				 				 <span class="stats-card__value"> {{statsStore.adminMetrics?.materialsRejected ?? 0}} </span>
+				 				<span class="stats-card__label">❌ Rechazados: </span>
 				 				<span class="stats-card__rate">{{statsStore.rejectionRate}}%</span>
 				 		 	</div>
 
 				 		 	<div class="stat-card stat-card--pending">
 				 				 <span class="stats-card__value"> 
-				 				   {{statsStore.adminMetrics?.materialsPending ?? 0}} 
+				 				   {{statsStore.adminMetrics?.materialsPending ?? 0}}
 				 				 </span>
-				 				<span class="stats-card__label">⌛ Pendientes</span>
+				 				<span class="stats-card__label">⌛ Pendientes: </span>
 				 				<span class="stats-card__rate">{{statsStore.pendingRate}}%</span>
 				 		 	</div>
 						</div>
@@ -254,7 +254,7 @@ console.log('[AdminStats] dailySummary →', statsStore.dailySummary);
 								<span class="stats-card__label">⌛</span>
 							</div>
 							<div class="stats-card">
-								<span class="stats-card__value">{{statsStore.teacherMetrics?.rejectCommentsCount ?? 0}}</span>
+								<span class="stats-card__value">{{statsStore.teacherMetrics?.rejectedCommentsCount ?? 0}}</span>
 								<span class="stats-card__label">💬</span>
 							</div>
 						</div>

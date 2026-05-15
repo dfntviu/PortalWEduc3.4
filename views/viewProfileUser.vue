@@ -125,7 +125,7 @@
                         ref="fileInput"
                         type="file"
                         accept="image/jpeg,image/png,image/jpg,image/webp"
-                        @change="handleImgFileSelect"
+                        @change="handleFileSelect"
                         class="block w-full text-sm text-gray-500 dark:text-gray-400
                           file:mr-4 file:py-2 file:px-4
                           file:rounded-md file:border-0
@@ -340,12 +340,13 @@
 
 <script setup lang="ts">
 	import { ref,computed, onMounted,watch } from 'vue';
+  import { storeToRefs } from 'pinia';
 	import { useProfileStore } from '@/stores/profileStore.ts';
 	import { useAuthStore3 } from '@/stores/authStore3.ts';
 	 import type { Profile } from '@/interfaces/Profile.types.ts';
 	 // STORES
 	 const profileStore = useProfileStore();
-	 const authStore = useAuthStore3();
+	 const authStore3 = useAuthStore3();
 	 // STATES
 	 const isEditing = ref(false);
 	 const saving = ref(false);
@@ -369,7 +370,7 @@
 	 const profile = computed(()=> profileStore.profile);
     const loading  = computed(()=> profileStore.loading)
  	 const   error = computed(()=> profileStore.error);
-
+   const photoFile = ref<File | null>(null);
       const roleLabel =computed(()=>  {
          return profile.value?.role === 'student' ? 'Estudiante' : 'Profesor';
  	 		});
@@ -385,17 +386,22 @@
  	  // =========== Metodos  ===========
  	  const loadProfile = async()=>{
  	  	try{
- 	  		const uid = authStore3.currentUser?.uid;
+
+ 	  		// const uid = authStore3.currentUser?.uid;
  	  		const role = authStore3.currentUser?.role;
 
- 	  		if (!uid || !role) {
+        const {uid_auth, currentUser} = storeToRefs(authStore3);
+          console.log('Usuarion con Id  -->',uid_auth.value);
+
+
+ 	  		if (!uid_auth) {
  	  			throw new Error('Usuario no atutenticado');
  	  		}
 
  	  		if (role === 'student') {
- 	  			profileStore.getStudentById(uid);
+ 	  			profileStore.getStudentById(uid_auth);
  	  		}else if(role === 'teacher'){
- 	  			profileStore.getTeacherById(uid);
+ 	  			profileStore.getTeacherById(uid_auth);
  	  		}
 
  	  		if (profile.value) {
@@ -430,22 +436,34 @@
 	 	  		photoOpts.value.uploadPhoto = !!profile.value.photoURL;
 		 	}
 	 	};
- 	  	
+ 	  	 /* [New] Aniadidad el 13/05/2026 */
     const togglePhotoUpload = () => {
-      console.log('Contruyendo Flujo de Camb. de Foto...');
+      // console.log('Contruyendo Flujo de Camb. de Foto...');
+        photoOptions.value.uploadPhoto = !photoOptions.value.uploadPhoto;
+
+        if(!photoOptions.value.uploadPhoto) {
+           photoPreview.value = '';
+           photoOptions.value.photoFile = undefined;
+            if(fileInput.value) {
+                fileInput.value.value = '';
+            }
+        }
     };
 
  	  	const removePhoto = () =>{
  	  		 photoPreview.value = '';
- 	  		 photoOpts.value.photoFile = undefined;
+ 	  		 photoOptions.value.photoFile = undefined;
  	  		   if (fileInput.value) {
  	  		   	   fileInput.value.value = '';
  	  		   }
+            alert('Foto Eliminada, aún es posible modificarla');
+           console.log('Foto Eliminada');
  	  	};
 
  	  	const addMaterial = ()=>{
  	  		if (newMaterial.value.trim() && formData.value.material?.includes(newMaterial.value.length())) {
- 	  			if (formData.value.material) {
+ 	  			
+          if (!formData.value.material) {
  	  				formData.value.material = [];
  	  			}
  	  			 formData.value.material.push(newMaterial.index.length);
@@ -458,10 +476,10 @@
  	  	}
 
  	  	const saveProfile = async () =>{
- 	  		if (profile.value?.uid) return;
+ 	  		if (!profile.value?.uid) return;
 
  	  		saving.value = true;
-
+        console.log('Estoy ejecutando el metodo p/guardar cambios.');
  	  		try{
  	  			const updates: Partial<Profile> = {
  	  				nombre: formData.value.nombre,
@@ -473,13 +491,15 @@
  	  				updates.material = formData.value.material;
  	  			}
 
- 	  			const photoOpts = {
- 	  				upload_Photo:  photoOptions.uploadPhoto,
- 	  				photo_File: photoOptions.photoFile,
+ 	  			const photoOptions = {
+ 	  				uploadPhoto: photoFile.value !== null,
+ 	  				  photoFile: photoFile.value ?? undefined,
  	  			};
+          console.log('actualizacion ', photoOptions.uploadPhoto);
+          console.log('Valor ', photoOptions.photoFile);
 
  	  			if (profile.value.role=== 'student') {
- 	  				 await profileStore.updateStudentProfile(profile.value.uid,updates,photoOpts);
+ 	  				 await profileStore.updateStudentProfile(profile.value.uid,updates,photoOptions);
  	  			} else if (profile.value.role==='teacher') {
  	  				 profileStore.updateTeacherProfile(profile.value.uid,updates,photoOpts);
  	  			}
@@ -498,7 +518,7 @@
 
  	  	/* =========== Validaciones de la Vista =========== */
 
- 	  const handleImgFileSelect = (event: Emit)=> {
+ 	/**  const handleImgFileSelect = (event: Emit)=> {
  	      const target = event.target as HTMLInputElement;
 
           const file = target.files?.[0];
@@ -525,7 +545,47 @@
           photoPreview.value = e.target?.result as string;
       };
        reader.readAsDataURL(file);
- 	  };
+ 	  }; **/
+
+    const handleFileSelect = (event: Emit) => {
+        const target = event.target as HTMLInputElement;
+        const file = target.files?.[0];
+
+        if (file) {
+           if(file.size > 2* 1024 * 1024 ){
+               alert('El Archivo es demasiado grande.Máx 2MB.');
+                return;
+           }
+            // VALIDAR TIPO
+           if (!file.type.match(/^image\/(jpeg|png|jpg|webp)$/)) {
+            alert('El Formato no es válido. Solo JPG, PNG, WEBP.');
+            return;
+           }
+           photoFile.value = file;
+               // Crear preview
+            const reader = new FileReader();
+            reader.onload = (e: ProgressEvent<FileReader>) => {
+                photoPreview.value = e.target?.result as string;
+            };
+
+            reader.readAsDataURL(file);
+        } 
+    }
+
+    const formatDate = (date: any): string => {
+      if(!date) return 'N/A';
+
+      try {
+        const d = date.toDate ? date.toDate(): new Date(date);
+        return d.localeDateToString('es-MX',{
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        });
+      }catch{
+        return 'N/A';
+      }
+    };
  	  	 // Ciclo de Vida
  	  	onMounted(()=>{
  	  		loadProfile();

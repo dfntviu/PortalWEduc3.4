@@ -11,9 +11,9 @@
  }
 
 export enum ToastPosition {
- 	 TOP_RIGTH = 'top-rigth'
- 	 TOP_LEFT = 'top-left'
- 	 TOP_CENTER = 'top_center'
+ 	 TOP_RIGTH = 'top-rigth',
+ 	 TOP_LEFT = 'top-left',
+ 	 TOP_CENTER = 'top_center',
  	 BOTTOM_RIGTH = 'bottom-rigth',
  	 BOTTOM_LEFT = 'bottom-left',
  	 BOTTOM_CENTER = 'bottom-center'
@@ -44,8 +44,8 @@ export enum ToastPosition {
   *  ═══════════════════════════════════════
   * */
   export  class ToastServiceClass {
-    	private toasts: Toast[] = [];
-    	private listeners: Set<toasts: Toast[]> => void> = new Set();
+    	private toasts: Toast[] = [];  //omiti los parentesis
+    	private listeners: Set<(toasts: Toast[]) => void> = new Set();
     	private defaultDuration = 3000; // 3 segundos
     	private defaultPosition = ToastPosition.TOP_RIGTH;
     	private maxToasts = 5;
@@ -77,7 +77,7 @@ export enum ToastPosition {
     			title,
     			message,
     			type: ToasType.ERROR,
-    			duration: duration || this.defaultDuration * 2;
+    			duration: duration || this.defaultDuration * 2,
     			icon: '✕'
     		});
     	}
@@ -87,7 +87,7 @@ export enum ToastPosition {
     			title,
     			message,
     			type: ToasType.INFO,
-    			duration: duration || this.defaultDuration * 2;
+    			duration: duration || this.defaultDuration * 2,
     			icon: '¡'
     		});
     	}
@@ -96,14 +96,14 @@ export enum ToastPosition {
 
     		const id = this.generateId();
 
-    		return toast: Toast  = {
+    		toast: Toast  = {
     			id,
     			title: options.title,
     			type: options.type,
     			duration: options.duration ||  this.defaultDuration,
     			position: options.duration || this.defaultPosition,
     			dimmissible: options.dimmissible !== false,
-    			icon: options.icon
+    			icon: options.icon,
     			timestamp: new Date(),
     			isVisible: true,
     			onClose: options.onClose
@@ -254,4 +254,4 @@ export enum ToastPosition {
  	* EXPORTACIÓN DEL SINGLETON
  	* ═════════════════════════════════════════
  	*/
-   export const ToastServiceClass = new ToastServiceClass();
+   export const ToastService = new ToastServiceClass();

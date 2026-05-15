@@ -10,12 +10,14 @@
  * - Los servicios especifícos(Student/Teacher) delegan a este servicio Base
  * - Este servicio NO se usa directamente desde stores/vistas
  * */
-import {  getFirestore, doc, setDoc, getDoc,
-      collection, query, where, getDocs,
+ import {  getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs,
        updateDoc, deleteDoc,serverTimestamp, type Timestamp } from 'firebase/firestore';
-  import type { Profile } from '@/types/interf.index.ts';
+ import type { Profile } from '@/types/interf.index.ts';
+
+   type CollectionName = 'student_register' | 'teacher_register';
 
   export class BaseProfileService {
+    
    /*F(n) en Fase de RunTime(Ejecucion)*/
    static async saveProfileRoles(collectionName: 'student_register' | 'teacher_register', uid: string, data:Partial<Profile>): Promise <void>{
       try{
@@ -40,6 +42,8 @@ import {  getFirestore, doc, setDoc, getDoc,
                 ? {
                    ...baseData,
                    uid_student: uid,
+                   photoURL: data.photoURL ?? '', //may 15
+                   photoCount: data.photoCount ?? 0,//may 15
                    createAt: data.createAt ?? serverTimestamp(),
                    carrera: data.carrera ?? '', //*
                    edad: data.edad ?? null, //*
@@ -122,7 +126,7 @@ import {  getFirestore, doc, setDoc, getDoc,
      	 	     const docSnap = await getDoc(docRef);
 
      	 	     if (docSnap.exists()) {
-     	 	     	 const data = docSnap(docRef);
+     	 	     	 const data = docSnap.data()  // correccion de f(n)
      	 	     	 	console.log(`[BaseProfileService] ✅  Perfil Encontrado`);
 
      	 	     	    return{
@@ -146,27 +150,7 @@ import {  getFirestore, doc, setDoc, getDoc,
      	*  @param updates - Campos a actualizar
      	* 
     	 */
-      static async updateProfile(collectionName: 'students' |'teachers', uid: string, updates: Partial<Profile>):Promise<void>{
-       		try{
-
-	     	 	const db = getFirestore();
-	            const docRef = doc(db, collectionName, uid);
-
-	            
-	     	 	  console.log(`[BaseProfileService] ✅ Actualizando Perfil en ${collectionName}: `, uid);
-
-	     	 	     await updateDoc(docRef,{
-	     	 	     	...updates,
-	     	 	     	updatedAt: serverTimestamp(),
-	     	 	     });
-
-					 console.log(`[BaseProfileService] ⚠️ Perfil Actualizado`);
-
-     	 	}catch(error: any){
-     	 		 console.error('[BaseProfileService] ❌ Error al actualizar perfil:', error);
-     	 		  throw new Error(`Error al actualizar perfil: ${error.message}`);
-     	 	}
-      }
+      
 
        /**
      * Obtiene todos los perfiles de una colección (con límite opcional)
@@ -258,6 +242,39 @@ import {  getFirestore, doc, setDoc, getDoc,
     	}
    }
 
+   static async updateProfile(collectionName: string, uid: string, updates: Partial<Profile>):Promise<void> {
+        try {
+            // Las validaciones 
+            const validCollection = this.validateCollection(collectionName);
+            this.validateUID(uid);
+
+            console.log( `[BaseProfileServ]✅ Actualizando el perfil en : ${validCollection} `, uid);
+
+            const     db  = getFirestore();
+            const docRef  = doc(db,validCollection, uid);
+              // Verificar que el documento existe
+            const docSnap = await getDoc(docRef); 
+            if (!docSnap.exists()) {
+                throw new Error(`El perfil no ha sido encontrado en : ${validCollection}/${uid}`);
+            }
+
+            // Prepara datos de actualizacion [new]
+            const updateData = { ...updates,
+                                updatedAt: serverTimestamp(),}
+
+            await updateDoc(docRef,updateData);
+
+            console.log( '[BaseProfileServ]✅ Él Perfil fue ACTUALIZADO Exitosamente ', uid);
+        }catch(error: any){
+            console.log( '[BaseProfileServ]❌ Error al actualizar el perfil:',error);
+            console.log( '[BaseProfileServ]📋 Más Detalles: -> [', {
+                collectionName,
+                uid,
+                updates
+            },']');
+            throw new Error(`Error al actualizar el Perfil del Usuario : ${error.message}`);
+        }
+   }
 
      /**
      * Busca permanentemente el perfil(hard-delete)
@@ -280,4 +297,58 @@ import {  getFirestore, doc, setDoc, getDoc,
 	  }
    }
 
+    /** Funcion Auxiliares* **/
+
+   /**
+    * Valida la colecccion correspondiente con el ROL  */
+   private static validateCollection(collectionName: string): CollectionName {  
+        if(!collectionName || typeof collectionName !== 'string'){
+             throw new Error('El nombre de la colección es inválido: Está vacío o no es cadena');
+        }
+
+       if(collectionName !== 'student_register' && collectionName !== 'teacher_register'){
+            throw new Error(`ERROR: La colección: ${collectionName} es invalida`);
+       }
+
+        return collectionName as CollectionName;
+   }
+     
+     /**
+      * Valida el UID del documento
+      */
+     private static validateUID(uid: string): void {
+        if (!uid || typeof uid !== 'string' || uid.trim().length === 0) {
+          throw new Error('UID inválido: está vacío o no es string');
+        }
+    }
+
+
+   /*static async updateProfile(collectionName: 'student_register' |'teacher_register', uid: string, updates: Partial<Profile>):Promise<void>{
+            try{
+
+                const db = getFirestore();
+                const docRef = doc(db, collectionName, uid);
+
+                
+                  console.log(`[BaseProfileService] ✅ Actualizando Perfil en ${collectionName}: `, uid);
+
+                     await updateDoc(docRef,{
+                        ...updates,
+                        updatedAt: serverTimestamp(),
+                     });
+
+                     console.log(`[BaseProfileService] ⚠️ Perfil Actualizado`);
+
+            }catch(error: any){
+                 console.error('[BaseProfileService] ❌ Error al actualizar perfil:', error);
+                  throw new Error(`Error al actualizar perfil: ${error.message}`);
+            }
+      }*/
+
+    /* private static readonly COLLECTION_MAP: Record<string,CollectionName> = {
+        students: 'students',
+        teachers: 'teachers',
+        student_register: 'students', //alias de la f(n) actPerfil
+        teacher_register: 'teachers', //alias de la f(n) actPerfil
+    };*/
   }

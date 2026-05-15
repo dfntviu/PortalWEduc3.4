@@ -731,6 +731,8 @@
 
 		try{
 			await moderationStore.addComment(currentMaterial.value.id, newComment.value.mensaje,newComment.value.destacado);
+			// Ajustar el estado de revision y solucionar el marcador
+			 // await moderationStore.updateMaterialStatus(currentMaterial.value.id, 'en_revision');
 
 			 newComment.value = { mensaje: '', destacado: false};
 		}catch(err){

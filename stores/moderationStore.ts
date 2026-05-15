@@ -189,6 +189,17 @@ import type {Material, Comentario, Moderation} from '@/interfaces/Profile.types.
   				}		
   			},
 
+		  	/**
+			 * F(n) auxiliar: Ajustar  el valor del estado del material. Apoyo para  ajuste de: 'handleAgregarComentario'
+			 * */
+			/****async  updateMaterialStatus(materialId: string, estado: string): Promise <void> {
+				try{
+					ModerationService.actualizarComentario(materialId, estado, destacado);
+				}catch(err: any){
+					 this.error = err.message || 'Error al actualizar el Estado';
+					 throw err;
+				}
+			},****/
   			/**
   			 * Cambiar el estado de moderacion un material
   			 * */

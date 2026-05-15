@@ -32,6 +32,7 @@ export const useMaterialStudentStore = defineStore('materialStudent', () => {
   // BLOQUE: DATA (específico alumno)
   // ==============================
   const originalMaterialData = ref<Partial<Material> | null>(null);
+  const tagsInput = ref(''); //nuevo p/vista
 
   // ==============================
   // BLOQUE: UI (específico alumno)
@@ -73,7 +74,7 @@ export const useMaterialStudentStore = defineStore('materialStudent', () => {
   /** Materiales propios del alumno autenticado */
     const authStore3 = useAuthStore3(); //* deberia estar fuera y usar para todos los filtros
   const myMaterials = computed((): MaterialBase[] => {
-    return baseStore.materials.filter(m => m.autorId === authStore3.user?.uid) as MaterialBase[];
+    return baseStore.materials.filter(m => m.autorId !== authStore3.user?.uid) as MaterialBase[];
   });
   console.log('Traza 5: Materiales recibidos, actuales  -> ',myMaterials.value);
   /** Materiales aprobados de otros alumnos */
@@ -88,23 +89,26 @@ export const useMaterialStudentStore = defineStore('materialStudent', () => {
   const pendingMaterials = computed((): Material[] => {
     const authStore3 = useAuthStore3();
     return baseStore.materials.filter(
-      m => m.autorId === authStore3.user?.uid && m.estado === 'pendiente'
+      m => m.autorId !== authStore3.user?.uid && m.estado === 'pendiente'
     ) as Material[];
   });
 
   /** Materiales propios aprobados */
-  const myApprovedMaterials = computed((): Material[] => {
+  /*const myApprovedMaterials = computed((): Material[] => {
     const authStore3 = useAuthStore3();
-    return baseStore.materials.filter(
+    const aprobados = baseStore.materials.filter(
       m => m.autorId === authStore3.user?.uid && m.estado === 'aprobado'
     ) as Material[];
-  });
-
+    // console.log('el total de aprobados es: ', aprobados);
+    return aprobados;
+  });*/
+  // console.log('Total de Aprobados ',myApprovedMaterials.value.length);
+ // estado: 'pendiente' | 'aprobado' | 'rechazado';
   /** Materiales propios rechazados */
   const myRejectedMaterials = computed((): Material[] => {
     const authStore3 = useAuthStore3();
     return baseStore.materials.filter(
-      m => m.autorId === authStore3.user?.uid && m.estado === 'rechazado'
+      m => m.autorId !== authStore3.user?.uid && m.estado === 'rechazado'
     ) as Material[];
   });
 
@@ -112,7 +116,7 @@ export const useMaterialStudentStore = defineStore('materialStudent', () => {
   const myStats = computed(() => ({
     total:    myMaterials.value.length,
     pending:  pendingMaterials.value.length,
-    approved: myApprovedMaterials.value.length,
+    approved: approvedMaterials.value.length,
     rejected: myRejectedMaterials.value.length,
   }));
 
@@ -450,6 +454,7 @@ export const useMaterialStudentStore = defineStore('materialStudent', () => {
   return {
     // ---- DATA ----
     originalMaterialData,
+    tagsInput,
     // ---- UI ----
     isEditMode,
     editingMaterialId,
@@ -467,7 +472,7 @@ export const useMaterialStudentStore = defineStore('materialStudent', () => {
     myMaterials,
     approvedMaterials,
     pendingMaterials,
-    myApprovedMaterials,
+    // myApprovedMaterials,
     myRejectedMaterials,
     myStats,
     editingMaterial,

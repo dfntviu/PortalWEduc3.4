@@ -8,13 +8,13 @@
   		  <!-- 			Welcome Message	 				-->
   		  <!-- ──────────────────────────────────────── -->
   		<Transition name="fade-slide" mode="out-in">
-  			<div v-if="profile && profile.name && profile.apellido" class="welcome-message">
+  			<div v-if="profile && profile.nombre && profile.apellido" class="welcome-message">
   				<header class="welcome-header">
   					<h2 class="welcome-title">
-  					   Bienvenido: {{profile.name}} {{profile.apellido}}
+  					   Bienvenido: {{profile.nombre}} {{profile.apellido}}
   					</h2>
   					<p class="career-text role-text"> 
-  					  {{profile.role}} {{profile.apellido}}
+  					  {{profile.role}} {{profile.apellidos}}
   					</p>
   				</header>
 
@@ -26,7 +26,8 @@
   						  stroke-linecap="round"
   						  stroke-linejoin="round"
   						  stroke-width="2"
-  						  d="M19 19v-6a2 2 0 00-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2v10m-6 012-2ha2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2ha2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+  						  d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z ">
+  						  <!-- M19 19v-6a2 2 0 00-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2v10m-6 012-2ha2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2ha2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z -->
   						   </path>
   					</svg>
   					 Ver Reporte de Materiales
@@ -38,10 +39,11 @@
   		 <!-- 		Report Modal     		-->
 	     <!-- ══════════════════════════════ -->
 
-  		<ReportSummaryModal
+  		<ReporteSummaryModal
   		  :is-open="showReport"
-  		  :role="profile?.role || 'alumno' "
-  		  :user-id="showReport = false"
+  		  :role="profile?.role || 'alumno'"
+  		  :user-id="userId"
+  		  @close="showReport = false"
   		  @minimize="handleMinimize"
   		/>
 
@@ -53,13 +55,17 @@
 	import { ref } from 'vue';
 	import {storeToRefs} from 'pinia'; 
 	import {useAuthStore3}  from '@/stores/authStore3.ts'
+	import {useProfileStore } from '@/stores/profileStore.ts'
 	import ReporteSummaryModal from '@/components/ReporteSummaryModal.vue';
 
 	// ═════════════════════════════════════════
 	// 		STORE
 	// ═════════════════════════════════════════
-	const authStore = useAuthStore3();
-	const { profile, userId } = storeToRefs(useAuthStore3);
+	 const authStore = useAuthStore3();
+	 const profileStore = useProfileStore();
+
+	  const { user: userId } = storeToRefs(authStore);  //*
+	  const {profile} = storeToRefs(profileStore)
 
 	// ═════════════════════════════════════════
 	// 		  STATE

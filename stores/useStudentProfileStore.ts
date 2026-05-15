@@ -14,6 +14,7 @@
  import type {StudentUser,StudentRegisterationData, StudentEditableData,ChangePasswordData,
 StudentProfileState, ServiceResponse} from '@/interfaces/tipos.estudiantes';
  import  {MESSAGES} from '@/interfaces/students.types';
+ import type { ProfilePhotoOptions } from '@/services/ProfileStudentService';
 
  export const useStudentProfileStore = defineStore('studentProfile', {
   	 state: (): StudentProfileState  => ({
@@ -61,12 +62,12 @@ StudentProfileState, ServiceResponse} from '@/interfaces/tipos.estudiantes';
      * 2. Guarda perfil en Firestore
      * 3. Carga el perfil del estado
      * */
-  		async registerStudent(data: StudentRegistrationData): Promise<ServiceResponse> {
+  		async registerStudent(data: StudentRegistrationData,photoOptions?: ProfilePhotoOptions): Promise<void> {
 			this.loading = true;
 			this.error  = '';
 			this.message = '';
 
-
+			console.log('[Store] photoOptions recibido:', photoOptions);
 			try{
 				console.log('[StudentStore] Iniciando registro de estudiante');
         
@@ -96,7 +97,7 @@ StudentProfileState, ServiceResponse} from '@/interfaces/tipos.estudiantes';
 					console.log('[Estado de Estudiante] Usuario creado con  UID:',uid);
 
 						// 2. Guardar Perfil en firestore
-					const profile_student = await ProfileStudentService.saveStudentProfile(data,uid);  // movi accidentalmente los parametros**
+					const profile_student = await ProfileStudentService.saveStudentProfile(data,uid,photoOptions);  // movi accidentalmente los parametros**
 
 					/*if (!profile_student.success || !profile_student.data) { //*
 						console.log('Error al guardar el perfil del Estudiante');

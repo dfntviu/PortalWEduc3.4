@@ -59,24 +59,44 @@
 				 const [allSnap, approvedSnap, rejectedSnap, pendingSnap, inReviewSnap] = 
 				 	await Promise.all([
 				 		getDocs(query(reference)),
-				 		getDocs(query(reference, where('estado', '==', 'aprovado'))),
-				 		getDocs(query(reference, where('estado', '==', 'rechazado'))),
-				 		getDocs(query(reference, where('estado', '==', 'pendiente'))),
-				 		// getDocs(query(reference, where('estado', '==', 'in_review'))),
+				 		getDocs(query(reference, where('estado', '==', 'aprobado'))),
+				 		getDocs(query(reference, where('estado', '==', 'rechazado'))), //*
+				 		getDocs(query(reference, where('estado', '==', 'pendiente'))), //*
+				 		getDocs(query(reference, where('estado', '==', 'revisado'))),  // # #
+				 		// Debera crerse una cuarta opcion, cuando se crea el material para que el marcador comience
 				 	]);
 
 				 	let rejectedCommentsCount = 0;
+				 	/**
+				 	 * Realizar la busqueda de la coleccion real y obtener el Total de comentarios
+				 	 **/
+				 	// 0. referenciamos a los materiales
+				 	/*const commentCountPromisses = rejectedSnap.docs.map((doc) =>	
+				 		getDocs(collection(db, this.MATERIALS_COLL, doc.id, 'Comments_Moderation'))
+				 	)*/
+				 		// 1. Ejecutamos en paralelo todos los comentarios
+				 				  // 2.Incrementamos el numero de cometarios [aniadir a 81]
+				 			/*const commentsSnaps	= await Promise.all(commentCountPromisses);
+				 			const rejectedCommentsCount = commentsSnaps.reduce(
+				 				 (acc, snap) => acc + snap.size,
+				 				 0
+				 			);*/
 
 				 	rejectedSnap.docs.forEach(doc =>{
+				 		// la variable de la 68 debera asociarse con comments como var. del  state de moderationStore
+				 		// para que comience actualizar su incromento no de lo contrario no tiene valores para referenciar
+				 		// y la reconoce como valor nulo
 				 		if (doc.data().rejectionReason) rejectedCommentsCount++;
+				 		console.log('Total de comentarios Reachazados: ', rejectedCommentsCount); //0
 				 	});
 
+						// 3 Ajustamos el numero de comentarios rechazados [perm. identica]
 				 	return {
 						totalMaterials:    allSnap.size,
 						approvedMaterials: approvedSnap.size,
-						rejectedMaterials: rejectedSnap.size,
-						pendingReview:     pendingSnap.size,
-						// inReview:          inReviewSnap.size,
+						rejectedMaterials: rejectedSnap.size,  
+						pendingReview:     pendingSnap.size, 
+						inReview:          inReviewSnap.size,
 						rejectedCommentsCount: rejectedCommentsCount,
 					};  /*value*/
 					 	/*return {
@@ -114,9 +134,10 @@
 
 		static async getRejectedMaterials(): Promise < number> {
 			try {
-				const qy = query(collection(db, this.MATERIALS_COLL), where('status', '==', 'rechazado'));
+				const qy = query(collection(db, this.MATERIALS_COLL), where('estado', '==', 'rejected'));
 
 				const snap = await getDocs(qy);
+				console.log('Result Matas Rechazados ',qy);
 				return snap.size;
 			} catch(error: any){
 				throw new Error(`Error al obtener los materiales rechazados: ${error.message}`);
@@ -125,7 +146,7 @@
 
 		static async getPendingMaterials(): Promise < number> {
 			try {
-				const qy = query(collection(db, this.MATERIALS_COLL), where('estado', '==', 'pendiente'));
+				const qy = query(collection(db, this.MATERIALS_COLL), where('status', '==', 'pendiente'));
 
 				const snap = await getDocs(qy);
 				return snap.size;
@@ -134,17 +155,17 @@
 			}
 		}
 			// [ready]
-		static async getInReviewMaterials(): Promise < number> {
+		/*static async getInReviewMaterials(): Promise < number> {
 			try {
-				const qy = query(collection(db, this.MATERIALS_COLL), where('estado', '==', 'in_review'));
+				const qy = query(collection(db, this.MATERIALS_COLL), where('estado', '==', 'en_revision'));
 
 				const snap = await getDocs(qy);
 				return snap.size;
 			} catch(error: any){
 				throw new Error(`Error al obtener los materiales en revision: ${error.message}`);
 			}
-		}
-
+		}*/
+		/*Este  metodo*/
 		static async getRejectedCommentsCount(): Promise <number>{
 			try{
 				const qy = query(collection(db, this.MATERIALS_COLL), where('estado', '==', 'rejected'));

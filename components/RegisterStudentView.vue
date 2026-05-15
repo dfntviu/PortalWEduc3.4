@@ -48,6 +48,16 @@
 				   	  <option value="docx">DOCX(Word)</option>
 				   </select>
 				</div>
+				<!-- Imagen TexField -->
+				<div class="campo-formulario">
+					 <label for="imgFile">Selecciona tú Foto</label>
+					 <input 
+					 id="imgFile" 
+					 type="file"
+					 accept="image/jpg, image/png, image/jpeg, image/bmp"
+					:disabled="loading"
+					@change="onFileImgApplied"/>
+				</div>
 				<!-- ** nuevo Campo[Corro-Elect] testeable -->
 				<div class="campo-formulario">
 				   <label for="">Correo Electrónico *</label>
@@ -134,8 +144,9 @@
 		error,
 		message,
 		handleRegistration,
+		manejadorArchivoPixelado,
 		controllerRegistro,
-		clearMessages
+		clearMessages,
 	} = useStudentProfile();
 
 	// ══════════════════════════════════════
@@ -184,6 +195,14 @@
 	  	  } else {
 	  	  	 console.error('[Vw-Registro]: Ocurrio un fallo al Registrar al Estudiante')
 	  	  }
+	   }
+	   const photoPreview = ref<string | null>(null);
+
+	   function onFileImgApplied(event: Event): void {
+	   		manejadorArchivoPixelado(event);
+
+	   		const file = registrationForm.phot;
+	   		photoPreview.value = file ? URL.createObjectURL(file) : null;
 	   }
 </script>
  

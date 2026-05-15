@@ -701,8 +701,8 @@ const {
 const materialStore = useMaterialTeachStore();
 // const  { materials} = storeToRefs(materialStore);
 // const materialStore =  computed( () => useMaterialTeachStore());
-const { materials, loading, error, lastFilter, materialsByAuthor } = storeToRefs(materialStore);
-
+// const { materials, loading, error, lastFilter, materialsByAuthor } = storeToRefs(materialStore);
+  // descomentar cuando se funcional el filtro especializado -> funcionaba en la ult prueba: 7/05/26
 // ╔══════════════════════════════════════════════════════════════════════════╗
 // ║                         VARIABLES REACTIVAS                               ║
 // ║  Estado local del componente                                             ║

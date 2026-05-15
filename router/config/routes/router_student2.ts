@@ -12,10 +12,10 @@ export const students_routes: RouterRecordRaw[] =
  	path: '/students',
  	// name: viewBienvenidaStudents,
  	component: LayoutAlumno,
- 	meta: { requieresAuth:'true', requiredRole: 'student'},
+ 	meta: { requieresAuth:true, requiredRole: 'student'},
  		children: [
- 			{
- 			  path: '',
+ 			{ // singular unicamente para bienvenida de roles role_01
+ 			  path: 'vw-student-welcome',
  			  name: 'viewBienvenidaStudents',
  			  component: viewBienvenidaStudents,
  			  meta: { requiresAuth: true, requiredRole: 'student'}

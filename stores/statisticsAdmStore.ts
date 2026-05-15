@@ -29,7 +29,7 @@ interface TeacherMetrics {
   rejectedMaterials:     number;
   pendingReview:         number;
   inReview:              number;
-  rejectCommentsCount:   number;
+  rejectedCommentsCount:   number;
 }
 
 // ════════════════════════════════════════════════════
@@ -89,8 +89,8 @@ interface TeacherMetrics {
      * Porcentaje de materiales pendientes sobre el total
      * */
     const pendingRate = computed<number> (()=> {
-          const total    = adminMetrics.value?.materialsPending ?? 0;
-          const pending = adminMetrics.value?.materialsApproved ?? 0;
+          const total    = adminMetrics.value?.totalMaterials ?? 0;
+          const pending = adminMetrics.value?.materialsPending ?? 0;
             if (total === 0) return 0;
               return Math.round((pending / total)* 100);
     });

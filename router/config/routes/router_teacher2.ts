@@ -14,8 +14,8 @@
         // name: 'viewWelcomeTeachers',
         meta:{ requiresAuth: true, requiredRole: 'teacher'}, //view:dashboard-teacher
         children: [
-            {
-             path: '',
+            { // singular unicamente para bienvenida de roles 'role_02'
+             path: 'vw-teacher-welcome',
              name: 'viewWelcomeTeachers',
              component: viewWelcomeTeachers,
              meta: {requiresAuth: true, requiredRole:'teacher'}

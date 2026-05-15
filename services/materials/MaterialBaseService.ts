@@ -88,6 +88,14 @@
                 // Subir el archivo y obtener  la URL
             const snapshot = await  uploadBytes(storageReference,file);
             const fileURL =  await getDownloadURL(snapshot.ref);
+            
+            /*Obtener el nombre del Alumno desde su perfil */
+            const studentRef = doc(db, 'student_register', userId);
+            const studentSnap =  await getDoc(studentRef);
+            const studentProfile = studentSnap.data();
+            const nombreAlumno =  studentProfile
+                        ? `${studentProfile.nombre}  ${studentProfile.apellido}`.trim()
+                        : '';
             // Preparar informacion para firestore
             const dataCollection = {
                 autorId: userId,
@@ -98,6 +106,8 @@
                 fechaCreacion: Timestamp.now(),
                 tipoArchivo: file.type,
                 estado: 'pendiente',  //*
+                nombreAlumno,
+                // clasificacionMaterial: clasificacion ?? '',
             }
                 //* validar la data completa
             console.log('Data a guardar:', dataCollection);

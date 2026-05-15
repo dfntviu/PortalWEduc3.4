@@ -3,18 +3,20 @@
 	  <!-- VISTA BIENVENIDA ESTUDIANTES		 -->
 	  <!-- ═══════════════════════════════════════════════════ -->
 	<main>
-		<Transition>  
+		<Transition>
 			<!--───────────────────────────────────────────────  -->
 			<!--		 Welcome Component  - Role 02 				-->
 			<!--───────────────────────────────────────────────  -->
-		<WelcomeUsersF v-if="isAuthentitcated && isAlumno"  role="teacher" />
-			<div v-else-if="isLoading" class="flex items-center justify-center min-h-screen">
+			<div v-if="isLoading" class="flex items-center justify-center min-h-screen">
 					<!-- Loading State -->
 				<div class="text-center">
 					<div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
 					<p class="text-gray-600 dark:text-gray-600 dark:text-gray-400">Cargando Perfil..</p>
 				</div> 
 			</div>
+			
+			<WelcomeUsersF v-else-if="isAuthenticated && isAlumno"  role="student" />
+
 				<!-- Error del Estado -->
 			<div v-else class="flex items-center justify-center min-h-screen">
 				<div class="text-center">
@@ -27,30 +29,38 @@
 	</main>
 </template>
 <script setup lang="ts">
- import { computed} from 'vue'
+ import { computed, watch} from 'vue'
  import { storeToRefs } from 'pinia'
   import {useAuthStore3} from '@/stores/authStore3.ts';
   import {useProfileStore} from '@/stores/profileStore';
-  import WelcomeUsers from '@/components/main/WelcomeUsersF.vue'
+  import WelcomeUsersF from '@/components/main/WelcomeUsersF.vue'
 
   const authStore3 = useAuthStore3();
-  const profileStr3 = useProfileStore();
+  const profileStore3 = useProfileStore();
 
-  const {isAuthentitcated, role} = storeToRefs(authStore3);
-  const {profile} = storeToRefs(profileStr3);
+  const {isAuthenticated, role} = storeToRefs(authStore3);
+  const {profile} = storeToRefs(profileStore3);
 
-  console.log('El perfil:[', profile);
+  console.log('El perfil:', profile);
 
   // ═════════════════════════════════
   // 		METODOS COMPUTADOS
   // ═════════════════════════════════
   const isLoading = computed(() => {
-  	 return isAuthentitcated && !profile;
+  	console.log('Perm. en la carga del usuario');
+  	 return isAuthenticated.value	 && !profile.value;  //* int elem
   });
 
   const isAlumno = computed(() => {
-  	 profile.value?.role === 'student';
+  	 return profile.value?.role === 'student'; //* reg
   });
+  // Obeservar el perfil, para comenzar su carga
+  const  {uid_auth} = storeToRefs(authStore3);
+  watch( uid_auth, async(newId) => {
+  	 if (newId) {
+  	 	profileStore3.getStudentById(newId);
+  	 }
+  }, { immediate:true});
 </script>
 	
 <style scoped>

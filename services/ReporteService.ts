@@ -1,18 +1,19 @@
- import { collection, query, where, getDocs, Timestamp, orderBy} from 'firebase/firestore';
- import { db } from '@/config/itializeFirebaseConf';
- import { ServiceFormatMaterials } from './ServiceFormatMaterials';
+ import { collection, query, where, getDocs,Timestamp, orderBy} from 'firebase/firestore';
+ import { initializeFirebaseStorage } from '@/config/initializeFirebaseConf';
+ import { ServiceFormatMaterialsClass } from './ServiceFormatMaterials';
    import type { FormatType } from '@/types/interfces_formato.ts';
    import type { Material } from '@/types/interfces_formato2.ts';
-   import JSZip from 'jszip';
+   // import JSZip from 'jszip';
    import  { saveAs } from 'file-saver';
-
+   /*RevisarServiceFormatMaterials cuando la compilacion llegue hasta ahi */
+   const { db } = initializeFirebaseStorage();
  /**
   * ════════════════════════════════════════
   *    	INTERFACES Y TIPOS
   * ════════════════════════════════════════
   */
 
- interface MaterialReport {
+ export interface MaterialReport {
  	id: string;
  	titulo: string;
  	descripcion: string;
@@ -29,7 +30,7 @@
  	recientemente_aprobado: boolean; 
  }
 
- interface ReportData {
+ export interface ReportData {
  	semanaPasada: MaterialReport[];
  	mesPasado: MaterialReport[];
  	totalSemanaPasada: number;
@@ -46,8 +47,8 @@
   *       CLASE PRINCIPAL DEL SERVICIO
   *  ════════════════════════════════════════
   * */
-  export class ReportService {
-   	   private readonly COLLECTION_NAME = 'materials';
+   export class ReportService {  Students_Materials
+   	   private static readonly COLLECTION_NAME = 'Students_Materials';
    	   private readonly RECENT_APPROVAL_DAYS = 7;
 
 
@@ -60,22 +61,22 @@
    	   /**
    	    * Obtener Materiales por rango de fechas según el rol
    	    * */
-   	  async obtenerMaterialesRango(
-   	   	  role: 'alumno' | 'profesor',
+   	  static async obtenerMaterialesRango(
+   	   	  role: 'student' | 'teacher',
    	   	  userId?: string
    	   	): Promise <ReportData> {
    	   	  	try{
-				     const rangoSemanal = this.getDateRange(7);
-				     const rangoMensual = this.getDateRange(30);
+				     const rangoSemanal = this.obtenerFechaRango(8);
+				     const rangoMensual = this.obtenerFechaRango(30);
 
 				    // Obtener materiales
 				    const [semanaPasada, mesPasado] = await Promise.all([
-                  this.fetchMaterialByRange(rangoSemanal, role, userId),
-                  this.fetchMaterialByRange(rangoMensual, role, userId)
+                    this.recuperarMaterialesPorRango(rangoSemanal, role, userId),  //*
+                    this.recuperarMaterialesPorRango(rangoMensual, role, userId) //*
                 ]);
                   return {
-                    rangoSemanal,
-                    rangoMensual,
+                    semanaPasada,
+                    mesPasado,
                     totalSemanaPasada: semanaPasada.length,
                     totalMesPasado: mesPasado.length
                   };
@@ -86,15 +87,15 @@
    	   	  	}
    	   }
 
-          /**
+          /**  
            * Obtener rango de fechas desde hoy hacia atras
-           * */
-         private async obtenerFechaRango(dias: number): DateRange {
+           **  [sin sincronia no contiene f(n)s de dicha nat]*/ 
+         private static obtenerFechaRango(dias: number): DateRange {
             const  fin = new Date();
             const  inicio = new Date();
 
             inicio.setDate(inicio.getDate() - dias);
-            inicio.setHours(0 0 0 0);
+            inicio.setHours(0, 0 ,0, 0);
             fin.setHours(23, 59, 59, 999);
 
 
@@ -105,46 +106,49 @@
          /**
           * Buscar Materiales en Firestore segun rango y rol
           * */
-         private async recuperarMaterialesPorRango(rango: number, rol: 'alumno' | 'profesor', usuarioId?: string): 
+         private static async recuperarMaterialesPorRango(rango: DateRange, role: 'student' | 'teacher', usuarioId?: string): 
          Promise<MaterialReport[]> 
          {
+            // rango habia sido 'number'
             try{
-                 const  materialsRef = collection(db, this.COLLECTION_NAME)
+               console.log('Coleccion Estudiantes: ', this.COLLECTION_NAME);
+                 const  materialsRef = collection(db, this.COLLECTION_NAME);
 
                  let q;
+                 // alert('Consolidacion Rango: ',rango);
 
-
-                 if (role === 'alumno' && usuarioId) {
+                 if (role === 'student' && usuarioId) {
                       // Alumnos solo ven sus propios materiales
                      q = query(materialsRef,
                            where('autorId', '==', usuarioId),
-                           where('fechaDeCreacion' , '>=', Timestamp.fromDate(rango.comienzo),
-                           where('fechaDeCreacion',  '<=', Timestamp.fromDate(rango.fin),
-                              orderBy('fechaDeCreacion', 'desc')
-                              )
-                            
-                        );
-                 } else if (rol === 'profesor') {
+                           where('fechaCreacion' , '>=', Timestamp.fromDate(rango.inicio)),
+                           where('fechaCreacion',  '<=', Timestamp.fromDate(rango.fin)),
+                              orderBy('fechaCreacion', 'desc')
+                              );
+                        // omití la ','
+                 } else if (role === 'teacher') { //*se detiene ->132* 
                      q = query(
                            materialsRef,
-                           where('estado', 'in', ['approved','pending']),
-                           where('fechaDeCreacion', '>=', Timestamp.fromDate(rango.comienzo)
+                           where('estado', 'in', ['aprobado','pendiente']),
+                           where('fechaCreacion', '>=', Timestamp.fromDate(rango.inicio)),
+                           where('fechaCreacion', '>=', Timestamp.fromDate(rango.fin)),
                               orderBy('fechaDeCreacion', 'desc')
                         );
                  } else {
+                     // La opcion por defecto si no se satisfacen las condiciones anteriores(nunca aparece, hasta q existe un 3er rol)
                      q = query( materialsRef,
-                           where('fechaDeCreacion', '>=', Timestamp.fromDate(rango.comienzo)),
-                           where('fechaDeCreacion', '<=', Timestamp.fromDate(rango.fin)),
-                              orderBy('fechaDeCreacion', 'desc')
+                           where('fechaCreacion', '>=', Timestamp.fromDate(rango.inicio)),
+                           where('fechaCreacion', '<=', Timestamp.fromDate(rango.fin)),
+                              orderBy('fechaCreacion', 'desc')
                         );
                  }
 
                   const snapshot = await getDocs(q);
-
-                   return snapshot.docs( docs => {
-                                  const data = doc.data() 
-                                    return this.transformarMaterialEnReporte(doc.id, data);
-                           });
+                  // Se define a doc, pero doc es referenciado a 'docs'
+                   return snapshot.docs.map( doc => {
+                           const data = doc.data() 
+                            return this.transformarMaterialEnReporte(doc.id, data);
+                   });
             }catch(error){
                console.error('Error al obt. los materiales por Rango');
                throw error;
@@ -154,9 +158,9 @@
          /**
           * Tranformar documento de Firestore a Reporte Material
           * */
-         private transformarMaterialEnReporte(id: string, data: any): MaterialReport {
-            const fechaDeCreacion = data.fechaDeCreacion?.toDate() | new Date();
-            const fechaAprobacion = data.fechaAprobacion?.toDate() | new Date();
+         private static transformarMaterialEnReporte(id: string, data: any): MaterialReport {
+            const fechaDeCreacion = data.fechaDeCreacion?.toDate() ?? new Date();  //*
+            const fechaAprobacion = data.fechaAprobacion?.toDate() ?? new Date();
 
             const recentlyApproved = this.esRecientementeAprobada(fechaAprobacion);
 
@@ -169,15 +173,15 @@
                 autorId: data.autorId || 'pendiente',
                 fechaDeCreacion,
                 archivoURL: data.archivoURL || '' , 
-                archivoNombre: data.archivoNombre || '', 
-                categoria: data.categoria || 'Sin categoría',   
+                archivoNombre: data.archivoNombre || '',
+                categoria: data.categoria || 'Sin categoría',
                 tags: Array.isArray(data.tags) ? data.tags : [],
-                tamanioMB: data.tamanioMB ? data.tamanioBytes / (1024 * 1024) : 0;
-                recientemente_aprobado: recientemente_aprobado
+                tamanioMB: data.tamanioMB ? data.tamanioBytes / (1024 * 1024) : 0, //*
+                recientemente_aprobado: recentlyApproved
              };
          }
 
-         private esRecientementeAprobada(fechaAprobacion?: Date): boolean {
+         private static esRecientementeAprobada(fechaAprobacion?: Date): boolean {
             if (!fechaAprobacion) return false;
 
             const ahora = new Date();
@@ -185,16 +189,15 @@
             const diferentesDias = Math.floor(
                 (ahora.getTime() - fechaAprobacion.getTime()) / ( 1000 * 60 * 60 * 24)
                );
-
-              diferentesDias <= this.RECENT_APPROVAL_DAYS;
+               //* falto devolver
+              return diferentesDias <= this.RECENT_APPROVAL_DAYS;
          }
 
 
-         async exportarAPDF(data: MaterialReport[], nombreArchivo: string): Promise<void> {
+         static async exportarAPDF(data: MaterialReport[], nombreArchivo: string): Promise<void> {
             try{
                
-               const materiales = this.convertirReporteAMaterial(data);
-
+               const materiales = convertirReporteAMaterial(data);
 
                const resultado = await ServiceFormatMaterials.classifyForFormat(materiales, 'pdf', nombreArchivo);
 
@@ -209,11 +212,11 @@
             }
          }
 
-         async exportarAExcel(data: MaterialReport[], nombreArchivo: string): Promise<void>  {
+         static async exportarAExcel(data: MaterialReport[], nombreArchivo: string): Promise<void>  {
             try{  
-                  const materiales = this.convertirReporteAMaterial(data);
-
-                  const resultado = ServiceFormatMaterials.classifyForFormat(materiales, 'xlsx', nombreArchivo);
+                  const materiales = convertirReporteAMaterial(data);
+                     //* omití, pagarla sincronica
+                  const resultado = await ServiceFormatMaterials.classifyForFormat(materiales, 'xlsx', nombreArchivo);
 
                   if (!resultado.success) {
                      throw new Error(resultado.message);
@@ -226,10 +229,10 @@
          }
 
 
-         async exportarADocx(data: MaterialReport[], nombreArchivo: string): Promise<void> {
+         static async exportarADocx(data: MaterialReport[], nombreArchivo: string): Promise<void> {
             try{
 
-               const materiales =  this.convertirReporteAMaterial(data);
+               const materiales =  convertirReporteAMaterial(data);
 
                const resultado = await ServiceFormatMaterials.classifyForFormat(materiales, 'DOCX', nombreArchivo);
 
@@ -244,28 +247,28 @@
          } 
 
 
-         private convertirReporteAMaterial(reportes: MaterialReport[]): Material[] {
+         private static convertirReporteAMaterial(reportes: MaterialReport[]): Material[] {
             return reportes.map( reporte => {
-                id: report.id,
-                titulo: report.titulo,
-                descripcion: report.descripcion,
-                autorNombre: report.autorNombre,
-                autorEmail: report.autorEmail,
-                autorId: report.autorId,
-                estado: report.estado,
-                fechaCreacion: report.fechaCreacion,
-                archivoURL: report.archivoURL,
-                archivoNombre: report.archivoNombre,
-                categoria: report.categoria,
-                tags: report.tags,
-                tamanioBytes: report.tamanioMB * 1024 * 1024
+                id: reporte.id;  //*
+                titulo: reporte.titulo; //*
+                descripcion: reporte.descripcion; //...
+                autorNombre: reporte.autorNombre;
+                autorEmail: reporte.autorEmail;
+                autorId: reporte.autorId;
+                estado: reporte.estado;
+                fechaCreacion: reporte.fechaCreacion;
+                archivoURL: reporte.archivoURL;
+                archivoNombre: reporte.archivoNombre;
+                categoria: reporte.categoria;
+                tags: reporte.tags;
+                tamanioBytes: reporte.tamanioMB * 1024 * 1024 //*
             }) as Material[];
          }
 
          /**
           * Descarga de materiales de la semana como ZIP (unic. p/alumnos)
           * */
-         async descargaSemanalMaterialesZIP(materialesZIP: MaterialReport[]): Promise<void> {
+         /*async descargaSemanalMaterialesZIP(materialesZIP: MaterialReport[]): Promise<void> {
             try{
 
                if (!materiales.length) {
@@ -276,7 +279,7 @@
                 const directorio = zip.folder('materiales-de-la_semana') as JSZip;
 
                 // Descargar cada archivo y agregarlo a zip
-                const downloandPromises = materiales.map(async (material, index) => {
+                const downloandPromises = material.map(async (material, index) => {   //*
                     try{
                        const respuesta =  await fetch(material.archivoURL);
                        const objDataIndiv = await respuesta.blob();
@@ -294,21 +297,21 @@
 
                 await Promise.all(downloandPromises);
 
-                const zipBlob = zip.generateAsync({ type: 'blob' });
-                saveAs(zipBlob, `materiales-de-la_semana_ new_${Date().toISOString().split('T')[0]}.zip`);
+                const zipBlob = await zip.generateAsync({ type: 'blob' });
+                saveAs(zipBlob, `materiales-de-la_semana_${new Date().toISOString().split('T')[0]}.zip`);
             }catch(error){
-               console.error(`Error descargando ${material.titulo}:`, error);
+               console.error('Error al generar materiales en ZIP ', error); //*
                 throw new Error('No fue posible, generar el archivo ZIP');
             }
-         }
+         }*/
 
 
          /**
           * Sanitizar el nombre del archivo
-          * */
-         private sanitizarNombreArchivo(nombreArchivo: string): string {
-               return nombreArchivo
-                .replace(/[^a-z0-9_-]/gi/, '_')
+          * */  // *bara demas*
+         private static sanitizarNombreArchivo(nombreArchivo: string): string {
+               return nombreArchivo  
+                .replace(/[^a-z0-9_-]/gi, '_')
                 .replace(/_+/g, '_')
                 .substring(0,50);
          }
@@ -321,17 +324,18 @@
          /**
           *   Validar que los datos del reporte no esten vacios
           * */
-         validarReportePorDia(data: MaterialReport[]): boolean {
+         static validarReportePorDia(data: MaterialReport[]): boolean {
              return Array.isArray(data) && data.length > 0;
          }
 
          /**
           *  Obtener formato recomendado segun la ctd de materiales
           * */
-         obtenerElFormatoRecomendado(contador: number): FormatType {
+         static obtenerElFormatoRecomendado(contador: number): FormatType {
             if (contador <= 20) return 'pdf';         //lectura inmediata
                if (contador <= 100) return 'docx';    // consigo la edicion del mat
-                  return 'xlsx;'    //mejorar el analisis, si de graficos se trata
+                  return 'xlsx';    //mejorar el analisis, si de graficos se trata
+                  //*[la coma fuera no dentro] *
          }
 
          /**
@@ -341,4 +345,4 @@
          // convertirDeReport eAMaterial(reporetes: MaterialReport[], nombreArchivo: string): Promise<void> 
    }
 
-   export const ReportService = new ReportService(); //sin clase, es r
+   // Solo una forma de importar

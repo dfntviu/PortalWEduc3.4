@@ -77,7 +77,7 @@ export const useMaterialTeachStore = defineStore('teacher_materials',{
 	    				state.error === null);
 	    },
 
-	     /*materialsByAuthor(): Record<string, Material[]>  {
+	     materialsByAuthor(): Record<string, Material[]>  {
 	     	console.log('leyendo la f(n) agrup por autor');
 					return this.materials.reduce((groups, material) => {
 						const key = material.uploadedBy ?? 'Anonimo';
@@ -85,7 +85,7 @@ export const useMaterialTeachStore = defineStore('teacher_materials',{
 							 groups[key].push(material);
 								return groups;
 					}, {} as Record<string, Material[]>);
-				},*/
+				},
 	},
  		// ═══════════════════════════════════════════════════════════
  				// 			ACTIONS(ACCIONES)

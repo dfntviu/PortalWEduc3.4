@@ -21,7 +21,7 @@ import type { Profile } from '@/types/Profile.type.ts';
     photoURL?: string;
   }
 
-  interface ProfileState {
+  export interface ProfileState {
     profile: Profile | null;
     profiles: Profile[];
     loading: boolean;
@@ -260,7 +260,18 @@ export const useProfileStore = defineStore('profile', {
       this.error = '';
 
       try {
-        await ProfileStudentService.updateStudentProfile(uid, updates, photoOptions);
+        const updateImg = await ProfileStudentService.updateStudentProfile(uid, updates, photoOptions);
+        // console.log('Origen Foto: ', updateImg.photoURL);console.log('cONTEO Foto: ', updateImg.photoCount);
+
+          /* Mostrar la nueva imagen en el DOM /
+          if (this.profile?.uid === uid ) {
+            this.profile = {
+               ...this.profile,
+               ...updates,
+               photoURL:  this.profile.photoURL,
+               photoCount:  this.profile.photoCount,
+            };
+         }*/
         
         // Actualizar perfil local si es el usuario actual
         if (this.profile?.uid === uid) {
@@ -563,6 +574,7 @@ export const useProfileStore = defineStore('profile', {
       this.profiles = [];
       this.loading = false;
       this.error = '';
+      this.message = ''; //*lo habia omitido*
       this.searchResults = [];
       this.stats = null;
     },

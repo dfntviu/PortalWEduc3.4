@@ -1,9 +1,10 @@
  import {createUserWithEmailAndPassword,getAuth} from 'firebase/auth';
- import {doc,setDoc} from 'firebase/firestore';
+ import {doc,addDoc,setDoc, collection} from 'firebase/firestore'; //colecciones
+ import {getStorage, ref, uploadBytes,getDownloadURL} from 'firebase/storage';  // almacenamiento
  import {BaseProfileService} from './BaseProfileService.ts';
  import { initializeFirebaseStorage } from '@/config/initializeFirebaseConf.ts';
  // import { StorageService } from './StorageService';
- // import type {Profile} from '@/interfaces/Profile.types.ts';
+ import type {Profile} from '@/interfaces/Profile.types.ts';
 
  interface ProfilePhotoOptions {
   	 uploadPhoto: boolean;
@@ -16,8 +17,9 @@
   export class ProfileStudentService {
   	// private static readonly COLLECTION_1 = 'student_register';; //*
     private static readonly COLLECTION_2 = 'teacher_register';
-  	private static readonly STORAGE_PATH = 'profiles_students';
+  	private static readonly STORAGE_PATH = 'profiles_students';   //-> collecion de Imagenes
     private static readonly collectionNameR1 = 'student_register'
+      private static readonly COLLLECTION_PROFILE = 'student';   // a prueba
 
   	/**
   	 * Guarda un perfil de estudiante con foto opcional
@@ -26,27 +28,31 @@
   	 * Unica y exclusivamente para ESTUDIANTES [Alumnos] */
   	static async saveStudentProfile(
   		 data: Partial<Profile>,
-         uid_student: string/*,
-  		 photoOptions?: ProfilePhotoOptions*/
+         uid_student: string,
+  		 photoOptions?: ProfilePhotoOptions
   		): Promise<void>{
             // revisar condicion d la 34
   		try{
+          console.log('[Service] photoOptions:', photoOptions);
   			if (!uid_student) {
   				throw new Error('El Uid del Estudiante es requerido');
   			}
   			console.log('[ProfileStudentService] Guardar perfil del Estudiante:',data.uid_student);
 
-  			// Procesar foto que se requiere // let photoURL = data.photoURL || '';
-  			/* Habilitar cuando este 100% funcional
-              if (photoOptions?.uploadPhoto && photoOptions.value.photoFile) { console.log('[ProfileStudentService] Subiendo foto de Perfil..');
-  			 	 photoURL: this.uploadProfilePhoto(data.uid_profe, photoOptions.photoFile); }*/
+  			 // Habilitar cuando este 100% funcional [esta funcional 14/05/26]
+  			// Procesar foto que se requiere 
+              let photoURL = data.photoURL || '';
+              let photoCount = data.photoCount ?? 0;
+            if (photoOptions?.uploadPhoto && photoOptions.photoFile) { 
+  			 	   ({photoURL,photoCount} = await this.uploadProfilePhoto2(uid_student, photoOptions.photoFile,0));
+                  console.log('[Service] entra al if?:', !!photoOptions?.uploadPhoto && !!photoOptions?.photoFile);
+            }
 
   			// Preparar datos para Firestore
   			const studentData: Partial<Profile> = {
   				...data,
   				role: 'student' as const,
                 uid_student, //el parametro unico definido
-
                 email: data.email ?? '',
                 edad: data.edad ?? null,  // *apply change*
                 carrera: data.carrera ?? '',   // *apply change*
@@ -54,8 +60,10 @@
                 apellido: data.apellido,
                 passwd : data.password,  // *apply change*
                 typeDoc: data.typeDocument ?? '',  // *apply change*
+                photoURL,  // Direccion electronica de la foto *
+                photoCount,  // Contador de Fotos *
   				createdAt: data.createdAt || new Date(),
-  				/*updateAt: new Date(), photoURL,*/
+  				updateAt: new Date(),
   			};
             // El objeto enriquecido(directo), no crudo(su propiedad), para eso es el 2do arg
   			const profile = await BaseProfileService.saveProfileRoles(this.collectionNameR1,uid_student,studentData);
@@ -122,34 +130,50 @@
   	 * @param updates - Campos a Actualizar
   	 * @param photoOptions - Opciones de foto
   	 * */
-  	static async updateStudentProfile(uid: string, updates: Partial<Profile>, photoOptions?: ProfilePhotoOptions){
-  		try{
-  			let updatedData =  { ...updates };
+  	static async updateStudentProfile(uid: string, updates: Partial<Profile>, photoOptions?: ProfilePhotoOptions): Promise<void>{
+  		try{  //debes pasar por Welcome
+            // Validacion exp (solo por si acaso)
+            if (!uid || uid.trim().length === 0) {
+                throw new Error('El uid del Estudiante es requerido para actualizar..');
+            }
 
-  			if (photoOptions?.uploadPhoto && photoOptions.photoFile) {
-  				console.log('[ProfileStudentService]: Actualizando Foto del Perfil');
+             let updatedData: Partial<Profile> = { ...updates };
 
-  				// Eliminar foto anterio si existe
-  				const currentProfile = await this.getStudentById(uid);
-  				if (currentProfilez?.photoURL) {
-  					await this.deleteProfilePhoto(uid);
-  				}
+                if (photoOptions?.uploadPhoto && photoOptions.photoFile) {
 
-  				// Subir nueva foto
-  				const photoURL = await this.uploadProfilePhoto(uid, photoOptions.photoFile);
-  				updatedData.photoURL = photoURL;
-  			}else if (photoOptions?.uploadPhoto === 'false') {
-  				await this.deleteProfilePhoto(uid);
-  				updatedData.photoURL = '';
-  			}
+                  // 1. Leer photoCount REAL de Firestore antes de cualquier operación
+                  const currentProfile = await this.getStudentById(uid);
+                  const counter_actual  = currentProfile?.photoCount ?? 0;
 
-  			// Agregar timestamp de actualizacion
-  			updatedData.updateAt = new Date();
-  			 await BaseProfileService.updateProfile(this.COLLECTION_1, uid, updatedData);
-			 console.log('[ProfileStudentService] Perfil actualizado Exitosamente');
+                  // 2. Desestructurar correctamente — no asignar el objeto completo
+                  const { photoURL, photoCount } = await this.uploadProfilePhoto2(
+                    uid,
+                    photoOptions.photoFile,
+                    counter_actual  // ← valor real, no updates.photoCount
+                  );
+
+                  updatedData.photoURL   = photoURL;   // string limpio
+                  updatedData.photoCount = photoCount; // número incrementado
+
+                } else if (photoOptions?.uploadPhoto === false) {
+                  // 3. photoURL declarada aquí para que exista en este scope
+                  const currentProfile = await this.getStudentById(uid);
+                  console.log('[ProfStudentServ] 🗑️ Eliminando foto:', currentProfile?.photoURL);
+                  await this.deleteProfilePhoto(uid);
+                  updatedData.photoURL   = '';
+                  updatedData.photoCount = 0;
+                }
+
+                updatedData.updateAt = new Date();
+                await BaseProfileService.updateProfile(this.collectionNameR1, uid, updatedData);
+                console.log('[ProfileStudentService] ✅ Perfil actualizado exitosamente');
+              // return {update, photoCount: counter_updated};
   		}catch(error: any){
-  			console.error('ProfileStudentService Perfil actualizado exitosamente',error);
-  			 throw new Error(`Error al actualizar Perfil del Estudiante: ${error.message}`);
+  			console.error('ProfileStudentService Perfil NO FUE actualizado exitosamente',error);
+            console.error('[ProfStudentServ]✅ Contexto de Sub de la Act.  del Perfil: ',{
+                uid, updates, photoOptions, collection: this.collectionNameR1,
+            });
+  			 throw new Error(`Error al actualizar tú Perfil : ${error.message}`);
   		}
   	}
 
@@ -255,6 +279,29 @@
         }
     }
 
+    private static async uploadProfilePhoto2(uid:string, photoFile:File, currentCount: number):
+     Promise<{photoURL: string, photoCount: number}>
+    {
+        const storage = getStorage();
+        const nextCount = currentCount + 1;
+        const index = String(nextCount).padStart(2,'0');
+
+
+        // 1.Crear el directorio raiz mediante Firestore y añadir el cambio [new] 
+           await addDoc(collection(db, this.STORAGE_PATH),{
+                fileName:`/imgProfile${index}`, //indice convencion imagen
+                photoCount: nextCount,
+                createdAt: new Date(),
+           });
+
+           // 2. referenciar correctamente al Storage p/guardar perfiles
+        const storageReference = ref(storage,`${this.STORAGE_PATH}/${uid}/imgProfile${index}`);
+            // 2a) recibir archivos binarios [distintos formatos imagen]
+          await uploadBytes(storageReference,photoFile);
+          const photoURL = await getDownloadURL(storageReference);
+
+          return {photoURL,photoCount: nextCount};
+    }
     /**
      * Elimina la foto de perfil del Estudiante
      * @param uid  - UID del estudiante

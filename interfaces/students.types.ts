@@ -92,6 +92,10 @@
  	 message: string;
  }
 
+ interface Profile {
+ 	photoURL: string;
+ 	photoCount: number;
+ }
  	// =======================
  	// 		UTILIDADES
  	// =======================

@@ -496,18 +496,19 @@ import { collection,doc,getDoc,getDocs,addDoc,updateDoc, deleteDoc, query, where
           return {
              id,
              titulo:  data.titulo,
-             materia: data.materia,
-             nombreAlumno: data.nombreAlumno,
-             alumnoId: data.alumnoId,
+             alumnoId: data.autorId, //alumnoId
+             nombreAlumno: data.autorId,
+             materia: data.tipoArchivo ?? 'Sin categoria', //materia
              estado: data.estado,
              fechaSubida: 
-               data.fechaSubida instanceof Timestamp
-                  ? data.fechaSubida.toDate()
+               data.fechaCreacion instanceof Timestamp
+                  ? data.fechaCreacion.toDate() //fechaSubida
                   : new Date(),
-             tipoArchivo: data.tipoArchivo,
-             urlArchivo: data.urlArchivo,
-             razonRechazo: data.razonRechazo,
-             profesorModeradorId: data.profesorId
+             archivoURL: data.archivoURL, //tipoArchivo
+             // urlArchivo: data.urlArchivo,
+             razonRechazo: data.razonRechazo ?? '',
+             profesorModeradorId: data.profesorId ?? '',
+             descripcion: data.descripcion,
           } as Material;
       }
 

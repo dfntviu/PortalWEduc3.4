@@ -1,0 +1,16 @@
+====	====	====	====	====	====	====	==== 
+ 12 de Mayo del 2026
+ - 	ELEMENTOS PENDIENTES
+- Listado de Caracteristícas Restantes
+   A) Prioritarias
+   1. Reparar Bienvenida en Ambos Roles
+   2. Solucionar estilos tailwind en vwModeratition - profesor
+   3. Limpiar el Sistema
+
+   B) Opcionales
+     a) Instalar libreria materialDesign y aplicar plantilla a las vistas de Estadistica, Moderacion, Login y BienvenidaTeacher
+     b) Instalar libreria de archivos con extension docx
+     c) Ap. Solucion de version anterior, investigar muy bien el inicio de sesion para desarrolladores
+         y al menos iniciar sesión mediante la mensajería de Google.
+
+====	====	====	====	====	====	====	====

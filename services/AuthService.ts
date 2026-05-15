@@ -40,7 +40,7 @@
 	  	 	 	 getDocs(studentsQuery)
 			  ]);
 
-				 return teacherSnapshot.empty || studentsQuery.empty;
+				 return !teacherSnapshot.empty || !studentsQuery.empty;
   	  }catch(error){
   	      console.error('Error verificando existencia de usuarios', error);
   	      throw new Error('Error al verficar el Sistema');
@@ -155,14 +155,17 @@ console.log('[AuthService] email:', email, 'pwd:', password);
 	/**
      * Cierra la Sesion actual
      * */
-	async logout(){
+	async logout(): Promise <void>{
      console.log('Cerrando Perímetro de Seg. de Firebase');
     try{
 		const auth = getAuth();
-			await signOut(this.auth);
+       await signOut(auth);
+			/*const res =*/ 
+      // console.log('= ',res);
+      // return auth;
 		}catch(error: any){
 		    console.error('Error al cerrar la Sesión:',error);
-		    throw new Error('Error al cerrar sesión: ',error.message);
+		    throw new Error( `Error al cerrar sesión: ${error.message}` );
 		}
 	}
 

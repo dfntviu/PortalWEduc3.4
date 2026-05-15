@@ -28,7 +28,8 @@
     		age: null,
     		password: '',
     		confirmPassword: '',
-    		typeDocument: '' as TipoDocumento | ''
+    		typeDocument: '' as TipoDocumento | '',
+        photo: null as File | null // Fue aniadido *campo de tipo File*
     	});
 
     	const editForm = reactive<StudentFormData>({
@@ -36,13 +37,19 @@
     		lname: '',
     		carrera: '' as Carrera | '',
     		age: null,
-    		typeDocument: '' as TipoDocumento | ''
+    		typeDocument: '' as TipoDocumento | '',
+        photo: null as File | null // Fue aniadido *campo de tipo File*
     	});
 
     	// ────────────────────────────────────────
     	// 			PROPS COMPUTADAS
     	// ────────────────────────────────────────
+      function manejadorArchivoPixelado(event: Event): void {
+        const input = event.target as HTMLInpuntElement;
+        const file = input.files?.[0] ?? null;
 
+        registrationForm.photo = file;
+      }
     	/**
     	 * Perfil del estudiante desde el store
     	 * */
@@ -72,7 +79,12 @@
     			 editForm.typeDocument !== ''
     			);
     	});
-    // }
+
+    /*function manejadorArchivoPixelado(event: Event): void {
+      const input = event.target as HTMLInpuntElement;
+      const file = input.files?.[0] ?? null;
+          registrationForm.photo = file;
+    }*/
     	// ─────────────────────────────────────────────────
     	// 			MÉTODOS DE REGISTRO
     	// ─────────────────────────────────────────────────
@@ -86,6 +98,7 @@
     			 return false;
     		}
 
+          console.log('[Composable] photo:', registrationForm.photo);
     		const data: StudentRegistrationData = {
     			nombre: registrationForm.name.trim(),
     			apellido: registrationForm.lname.trim(),
@@ -93,10 +106,11 @@
     			edad: registrationForm.age ?? undefined,
     			email: registrationForm.email,  //*
           password: registrationForm.password,
-    			typeDocument: registrationForm.typeDocument as TipoDocumento
+    			typeDocument: registrationForm.typeDocument as TipoDocumento,
+          photoFile: registrationForm.photo ?? undefined  //nuevo atributo agregado
     		}; 
     		
-    		const result = await store.registerStudent(data);
+    		const result = await store.registerStudent(data,{uploadPhoto: registrationForm!== null, photoFile: registrationForm.photo ?? undefined});
 
     		 if (result.sucess) {
     		 	resetRegistrationForm();
@@ -120,6 +134,7 @@
       registrationForm.email  = ''; //*
     	registrationForm.confirmPassword = '';
     	registrationForm.typeDocument = '' as TipoDocumento | '';
+      registrationForm.photo = null; //nuevo atributo agregado
     }
 
     /** 
@@ -135,6 +150,7 @@
     	editForm.carrera = profile.value.carrera;
     	editForm.age = profile.value.edad ?? null;
     	editForm.typeDocument = profile.value.typeDocument;
+      editForm.photo        = null; //nuevo atributo agregado
     }
 
     /** 
@@ -151,8 +167,12 @@
      	 		apellido: editForm.lname.trim(),
      	 		carrera: editForm.carrera as Carrera,
      	 		edad: editForm.age ?? undefined,
-     	 		typeDocument: editForm.typeDocument as TipoDocumento
+     	 		typeDocument: editForm.typeDocument as TipoDocumento,
      	 	};
+
+            const photoOptions   = editForm.photo
+                  ? { uploadPhoto: true, photoFile: editForm.photo }
+                  : { uploadPhoto: false, photoFile: editForm.undefined };
 
      	 	 const result = await store.updateProfile(data);
 
@@ -225,7 +245,7 @@
      		console.error('[ProfileStudent] - (Composable) Error al CARGAR el PERFIL del Estudiante: ',error);
     		 return false;
      	}
-    }	//# Termino del composable_01
+    }	
 
   // ─────────────────────────────────────────────
   // 	******		UTILIDADES     ******
@@ -251,6 +271,7 @@
 		  // Formularios
 		 registrationForm,
 		 editForm,
+     manejadorArchivoPixelado,
 		  // Validaciones
 		 isRegistrationFormValid,
 		 isEditFormValid,
@@ -268,7 +289,7 @@
 		  // Utilidades
 		 clearMessages
     	};
-    }
+    }  //#_FIN termina el PRIMER composable
 
      /**══════════════════════════════════════════════
      * 	COMPOSABLE-02: MANIP EL CAMBIO DE CONTRASENIA
@@ -344,4 +365,4 @@
     	   controllerPasswordChange,
     	   resetPasswordForm
     	};
-    } //# aqui termina el 2do composable
+    }//#_FIN termina el 2° composable

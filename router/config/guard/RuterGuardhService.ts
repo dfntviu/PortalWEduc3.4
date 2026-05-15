@@ -16,8 +16,12 @@
         async globalGuardh(to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext):Promise<void> {
         	console.log('SE  ha ingresado al routing..');
 			// const bootstrapCompleted = await RoleFirstUsingService.isBootstrapCompleted();
-		const authStore3 = useAuthStore3();
-			console.log('El edo Autenticado contiene: (',authStore3.isAuthenticated,')');
+			const authStore3 = useAuthStore3();
+			const isAuth = authStore3.isAuthenticated;
+			const role = authStore3.userRole;  // nw
+			 
+			 // console.log('El edo Autenticado contiene: (',authStore3.isAuthenticated,')');
+			console.log('Guardia Ejecutando: ', {isAuth, role, toName: to.name, requiresAuth:to.meta.requiresAuth});
 					// 0. El sistema esta vacio
 				/*if (!bootstrapCompleted) {
 					if (to.name !== ROUTE_BOOTSTRAP ) {
@@ -34,18 +38,18 @@
 			}*/
 
 			// 1.
-			if (authStore3.isAuthenticated && to.name === 'viewLoginMultUser') {
+			if (isAuth.isAuthenticated && to.name === 'viewLoginMultUser') {
 				return next ({
-					name: authStore3.role === 'teacher'
+					name: role === 'teacher'
 					 ? 'viewWelcomeTeachers'
 					 : 'viewBienvenidaStudents'
 				});
 			}
 				// 2. Ruta protegida sin autenticacion → regresar al login [satisfacie]
-			/*if (to.meta.requiresAuth && !authStore3.isAuthenticated) {
-				console.log('Condicion aceptada, redireccion inmediata');
+			if (!isAuth && to.meta.requiresAuth) {
 				return next({ name: 'viewLoginMultUser' }); // LoginMultiusuario 
-			}*/
+				// console.log('Condicion aceptada, redireccion inmediata');
+			}
 				// 3. Ruta protegida con el rol incorre|cto → redirigir al home del rol activo
 			/**
 			 * No impota en que ubicacion este si no ha iniciado sesion debera de
@@ -56,22 +60,24 @@
 					  : 'viewBienvenidaStudents'
 				});
 			}*/
-			return next();
-			// deberia de desplazarse a LayoutNavBar, porque esta libre
+						// deberia de desplazarse a LayoutNavBar, porque esta libre
 						 // ─── 3. Sin autenticación ───[funcionales acceso por role]──────────────────────────────────────
-					if (!authStore3.isAuthenticated) {
+					/*if (!authStore3.isAuthenticated) {
 					    if (to.meta.requiresAuth) {  // ← quitar la 'e'
 					        return next({ name: ROUTE_LOGIN });
 					    }
 					    return next();
 					}
-
+					*/
 						 // ─── 4. Con autenticación en ruta pública ────[funcionales acceso por role]────────────────────
-					if (!to.meta.requiresAuth) {  
-					    const dashboard = authStore3.role === 'teacher'
-					        ? { name: 'viewWelcomeTeachers' }    // ← nombre actual de tu ruta
-					        : { name: 'viewBienvenidaStudents' };
-					    return next(dashboard);
+					if (isAuth &&  !to.meta.requiresAuth) {  
+						return next({
+							  name: role === 'teacher' 
+							  ?'viewWelcomeTeachers'     // ← nombre actual de tu ruta
+							  : 'viewBienvenidaStudents' });
+					    	/*const dashboard = authStore3.role === 'teacher'
+					    		return next(dashboard);*/
 					}
+					return next();
 		}
 	}
