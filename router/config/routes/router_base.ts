@@ -1,7 +1,9 @@
-import  vwLoginMultiusuario  from '@/views/LoginMultiusuario.vue';
+import  vwLoginMultiusuario  from '@/views/LoginMultiusuario.origin.vue';
 import  vwProfileUser from '@/views/viewProfileUser.vue';
-// import  vwBoostrapSys from '@/views/ViewBootstrap.vue'; //nw
+import  vwProfileTeacher from '@/views/viewProfileTeacher.vue';
 import  HomeView from '@/views/HomeView.vue'
+   // import  vwBoostrapSys from '@/views/ViewBootstrap.vue'; //enabled with ending of flow
+  // import  vwLoginMultiusuario  from '@/views/LoginMultiusuario.vue';
   // import  viewUnifyNotification from '@/views/viewUnifyNotification.vue' //* notificacion ambos roles
   
   // ###  FILE_ROUTER_MAIN ###
@@ -31,6 +33,13 @@ export const router_main = [
     name: 'viewProfileUser',
     component:  vwProfileUser,
     meta: { requiresAuth: true }
+  },
+
+  {
+   path: '/profile-teacher-view',
+   name: 'viewProfileTeacher',
+   component: vwProfileTeacher,
+   meta: { requiresAuth: true }
   },
   /*{
     path: '/',

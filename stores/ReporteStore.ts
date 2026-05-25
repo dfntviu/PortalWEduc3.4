@@ -15,21 +15,17 @@
     	// ──────────────────────────────────
   		// 			STATE
   		// ──────────────────────────────────
-			
-		const reportData = ref<>(null);
+		const reportData = ref<any | null>(null);
 		const isLoading = ref<false | null>(null);
 		const error = ref<string | null>(null);
 		const isExporting = ref<false | null>(null);
 		const isDownloaing = ref<false | null>(null);
 			
-
 			// La memoria cache
 		const lastFetch	 = ref<Date| null>(null);
-		const curretRole    = ref<'alumno'| 'profesor'>('alumno');
+		const curretRole    = ref<'student'| 'tacher'>('student'); //return to spanish
 		const curretUserId  = ref<string| undefined >(undefined);
-		const CACHE_DURATION_MS = 5 * 60 * 1000;
-
-
+		const CACHE_DURATION_MS = 5 * 60 * 1000;  // no reseteable
 
   		// ─────────────────────────────────
   		//    GETTERS
@@ -47,7 +43,7 @@
 		const isCachedValid = computed( ()  => {
 			if (!lastFetch.value) return false;
 			  const elapsed = Date.now() - lastFetch.value.getTime();  //tmpo transcurrido
-			 return  == elapsed < CACHE_DURATION_MS;
+			 return  elapsed < CACHE_DURATION_MS;  //==
 		});
 
 		const isDownloadZip = computed( ()  => {
@@ -181,12 +177,23 @@
 		/**
 		 * Resetear completamente el store
 		 * */
-		function $reset(): void {
+		
+
+		/*function $reset(): void {
 		 	limiaReporteDatos();
 		 	curretRole.value = 'alumno';
 		 	curretUserId.value = undefined;
 		}
-
+		*/
+		function $reset() {
+			reportData.value = null;
+			isLoading.value = null;
+			error.value = null;
+			isExporting.value = null;
+			isDownloaing.value = '';
+			lastFetch.value = null;
+			curretRole.value = undefined
+		}
       // ─────────────────────────────────────────
       // 		RETURN
       // ─────────────────────────────────────────
@@ -200,7 +207,8 @@
 			isDownloaing,
 			curretRole,
 			curretUserId,
-
+			// Clean Method
+			$reset, //--- limp. vars --- 
 			// Getters
 			hasData
 			weeklyMaterials

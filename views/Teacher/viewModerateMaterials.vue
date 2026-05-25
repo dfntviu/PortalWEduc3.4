@@ -1,11 +1,11 @@
 <template>
 	<div class="moderacion-vw-container min-h-screen bg-gray-50">
 		<header class="page-header bg-white shadow-sm border-b border-gray-200">
-			<div class="max-w-7-xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 				<div class="flex items-center justify-between mb-6">
 					<h1 class="text-3xl font-bold text-gray-900">Moderacion de Materiales+</h1>
 					<p class="mt-1 text-sm text-gray-600">Rev. Los materiales Educativos, subidos por los Estudiantes</p>
-					<button class="btn-secondary flex-items-center gap-2">
+					<button class="btn-secondary flex items-center gap-2">
 						<!-- CAMBIO # 2-->
 					     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -16,13 +16,13 @@
 				</div>
 
 				<!-- Cards de Estadisticas  -->
-				<div class="grid grid-cols-1 md-grid-cols-4 gap-4">
-					<div class="flex-items-center justify-between">
+				<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+					<div class="flex items-center justify-between">
 						<div>
 							<p class="text-sm font-medium text-blue-600">Total</p>
 							<p>{{countStatistics.pendientes}}</p>
 						</div>
-						<div class="p-3 bg-yellow-100 rounded-100 rounded-full">
+						<div class="p-3 bg-yellow-100 rounded-full">
 							<svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6 -3a9 9 0 11 -18 0 9 9 0 0 1 18 0z"></path>
 							</svg>
@@ -60,7 +60,7 @@
 			</div> <!-- intocanble for now-->
 		</header>
 		<!-- Región de Filtros de Busqueda -->
-		<section class="filters-section bg-white shadow-sm border-b gray-200">
+		<section class="filters-section bg-white shadow-sm border-b border-gray-200">
 			<div class="max-w-7xl mx-auto px-4 sm-px-6 lg:px-8 py-4">
 				<div class="flex flex-col md:flex-row gap-4">
 					<div class="flex-1">
@@ -84,7 +84,7 @@
 					 </div>
 
 					 <!-- seccion de Ordenamiento -->
-					 <div class="w-full md: w-48">
+					 <div class="w-full md:w-48">
 					 	<select v-model="filtros.order" name="" id="" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
 					 		<option value="recent">mas Reciente</option>
 					 		<option value="ancient">mas Antiguos</option>
@@ -168,7 +168,7 @@
 					 	  	</div>
 				 		</div>
 
-					 	<div class="px-4 py-3 bg:gray-50 border-t border-gray-100 flex-items-center justify-between">
+					 	<div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex-items-center justify-between">
 					 		<span class="text-xs font-medium text-yellow-600 bg-yellow-100 px-2 py-1 rounded">
 					 			Pendiente
 					 		</span>
@@ -184,11 +184,11 @@
 	
 	    <Teleport to="body">
 	     	<Transition name="slide-over">
-	     		<div  v-if="currentMaterial !== null" class="fixed iset-0 z-50 overflow-hidden">
+	     		<div  v-if="currentMaterial !== null" class="fixed inset-0 z-50 overflow-hidden">
 	     			  <!-- Overlay Obscuro -->
-	     			<div class="absolute inset-0 bg-gray-900 bg-opacity-50"></div>
+	     			<div class="absolute inset-y-0 bg-gray-900 bg-opacity-50"></div>
 	     			  <!-- Panel deslizante -->
-	     		      <div class="absolute iset-y-0 rigth-0 max-2xl w-full bg-white shadow-2xl flex flex-col">
+	     		      <div class="absolute inset-y-0 rigth-0 max-2xl w-full bg-white shadow-2xl flex flex-col">
 	     		<!-- </div> -->
 	     			<!-- Encabezado: Inf basica del mat. seleccionado -->
 	     		<header class="px-6 py-4 border-b border-gray-200 bg-gray-50">
@@ -255,7 +255,7 @@
 		     								{{comentario.autorNombre || 'Profesor'}}
 		     						   </span>
 		     						   <span v-if="comentario.destacado" 
-		     						      class="text-xs font-semibold text-yellow-700 bg-yellow-200 px-2 py-0 5 rounded">
+		     						      class="text-xs font-semibold text-yellow-700 bg-yellow-200 px-2 py-0.5 rounded">
 		     						    Destacado
 		     						   </span>
 	     					    	</div>
@@ -311,7 +311,7 @@
 	     						
 	     					<textarea v-model="newComment.mensaje" rows="4"
 	     					placeholder="Escribe tu retroalimentación para el Alumno"
-	     					 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:rigth-2 focus:ring-blue-500 
+	     					 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 
 	     					 focus:border-blue-500 resize-none">
 	     					</textarea>
 	     					
@@ -325,7 +325,7 @@
 	     						<button 
 	     						   @click="handleAgregarComentario"
 	     						   :disabled="!esComentarioValido"
-	     						  class="px-4 py-2 bg:blue-600 text-white rounded-lg hover:bg-blue-700 disabled-gray-300 disabled:cursor-not-allowed transition-colors">
+	     						  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
 	     							Agregar Comentario
 	     						</button>
 	     					</div>
@@ -337,7 +337,7 @@
 	     		<!-- Acciones de Moderacion -->
 	     		<footer class="px-6 py-4 items-center gap-4">
 	     			<div class="flex items-center gap-4">
-		     			<button  @click="handleAprobar"   :disabled="!currentMaterial"  class="flex-1 px-6 py-3 bg-green-600 text-white font-semibold ronded-lg hover:bg-green-700 text-white font-semibold rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transtion-colors flex items-center justify-center gap-2">
+		     			<button  @click="handleAprobar"   :disabled="!currentMaterial"  class="flex-1 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 text-white font-semibold rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transtion-colors flex items-center justify-center gap-2">
 		     				<svg class="w-5 h-5">
 		     					<path/>
 		     				</svg>
@@ -383,7 +383,7 @@
 	    	</div>
 
 	    	<!-- Error of State on Modeation -->
-	    	<div class="max-2-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+	    	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 	    		<div class="bg-red-50 border border-red-200 rounded-lg p-4">
 		    		<div class="flex items-start">
 		    			<svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -393,7 +393,7 @@
 		    		<div class="flex-1">
 		    			<h3 class="text-red-800 font-semibold">Error al cargar los materiales.</h3>
 		    			 <p class="mt-1 text-red-700">{{error}}</p>
-		    			<button class="mt-3 px-4 bg-red-600 text-white-600 rounded-lg hover:bg-red-700 transitions-colors">
+		    			<button class="mt-3 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
 		    				Reintentar
 		    			</button>
 		    		</div>
@@ -448,7 +448,7 @@
 	    	<Transition name="modal">
 	    		<div
 	    		   v-if="rejectOfModal.visible"
-	    		  class="fixed inset-0 z- flex itemes-center justify-center p-4" 
+	    		  class="fixed inset-0 z-50 flex items-center justify-center p-4" 
 	    		    @click.self="handleCerrarModalRechazo"
 	    		   > 
 	    		     <!-- Overlay -->
@@ -1030,7 +1030,8 @@
 		.overflow-y-auto {
 			scrollbar-width: thin;
 			scrollbar-color: rgba(156, 163, 175, 0.5);
-		}-
+		}
+
 		.overflow-y-auto::-webkit-scrollbar {
 	    	width: 6px;
 		}

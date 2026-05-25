@@ -160,22 +160,22 @@ console.log('[AdminStats] dailySummary →', statsStore.dailySummary);
 			 			<h2 class="users-heading"><span>👥</span> Usuarios
 			 			</h2>
 
-			 			<div class="stats-grid stats-grid-3">
-			 				<div class="stat-card stat-card__total">
-			 					<span class="stat-card stat-card__label">Total de Usuarios</span>
-			 					<span class="stat-card_label">Total de usuarios</span>
+			 			<div class="stats-grid stats-grid--4">
+			 				<div class="stats-card stat-card__total">
+			 					<span class="stats-card__label">Total de Usuarios</span>
+			 					<span class="stats-card__value">{{(statsStore.adminMetrics?.totalStudents ?? 0) + (statsStore.adminMetrics?.totalTeachers ?? 0)}}</span>
 			 				</div>
 
-				 			<div class="stat-card">
-				 					<span class="stat-card__value">
+				 			<div class="stats-card stats-card--total">
+				 					<span class="stats-card__value">
 				 					   {{statsStore.adminMetrics?.totalStudents ?? 0}}</span>
-				 					<span class="stat-card__label">🎓Estudiantes</span>
+				 					<span class="stats-card__label">🎓Estudiantes</span>
 				 			</div>
 
 				 			<div class="stat-card">
-				 				<span class="stat-card__value">
+				 				<span class="stats-card__value">
 				 					{{statsStore.adminMetrics?.totalTeachers ?? 0}}</span>
-				 				<span class="stat-card__label">🏫 Profesores</span>
+				 				<span class="stats-card__label">🏫 Profesores</span>
 				 			</div>
 			 		 	</div>
 			 		</article>
@@ -196,7 +196,7 @@ console.log('[AdminStats] dailySummary →', statsStore.dailySummary);
 
 				 		    <div class="stats-card stats-card--approved">
 				 		    	<span class="stats-card__value">
-				 		    		{{statsStore?.adminMetrics.materialsApproved ?? 0}}
+				 		    		{{statsStore.adminMetrics?.materialsApproved ?? 0}}
 				 		        </span>
 				 		    	<span class="stats-card__label">✅ Aprobados: </span>
 				 		     	 <span class="stats-card__rate">{{statsStore.approvalRate}}%</span>
@@ -246,16 +246,16 @@ console.log('[AdminStats] dailySummary →', statsStore.dailySummary);
 						
 						<div class="stats-grid stats-grid--3">
 							<div class="stats-card">
-								<span class="stats-card__value">{{statsStore.teacherMetrics?.inReview ?? 0}}</span>
-								<span class="stats-card__label">🔎</span>
+								<span class="stats-card__value">{{statsStore.teacherMetrics?.pendingReview ?? 0}}</span>
+								<span class="stats-card__label"> 🔎En revisión</span>
 							</div>
 							<div class="stats-card">
 								<span class="stats-card__value">{{statsStore.teacherMetrics?.pendingReview ?? 0}}</span>
-								<span class="stats-card__label">⌛</span>
+								<span class="stats-card__label"> ⌛Pendientes</span>
 							</div>
 							<div class="stats-card">
 								<span class="stats-card__value">{{statsStore.teacherMetrics?.rejectedCommentsCount ?? 0}}</span>
-								<span class="stats-card__label">💬</span>
+								<span class="stats-card__label"> 💬Comentarios</span>
 							</div>
 						</div>
 					</article>
@@ -531,11 +531,61 @@ console.log('[AdminStats] dailySummary →', statsStore.dailySummary);
 
 		.stats-root--glass .stats-block__title { color: #e2e8f0; }
 
+		.stats-grid--3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+	 /*Los materiales aprobados y el total de profesores, no se muestra exactamente
+	 alineados que los elementos seguidos (sus datos son crorrectos)*/
+	.stats-grid--4 {
+	  display: grid;
+	  grid-template-columns: repeat(4, 1fr);
+	  gap: 1rem;
+	  margin-top: 0.75rem;
+	}
+	
+	.stats-grid--2 {
+	  display: grid;
+	  grid-template-columns: repeat(4, 1fr);
+	  gap: 1rem;
+	  margin-top: 0.75rem;
+	}
+
+	.stats-card {
+	  display: flex;
+	  flex-direction: column;
+	  align-items: center;
+	  justify-content: center;
+	  gap: 0.25rem;
+	  padding: 1rem 0.5rem;
+	  background: rgba(255, 255, 255, 0.05);
+	  border-radius: 0.5rem;
+	  min-height: 80px;
+	}
+
+.stats-card__value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+	.stats-card__label {
+	  font-size: 0.75rem;
+	  opacity: 0.7;
+	  text-align: center;
+	}
+	.stats-card__rate {
+	  font-size: 0.7rem;
+	  opacity: 0.6;
+	  line-height: 1;
+	}
 		/*────────────────────────────────
 		*/
 
-		.stats-grid-3  { grid-template-rows:  repeat(3, 1fr);}
-		.stats-grid-4  { grid-template-columns: repeat(4, 1fr); }
+		/*.stats-grid-3  { grid-template-rows:  repeat(3, 1fr);}
+		.stats-grid-4  { grid-template-columns: repeat(4, 1fr); }*/
 
 		@media (max-width: 768px){
 			.stats-grid-3, .stats-grid-4 { grid-template-columns: repeat(2, 1fr); }

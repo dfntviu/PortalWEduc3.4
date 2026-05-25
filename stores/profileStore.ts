@@ -157,7 +157,7 @@ export const useProfileStore = defineStore('profile', {
       }
     },
     //*** Simetrico de Student for role1, Vista 3 del Rol ['Teacher']
-    async registerTraditional(data:{nombre:string;apellido:string;correo:string;passwd:string,cuenta:string,areaTrab:string,role: 'student' | 'teacher';uid_teacher: string| null;}){
+    async registerTraditional(data:{nombre:string;apellido:string;correo:string;passwd:string,cuenta:string,areaTrab:string,role: 'student' | 'teacher';uid_teacher: string| null,photoFile?: File | null;}){
         this.loading = true;
         this.error = '';
           console.log('Ingrese a al f(n).........');
@@ -176,6 +176,7 @@ export const useProfileStore = defineStore('profile', {
             numCuenta: data.cuenta,
             area: data.areaTrab,
             role: data.role,
+            //quedo como parametro, no dentro de la carga msiva(profileData)
           };  
             // C1 - Los valores de los atributos se reciben completos
               /*Recordando: El naming de los atribs deberan ser identicos a los atribs de la f(n) del layer1 */
@@ -185,7 +186,7 @@ export const useProfileStore = defineStore('profile', {
               //ui o el obj.prop completo
           if (data.role === 'teacher') {
               console.log('[Store]_ profileData ANTES de Guardar: ',JSON.parse(JSON.stringify(profileData)));
-             await ProfileTeacherService.saveTeacherProfile({...profileData},  profileData.uid_teacher);
+             await ProfileTeacherService.saveTeacherProfile({...profileData},  profileData.uid_teacher,data.photoFile?? null);
           } else {
                await ProfileStudentService.saveStudentProfile(profileData, user.uid);
           }
@@ -360,12 +361,20 @@ export const useProfileStore = defineStore('profile', {
      * @param data - Datos del perfil
      * @param photoOptions - Opciones de foto (opcional)
      */
-    async saveTeacherProfile(data: Partial<Profile>, photoOptions?: ProfilePhotoOptions) {
+     /*photoOptions?: ProfilePhotoOptions -> funcional p/guardado*/
+    /**
+     * A pesar de que los procesos de guardado y actualizacion tienen un mismo
+     * encuentro, dividen sus vertientes al ingresar los metdos correspondientes
+     * El metodo actualiza de forma incompleta cuando se invoca de la C3 a la C2 [saveProfile]
+     * no por deslaineacion de UI/cts  vars sino porque no estan todos sus campos ahí*/
+
+    async saveTeacherProfile(data: Partial<Profile>, uid: string, photoFile?: File| null) {
       this.loading = true;
       this.error = '';
 
       try {
-        await ProfileTeacherService.saveTeacherProfile(data, photoOptions);
+        // photoOptions
+        await ProfileTeacherService.saveTeacherProfile(data, uid, photoFile);
         console.log('[ProfileStore] ✅ Perfil de profesor guardado');
       } catch (err: any) {
         this.error = err.message || 'Error al guardar perfil de profesor';

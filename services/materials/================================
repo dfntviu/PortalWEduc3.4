@@ -1,0 +1,19 @@
+====	====	====	====	====	====	====	==== 
+ 12 de Mayo del 2026
+ - 	ELEMENTOS PENDIENTES
+- Listado de Caracteristícas Restantes
+   A) Prioritarias
+   1. Reparar Bienvenida en Ambos Roles   [lista falta 1]
+   2. Solucionar estilos tailwind en vwModeratition - profesor [en proceso...]
+   3. Limpiar el Sistema [listo]  
+
+   B) Opcionales
+     a) Instalar libreria materialDesign y aplicar plantilla a las vistas de Estadistica, Moderacion, Login y BienvenidaTeacher
+     b) Instalar libreria de archivos con extension docx
+     c) Ap. Solucion de version anterior, investigar muy bien el inicio de sesion para desarrolladores
+         y al menos iniciar sesión mediante la mensajería de Google.
+
+  C) Corregir vista: vwAdminMaterialStudent[Materias Individuales Alumno] checar bien estilos de tailwind  [listo]
+   c1) Revisar muy bien los estilos aplicados en Tailwind de vwModerateMaterials  [listo]
+
+====	====	====	====	====	====	====	====

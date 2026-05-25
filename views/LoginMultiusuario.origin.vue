@@ -2,8 +2,8 @@
 	<div class="login-container">
 		<div class="login-card">
 			<div class="login-header">
-				<h1>Portal Educativo</h1>
-				<h2>Facultad de Ingeniería - UAEMéx</h2>
+				<h1>Portal Web Educativo</h1>
+				<h2>Facultad de Ingeniería/FI - UAEMéx</h2>
 			</div>
 
 			<div v-if="showInitButton" class="init-section">
@@ -178,9 +178,9 @@
 	    	console.log('Bienvenido: ');
 	    	if(role === 'teacher'){ 		//{name: viewBienvenidaTeachers}
 	    		console.log('Condicion de rol ha sido aprobada');
-	    		router.push('/welcome-teachers');	//welcome-teachers
+	    		router.push('/vw-teacher-welcome');	//welcome-teachers
 	    	} else if(role === 'student' ){
-	    		router.push('/welcome-estudiantes'); //vw-bienvenida-students
+	    		router.push('/vw-student-welcome'); //vw-bienvenida-students
 	    	} else {
 	    		error.value = 'El Rol del Usuario no ha sido Identificado, o NO es válido';
 	    	}

@@ -58,7 +58,10 @@
 					<span>Subir Mat.</span>
 				</router-link>
 
-	           <!-- Administrar Materiales -->
+	           <!-- Administrar Materiales Habilitar (solucione desmontaje for immediate)
+	             Es un comportamiento conocido relacionado con el ciclo de desmontaje de Vue
+	              en esta vista especifíca, identificado durante pruebas. Esta documentado como
+	              mejora pendiente -->
 	         <router-link
 	            :to="{name:'viewMaterialIndividual'}"
 	            class="nav-link"

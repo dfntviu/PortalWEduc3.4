@@ -96,6 +96,7 @@
             const nombreAlumno =  studentProfile
                         ? `${studentProfile.nombre}  ${studentProfile.apellido}`.trim()
                         : '';
+                console.log
             // Preparar informacion para firestore
             const dataCollection = {
                 autorId: userId,
@@ -109,6 +110,7 @@
                 nombreAlumno,
                 // clasificacionMaterial: clasificacion ?? '',
             }
+            // console.log('nombreAlumno en Firestore:', dataCollection.nombreAlumno); ✅ - Objetivo Superado - ✅
                 //* validar la data completa
             console.log('Data a guardar:', dataCollection);
             // console.log('Data a guardar:', dataCollection);

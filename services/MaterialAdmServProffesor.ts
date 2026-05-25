@@ -95,7 +95,8 @@ export class DesplegarMaterialServiceR2 {
       console.log('Coleccion a mostrar', this.collectionRef);
       const snapshot = await getDocs(this.collectionRef);
       console.log('Obj Coleccion cargada', snapshot);
-      
+          /*Modificar cualquier o aniadir cualquier atributo nuevo, pues ahí a pesar de no
+          aplicar los cambios en las capas previas, el sistema seguira mostrando error */
       return snapshot.docs.map(doc => 
         this._transformFirebaseToMaterial(doc.id, doc.data())
       );
@@ -293,6 +294,7 @@ export class DesplegarMaterialServiceR2 {
       uploadedAt: firebaseData.fechaCreacion || Timestamp.now(),
       status: firebaseData.estado || 'pendiente',
       type: firebaseData.tipoArchivo || 'PDF',
+      nombreAlumno:  firebaseData.nombreAlumno,  //atributo de oro, lo unico que omiti
     };
   }
 

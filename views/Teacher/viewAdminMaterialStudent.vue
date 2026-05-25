@@ -362,14 +362,16 @@
                     class="w-4 h-4 flex-shrink-0" 
                     viewBox="0 0 20 20" 
                     fill="currentColor"
-                  >
+                  >     <!-- Cambio efectuado en la linea 372: En dado caso de que el algoritmo de 
+                    guardado con el campo nombreCompleto->nombreAlumno falle entonces sera mostrada
+                    la tercera opcion-->
                     <path 
                       fill-rule="evenodd" 
                       d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" 
                       clip-rule="evenodd" 
                     />
                   </svg>
-                  <span>{{ material.uploadedBy || 'Sin autor' }}</span>
+                  <span>{{  material.nombreAlumno || material.uploadedBy || 'Sin autor' }}</span>
                 </div>
                 
                 <!-- Date -->
@@ -754,7 +756,6 @@ const OPCIONES_FILTRO = [
 
 /** Rango válido de IDs de filtro para validación */
 const RANGO_FILTRO_VALIDO = { MIN: 1, MAX: 6 } as const;
-
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
 // ║                       PROPIEDADES COMPUTADAS                              ║

@@ -19,7 +19,7 @@
 
       // =============== GETTERS ===============
         const activeTheme = computed(()=>{
-           isPreviewMode.value ? previewTheme.value : currentTheme.value;
+           return isPreviewMode.value ? previewTheme.value : currentTheme.value;
         });
 
         const hasCustomTheme = computed(()=>{
@@ -298,4 +298,17 @@
                 }
         }
 
+        function $reset() {
+            currentTheme.value = null;
+            themePreferences.value = null;
+            isLoading.value = null;
+            error.value = null;
+            availablePalettes.value = [];
+            availableBackgrounds.value = false;
+            previewTheme.value = null;
+        }
+
+        return {
+            $reset,
+        }
    });

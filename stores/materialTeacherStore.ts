@@ -1,5 +1,7 @@
 import {defineStore} from 'pinia';
 import {DesplegarMaterialServiceR2} from  '@/services/MaterialAdmServProffesor';
+import {ProfileStudentService} from  '@/services/ProfileStudentService';
+import {MaterialStudentService} from  '@/services/materials/MaterialStudentService';
 import { Material } from '@/interfaces/Profilte.types.ts';
 
 
@@ -178,6 +180,28 @@ export const useMaterialTeachStore = defineStore('teacher_materials',{
 	      }
 		},
 
+
+				/*   **Mejora Futura: Metodo para obtener el nombre del student que subio el material
+				  	*** 20 de Mayo del 2025 ***
+					** se mostro infucional, se detuvo porque no encontro en  BaseProfileService de PStudent..
+				 async function enrichMaterialsWithAuthorName(materials: Material[]): Promise<Material[]> {
+				    return await Promise.all(
+				        materials.map(async (material) => {
+				            try {
+				                const profile = await ProfileStudentService.getStudentById(material.autorId);
+				                return {
+				                    ...material,
+				                    uploadedBy: profile?.nombre
+				                        ? `${profile.nombre} ${profile.apellido ?? ''}`.trim()
+				                        : material.autorId
+				                };
+				            } catch {
+				                return { ...material, uploadedBy: material.autorId };
+				            }
+				        })
+				    );
+				},*/
+
 	/**
      * Limpia todos los errores del historial
      */
@@ -295,5 +319,6 @@ export const useMaterialTeachStore = defineStore('teacher_materials',{
 					}, {} as Record<string, Material[]>);
 				},*/
 				/* ================= GETTERS ===========================*/
+				// Hace falta f(n) $reset para limp de reactivos+computados
 	}
  });

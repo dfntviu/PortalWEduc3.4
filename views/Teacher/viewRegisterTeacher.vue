@@ -190,7 +190,19 @@
                   :disabled="isSubmitting"
                 />
               </div>
-
+              <!-- *Foto de 'teacher' *  -->
+              <div class="form-group full-width">
+                 <label for="form-label">
+                    <span style="color: gray, font-size: 12px;">
+                      (opcional)
+                    </span>
+                  Foto del Perfil</label>
+                 <input type="file"
+                 accept="image/*"
+                 class="form-input"
+                 :disabled="isSubmitting"
+                @change="PhotoFileController">
+               </div>
               <!-- Rol -->
               <div class="form-group full-width">
                 <label for="role" class="form-label">
@@ -571,6 +583,14 @@ const isAuthenticated = computed(() => authStore3.isAuthenticated);
 
   const isBootstrapMode = ref(false);
   const bootrapError = ref('');
+  // nva -> Subir la Foto de perfil
+  const photoFile = ref<File | null>(null);
+
+  const PhotoFileController = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+
+    photoFile.value = input.files?.[0] ?? null
+  }
 
 // ══════════════════════════════════════════════════════
 // WATCHERS
@@ -660,8 +680,10 @@ const handleTraditionalSubmit = async (): Promise<void> => {
       passwd: formData.password,
       cuenta: formData.numCuenta,
       areaTrab: formData.area, //*
+      // Cammbios efectuados 21/05/2026
       role: ROLE_MAP[formData.role],
-      uid_teacher: uid_auth.value
+      uid_teacher: uid_auth.value,
+      photoFile: photoFile.value //?? null new, subida de Imagen
     });
 
     showNotification({
@@ -761,7 +783,11 @@ const handleProfileSubmit = async (): Promise<void> => {
       apellido: profileFormData.lname,
       correo: profileFormData.email,
       cuenta: profileFormData.numCuenta,
-      areaTr: profileFormData.area
+      areaTrab: profileFormData.area, 
+      //* Cambios, a partir de la foto *
+      role: ROLE_MAP[formData.role],
+      uid_teacher: uid_auth.value,
+      photoFile
     });
 
     showNotification({
@@ -834,6 +860,8 @@ onMounted(async () => {
   if (uid) {
     try {
       await profileStore.getStudentById(uid);
+      // Limpiando la memoria
+      // profieStore.$reset();
     } catch (error) {
       console.error('Error al cargar el perfil:', error);
     }

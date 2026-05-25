@@ -108,8 +108,8 @@ StudentProfileState, ServiceResponse} from '@/interfaces/tipos.estudiantes';
 					this.message = MESSAGES.REGISTRO_EXITOSO; //* 
 
 					 console.log('[StudentStore] El registro fue completado exitosamente');
-					 console.log('[StudentStore] Email Universitario', profile_student.data.email);
-					 console.log('[StudentStore] Número de cuenta:', profile_student.data.accounNumber);
+					 /*console.log('[StudentStore] Email Universitario', profile_student.data.email);
+					 console.log('[StudentStore] Número de cuenta:', profile_student.data.accounNumber);*/
 
 						return { //* * * 
 							success: true,  // * * *

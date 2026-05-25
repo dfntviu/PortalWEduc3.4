@@ -85,6 +85,7 @@
     corrigiendo con precision tecnica en tailwind.config.js y tsconfig.json
      Cambiar cualquier parametro sin conocer sus repercuciones podria afectarlo mas
      HASTA  garantizar su veracidad técnica. **/
+        // npm install -D tailwindcss@latest postcss@latest autoprefixer@latest [ready]
  </script>
 
  <style scoped>

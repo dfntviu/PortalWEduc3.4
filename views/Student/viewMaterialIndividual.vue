@@ -2,7 +2,7 @@
 	<main class="materials-catalog-view">
 		<header class="catalog-header">
 			<div class="header-content">
-				<h1 class="main-title">Mís Materiles...</h1>
+				<h1 class="main-title">Mís Materiales...</h1>
 				<p v-if="studentInfo" class="student-welcome">
 					Bienvenido, <strong>{{studentInfo.fullName}}</strong>
 					<span class="student-id"></span>
@@ -254,9 +254,9 @@
 			 <!--     MATERIAL VIEWER MODAL
 				Muestra el material  en un iframe con navegacion prev/next-->
 			 <!-- ════════════════════════════════════ -->
-		<Teleport to="body">
+		<Teleport to="body" :disabled="!isUnmounting">
 			<Transition>
-				<div v-if="showViewer"  class="modal-overlay" @click.self="handleCloseViewer"
+				<div v-if="isModalOpen"  class="modal-overlay" @click.self="materialStore.closeMaterialModal()"
 						role="dialog" arial-modal="true" aria-labelledby="viewer-title">
 					<article class="modal-viewer">
 						<header class="viewer-header">
@@ -268,8 +268,8 @@
 								✕</button>
 						</header>
 						<div class="viewer-content">
-							<iframe  v-if="selectedMaterial?.url"
-							:src="selectedMaterial.url" class="pdf-viewer" title="Visor PDF"></iframe>
+							<iframe  v-if="previewMaterial"
+							:src="previewMaterial" class="pdf-viewer" title="Visor PDF"></iframe>
 							<div  v-else class="viewer-placeholder">
 								<p>No fue posible, cargar el material.</p>
 							</div>
@@ -278,7 +278,7 @@
 						<footer class="viewer-actions">
 							<button @click="handleDownloadMaterial(selectedMaterial)" class="viewer-btn downlonad" 
 								type="button"> ⬇️ Descargar</button>
-							<button @click="handleCloseViewer" class="viewer-btn cancel" type="button">
+							<button @click="materialStore.closeMaterialModal()" class="viewer-btn cancel" type="button">
 								Cerrar
 							</button>
 						</footer>
@@ -291,18 +291,19 @@
 		<!--     NOTIFICATIONS	     -->
 		<!--════════════════════════════════════-->
 		<Teleport to="body" >
-			<TransitionGroup  tag="div" class="notificacions-container">
+			<TransitionGroup  tag="div" class="notificacions-container"	
+			  v-if="activeNotifications.length > 0">
 				<article
 					v-for="notification in activeNotifications"
 					:key="notification.id"
-					:class="['notification', `notification- ${notification.type}`]"
+					:class="['notification', `notification-${notification.type}`]"
 					:role="alert"
 					:aria-live="notification.type === 'error' ? 'assertive' : 'polite' "
 				>
 					<span class="notificacion-icon">{{notification.icon}} </span>
 					<p class="notificacion-message">{{notification.message}}</p>
 					<button class="notificacion-close"
-							@click="handleViewMaterial"
+							@click="handleCloseNotification(notification.id)"
 							type="button"
 							aria-label="Cerrar Notificación"
 					>
@@ -317,10 +318,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted,watchEffect } from 'vue'
+import { ref, computed, watch,onUnmounted,onBeforeUnmount } from 'vue'
 import { storeToRefs } from 'pinia';
-import { useMaterialStore } from '@/stores/materialStore'
 import { useAuthStore3 } from '@/stores/authStore3'
+import { useMaterialStore } from '@/stores/materialStore'
 import { useNotifications } from '@/composables/useNotifications'
 import { useDateFormatter } from '@/composables/useDateFormatter'
 import { useFileFormatter } from '@/composables/useFileFormatter'
@@ -348,9 +349,18 @@ type SortOption = 'recent' | 'oldest' | 'name-asc' | 'name-desc'
 // ══════════════════════
 //    COMPOSABLES
 // ══════════════════════
+// console.log('[setup] useMaterialStore →', useMaterialStore())
 const materialStore = useMaterialStore()
+// console.log('[setup] materialStore →', materialStore)
+// console.log('[setup] materialStore.$state →', materialStore.$state) 
 const authStore3     = useAuthStore3();
+	if(!materialStore){
+		console.log('[Mis materiales] Store: materialStore no disponible')
+	}
+
+// Recibir states de stores utilizados 
  const { uid_auth } = storeToRefs(authStore3);
+ const {isModalOpen, selectedMaterial, previewMaterial} = storeToRefs(materialStore);
 
 // FIX #10: una sola instancia, ambas funciones desestructuradas
 const { formatearFecha, formatearFechaRelativa } = useDateFormatter()
@@ -366,7 +376,7 @@ const searchQuery      = ref('')
 const sortBy           = ref<SortOption>('recent')
 const currentPage      = ref(1)
 const showViewer       = ref(false)
-const selectedMaterial = ref<Material | null>(null)
+// const selectedMaterial = ref<Material | null>(null)
 const isDownloading    = ref<string | null>(null)
 
 // ══════════════════════
@@ -403,7 +413,7 @@ const allMaterials = computed(() => materialStore.studentMaterials || [])
 const recentUploads = computed(() => {
   const now        = new Date()
   const cutOffTime = new Date(now.getTime() - RECENT_HOURS * 60 * 60 * 1000)
-  return allMaterials.value.filter(material =>
+  return (Array.isArray(allMaterials.value) ? allMaterials.value : []).filter(material =>
     new Date(material.fechaSubida) >= cutOffTime
   )
 })
@@ -412,8 +422,8 @@ const recentUploads = computed(() => {
 const hasRecentUploads = computed(() => recentUploads.value.length > 0)
 
 const filteredMaterials = computed(() => {
-  let materials = [...allMaterials.value]
-
+  let materials =  Array.isArray(allMaterials.value) ? [...allMaterials.value] : [];
+		// [...allMaterials.value]
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase()
     materials = materials.filter(m =>
@@ -460,13 +470,14 @@ const totalMaterials = computed(() => allMaterials.value.length)
 const recentMaterialsCount = computed(() => {
   const sevenDaysAgo = new Date()
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-  return allMaterials.value.filter(m =>
+  return (Array.isArray(allMaterials.value) ? allMaterials.value : []).filter(m =>
     new Date(m.fechaSubida) >= sevenDaysAgo
   ).length
+  	console.log('allMaterials.value:', allMaterials.value, typeof allMaterials.value)
 })
 
 const totalFileSizeFormatted = computed(() => {
-  const totalBytes = allMaterials.value.reduce((sum, m) => sum + (m.size || 0), 0)
+  const totalBytes = (Array.isArray(allMaterials.value) ? allMaterials.value : []).reduce((sum, m) => sum + (m.size || 0), 0)
   return formatFileSize(totalBytes)
 })
 
@@ -477,16 +488,15 @@ const hasFilters = computed(() =>
 // ══════════════════════
 //    WATCHERS
 // ══════════════════════
-watch(() => materialStore.error, (error) => {
+const stopErrorWatch = watch(() => materialStore.error, (error) => {
   if (error) {
-    // FIX #1: ahora showNotification existe
-    showNotification({ type: 'error', message: error })
+    showNotification({ type: 'error', message: error });
   }
 })
 
-watch(() => filteredMaterials.value.length, () => {
+const stopPaginationWatch = watch(() => filteredMaterials.value.length, () => {
   if (currentPage.value > totalPages.value) {
-    currentPage.value = 1
+    currentPage.value = 1;
   }
 })
 
@@ -494,11 +504,11 @@ watch(() => filteredMaterials.value.length, () => {
 //    HANDLERS
 // ══════════════════════
 const handleSearch = (): void => {
-  currentPage.value = 1
+  currentPage.value = 1;
 }
 
 const handleSortChange = (): void => {
-  currentPage.value = 1
+  currentPage.value = 1;
 }
 
 const handleClearFilters = (): void => {
@@ -519,10 +529,11 @@ const handleNextPage = (): void => {
     currentPage.value++
   }
 }
-
+	/*Muestra la vista previa de los materiales*/
 const handleViewMaterial = (material: Material): void => {
-  selectedMaterial.value = material
-  showViewer.value       = true
+	if (!material) return
+  materialStore.openMaterialModal(material);
+	 	console.log('[handleViewMaterial] material:', material);
 }
 
 const handleCloseViewer = (): void => {
@@ -563,30 +574,53 @@ const handleCloseNotification = (id: string): void => {
 const getStatusLabel = (status?: string): string =>
   STATUS_LABELS[status || 'pending'] || 'Desconocido'
 
+  // let stopWatcher: (() => void) | null = null;
 // ══════════════════════
 //    LIFECYCLE
 // ══════════════════════
-onMounted(async () => {
-		const unique_user = uid_auth.value;
-		console.log('[Auth] ',unique_user);
-
-  if (unique_user) {
-    // Auth ya resuelto — carga directa
-    await materialStore.fetchStudentMaterials(unique_user);
-    console.log('[Debug]',{
+const stopAuthWatch = watch(uid_auth, async (unique_user) => {
+		if (!unique_user)  return;
+			console.log('[Auth] ',unique_user);
+		// const unique_user = uid_auth.value;
+  	materialStore._isCancelled = false;
+    	await materialStore.fetchStudentMaterials(unique_user);
+}, {immediate: true} // Auth ya resuelto — carga directa
+    /*console.log('[Debug]',{
     	uid: unique_user,
     	materials: materialStore.studentMaterials,
     	perfil: materialStore.studentProfile,
     	error:materialStore.error
-    })
-    return
-  }
+    });*/
 
   // Auth aún no resuelto — esperar
-  watchEffect(async () => {
-  const unique_user = uid_auth.value
-  if (unique_user) await materialStore.fetchStudentMaterials(unique_user)
-})
+  	/*stopWatcher = watchEffect(async () => {
+   const unique_user = uid_auth.value
+    if (unique_user) await materialStore.fetchStudentMaterials(unique_user)
+	 })*/
+);
+   
+	
+  		// Parche para seguir correctamente la animacion transition de vue
+   const isUnmounting = ref(false);
+  onBeforeUnmount( ()=> {
+  	/*Detener la Ejecucion de todos los watchs*/
+  	stopErrorWatch() ;
+   stopPaginationWatch();
+     stopAuthWatch();
+     // Detener flujo de f(n)s disparadas y detener el modal
+  	  isUnmounting.value = true;
+  	  materialStore._isCancelled = true;
+  	  materialStore.closeMaterialModal();
+  	  // materialStore.studentMaterials = []
+  		/*nextTick(() => {
+  	 			materialStore.$reset();
+  		}
+		);*/
+  	   // regresar la directiva, reg. el met. comentado de vue
+  	  // if(stopWatcher) stopWatcher();
+  	 // alert('eliminando los residuos de las cuentas previas..');
+  });
+  
   /*const unwatch = watch(
     () => unique_user,
     async (newUid) => {
@@ -604,7 +638,7 @@ onMounted(async () => {
     return
   }
   await materialStore.fetchStudentMaterials(uid)*/
-});
+
 </script>
 
 <style scoped>

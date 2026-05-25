@@ -130,6 +130,7 @@
             mostrarNotificacion,
             notificacionMensaje,
             notificacionTipo,
+            activeNotifications,
             showNotification, //cmbio
             removeNotification, //cmbio
             // Prop computadas

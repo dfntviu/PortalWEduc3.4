@@ -18,6 +18,7 @@ import type {Material, Comentario, Moderation} from '@/interfaces/Profile.types.
       // Control de estado general
       loading: boolean;
       error: string;
+      moderationErrorMessage : string; // *nueva(que se va x no tener prop) *
       	// Estadisticas de moderacion
 	     stats:{
 	     	pendigsTotal: number;
@@ -47,8 +48,12 @@ import type {Material, Comentario, Moderation} from '@/interfaces/Profile.types.
 				approvedsTotal: 0,
 				rejectedsTotal: 0,
 			},
-		}),
 
+			dashboardCarrerBreakdown: {} as Record<string,number>,
+			  dashboardMaterialsPerStudent: {} as Record<string,number>,
+			  dashboardTotalStudents: 0,
+			
+		}),
   		// ==============================
   		// 		GETTERS 
   		// ==============================
@@ -341,6 +346,27 @@ import type {Material, Comentario, Moderation} from '@/interfaces/Profile.types.
 				}
 			},
 
+			// DATA PARA CARGAR RESUMEN ESTADISCO GENERAL DEL PORT. EDUCATIVO
+			  /*dashboardCarrerBreakdown: {} as Record<string,number>,
+			  dashboardMaterialsPerStudent: {} as Record<string,number>,
+			  dashboardTotalStudents: 0,*/
+			
+			/*Nvo Metodo: 22/Mayo/2026*/
+			async loadDashboardStats (){
+				this._startLoading();
+				// this.moderationErrorMessage  = 'Tipos de errores';
+				try{	
+					const stats = await ModerationService.getDashboardStats();
+						this.dashboardTotalStudents = stats.totalStudents;
+						this.dashboardCarrerBreakdown  = stats.carrerBreakdown;
+						this.dashboardMaterialsPerStudent = stats.materialsPerStudent;
+
+					this.loading = false;
+				}catch(err: any){
+					this.loading = false;  //isLoading
+				}
+			},
+
 			 // ============================
 			 // 	UTILIDADES INTERNAS
 			 // ============================
@@ -377,6 +403,11 @@ import type {Material, Comentario, Moderation} from '@/interfaces/Profile.types.
 				 * new function - 24 de Abril del 2026*/
 			clearCurrentMaterial(): void {
 				this.currentMaterial = null;
+			},
+			/*Centralizar el centro de carga de  loadDashBoard */
+			_startLoading(): void {
+				this.loading = true;
+				this.moderationErrorMessage = '';
 			},
 			/*|--Layer 2: 100% Accesible y Fluida --| */
 			async updateStatistics(): Promise<void> {

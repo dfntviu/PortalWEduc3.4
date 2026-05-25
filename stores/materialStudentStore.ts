@@ -448,6 +448,17 @@ export const useMaterialStudentStore = defineStore('materialStudent', () => {
     return await createMaterial(file, { ...materialData });
   }
 
+  // Limpieza de las variables reactivas y referenciadas del store, equivalente fflush
+    function $reset() {
+     tagsInput.value = '';
+     isEditMode.value = false;
+     editingMaterialId.value = null;
+     editFormData.value = {
+       titulo: '',
+       description: '',
+       tags:[],
+     }
+   }
   // ==============================
   // RETORNO DEL STORE
   // ==============================
@@ -459,6 +470,9 @@ export const useMaterialStudentStore = defineStore('materialStudent', () => {
     isEditMode,
     editingMaterialId,
     editFormData,
+    // --- Limpiar el Store ---
+    $reset, // f(n) limpieza
+
     // ---- COMPUTED HEREDADOS ----
     materials,
     loading,

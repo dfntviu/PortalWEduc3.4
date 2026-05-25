@@ -1,5 +1,5 @@
 <template>
-	<div class="min-h h-screen bg-gradient-to-br from-gray-50">
+	<div class="min-h-screen bg-gradient-to-br from-gray-50">
 		<div class="max-w-7xl">
 			<!-- Encab. con Estadistícas -->
 			<div class="bg-white">
@@ -48,7 +48,7 @@
 								</div>
 							</div>
 
-							<div class="bg-gradient-to-r from-yellow-100 to-yellow-100 rounded-xl p-4">
+							<div class="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl p-4">
 								<div class="flex items-center justify-between">
 									<div>
 										<p class="text-sm font-medium">Pendientes</p>
@@ -81,13 +81,13 @@
 					</div>
 
 					<!-- Busqueda y Filtros -->
-					<div class="bg-white dark:bg:gray-800 rounded-xl shadow-xl">
+					<div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl">
 						<div class="flex rounded-2xl shadow-xl">
 							<!-- Busqueda -->
 							<div class="flex-1">
 								<div class="relative">
 									<!-- <div class="flex flex-col md:flex-row gap-4"> -->
-											<button class="absolute rigth-3 top-1/2 text-gray-400">
+											<button class="absolute right-3 top-1/2 text-gray-400">
 											 ✕ </button>
 									<!-- </div> -->
 								</div>
@@ -95,14 +95,15 @@
 
 							 <span class="text-xl">🔄️</span>
 							<!-- Botón Actualizar -->
-							<button class="px-6 py-3 bg-gray-100 hover:bg-gray-100 dark:bg-gray-700">
+							<button class="px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700">
 							 Actualizar
 							 </button>
 						</div>
 					</div>
+			</div>
 
 					<!-- Tabs de Filtrado -->
-					<div class="bg-white rounde-xl shadow-xl p-6">
+					<div class="bg-white rounded-xl shadow-xl p-6">
 						<div class="flex flex-wrap gap-2">
 							<button v-for="tab in tabs" :key="tab.id"
 							 @click="activeTab = tab.id"
@@ -119,14 +120,121 @@
 							class="ml-2 px-2 py-0 5">{{tab.count}}</span>
 							</button>
 						</div>
-					</div>
+					</div> <!-- End_Bloque -->
 
 					<div class="space-y-4">
-						<div class="bg-white dark:bg-gray-800 rounded-2xl">
+						<div v-if="loading" class="bg-white dark:bg-gray-800 rounded-2xl">
 							<div class="inline-block w-16 h-16">
 								<p class="mt-4 text-gray-600 dark:text-gray-300">Cargando Materiales..</p>
 									<!-- Empty State -->
-								<div class="bg-white rounded-2xl shadow-xl p-12 text-center">
+								<!-- <div  v-if="loading && filteredMaterials.length === 0" class="bg-white rounded-2xl shadow-xl p-12 text-center">
+									<div class="text-8xl mb-4">📭</div>
+									<h3 class="text-2xl">{getEmptyMessage()}}</h3>
+									<p class="text-gray-600 dark:text-gray-400 mb-6"></p>
+									<button class="px-6 py-3 bg-indigo-600 text-white rounded-lg">
+									  <span class="text-xl">➕</span>
+									  Subir tu Primer Material
+									</button>
+								</div> -->
+
+								<!-- Materiales Grid  [modifique uid-> id]-->
+								<!-- <TransitionGroup  v-else name="material-list"  tag="div" class="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+									<div v-for="material in filteredMaterials" :key="material.uid ?? material.id" class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden" >
+										-- Badge de Estado --
+										<div class="relative">
+											<div class="absolute top-4 right-4 z-10">
+											  <span>{getStatusLabel(materials.status)}}</span>
+											</div>
+
+											<div class="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white">
+												<div class="text-6xl font-bold line-clamp mb-2"></div>
+												<h3 class="text-xl font-bold line-clamp">
+												 {materials.titulo}}
+												 </h3>
+												 <p class="text-indigo-100 text-sm line-clamp-2">
+													{materials.description ||  'Sin descripción'}} 
+												 </p>
+											</div>
+										</div>
+											-- Contenido del Material --
+										<div class="p-6">
+											 -- Tags --
+											<div v-if="materials.tags && materials.tags.length>0" class="flex flex-wrap gap-2 mb-2">
+												<span
+												  v-for="tag in material.tags.slice(0,3)"
+												  :key="tag"
+												 class="px-2 py-1 bg-indigo-100  dark:bg-indigo-900/30 text-indigo-700
+												 dark:text-indigo-300 rounded-md text-x font-medium">
+												  # {tag}}
+												</span>
+												<span v-if="materials.tags.length > 3"
+												 class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600
+												 dark:text-gray-400">
+													+{materials.tags.length - 3}}
+												</span>
+											</div>
+
+											-- Metadata --
+											 <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+												<div class="flex items-center gap-2">
+													 <span>📅</span>
+													 <span>{formateDate(materials.createdAt)}}</span>
+												</div>
+												 <div v-if="materials.views !== undefined" class="flex items-center gap-2">
+													  <span>👁️</span>
+														<span>{materials.views}}</span>
+												  </div>
+												  <div v-if="materials.downlonads !== undefined" class="flex items-center gap-2">
+													<span>⬇️</span>
+													<span>{material.downloads}}</span>
+												  </div>
+											   </div>   --no siempre bien--
+
+											 <-- Mensaje de Rechazo (En construcción) --
+											<div class="p-3 bg-red-50  border border-red-200 rounded-lg">
+												<p class="text-sm text-red-800 font-medium">
+													 Motivo del Rechazo:
+												</p>
+												<p class="text-sm text-red-700 dark:text-red-400"> 
+												  {materials.reactionReason}}
+												</p>
+											</div>
+
+											 -- Acciones --
+											<div class="flex gap-2">
+												<button
+												  @click="startEdit(material)"
+												>
+												  <div class="flex-1 px-4 py-3 bg-indigo-600 text-white rounded-lg">
+												    <span>✏️</span>
+												   </div> 
+												  Editar
+												 </button>
+												  <-- Ver el Estado --
+												 <button
+												  @click="viewStatus(material)"
+												  class="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-700 dark:hover:bg-gray-600"
+												 >
+													<span>ℹ️</span>
+													Estado
+												 </button>
+													<-- Elimar materiales(del usuario propio) --
+												 <button v-if="materials.autorId === currentUserId"
+													 @click="confirmDelete(materials)"
+												  class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg 
+												  font-medium transition-colors flex items-center justify-center">
+													<span v-if="!deleting">🚮</span>
+													{ deleting ? 'Eliminando...' :  'Eliminar' }}
+												 </button>	
+											</div> 
+											 
+										</div>
+									</div>
+								</TransitionGroup>-->
+							</div>
+						</div>
+
+						<div  v-else-if="!loading && filteredMaterials.length === 0" class="bg-white rounded-2xl shadow-xl p-12 text-center">
 									<div class="text-8xl mb-4">📭</div>
 									<h3 class="text-2xl">{{getEmptyMessage()}}</h3>
 									<p class="text-gray-600 dark:text-gray-400 mb-6"></p>
@@ -134,14 +242,20 @@
 									  <span class="text-xl">➕</span>
 									  Subir tu Primer Material
 									</button>
-								</div>
+						</div>
 
-								<!-- Materiales Grid  [modifique uid-> id]-->
-								<TransitionGroup name="material-list"  tag="div" class="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-									<div v-for="material in filteredMaterials" :key="material.id" class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden" >
+						<TransitionGroup  
+						  v-else 
+						   name="material-list"  
+						   tag="div" 
+						   class="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+									<div 
+									   v-for="material in filteredMaterials" 
+									     :key="material.uid ?? material.id" 
+									       class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden" >
 										<!-- Badge de Estado -->
 										<div class="relative">
-											<div class="absolute top-4 rigth-4 z-10">
+											<div class="absolute top-4 right-4 z-10">
 											  <span>{{getStatusLabel(materials.status)}}</span>
 											</div>
 
@@ -167,8 +281,8 @@
 												  # {{tag}}
 												</span>
 												<span v-if="materials.tags.length > 3"
-												 class="px-2 py-1 bg-gray-100:dark:bg-gray-700 text-gray-600
-												 dark: text-gray-400">
+												 class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600
+												 dark:text-gray-400">
 													+{{materials.tags.length - 3}}
 												</span>
 											</div>
@@ -190,7 +304,7 @@
 											   </div>   <!--no siempre bien-->
 
 											 <!-- Mensaje de Rechazo (En construcción) -->
-											<div class="p-3-bg-red-50 boder">
+											<div class="p-3 bg-red-50  border border-red-200 rounded-lg">
 												<p class="text-sm text-red-800 font-medium">
 													 Motivo del Rechazo:
 												</p>
@@ -230,8 +344,6 @@
 										</div>
 									</div>
 								</TransitionGroup>
-							</div>
-						</div>
 
 						<!-- Modal de Creacion -->
 						<Teleport to="body">
@@ -252,14 +364,14 @@
 												<!-- Título -->
 											<div>
 												 <!-- La Descripcion -->
-												<label class="block text-sm font-medium text-gray-700 dark:text-gray-30 mb-2">Titulo</label>
-												<input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus-border-transparent">
+												<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Titulo</label>
+												<input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
 											</div>
 													<div>
 														<label for="" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 															 Descripcion(*)
 														</label>
-														<textarea  v-model="createForm.description" rows="4" required   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-trnsparent">
+														<textarea  v-model="createForm.description" rows="4" required   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
 														</textarea>
 												  </div>
 
@@ -267,7 +379,7 @@
 												  <div>
 														 <label for="" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 													  Tags: Tg-1,Tg-2,Tg-3</label>
-														<input type="text" class="w-full px-4 py-3 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+														<input type="text" class="w-full px-4 py-3 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
 													</div>
 
 													<div>
@@ -284,7 +396,7 @@
 														<div class="flex items-center bg-gray-50 rounded-lg p-4">
 															<div class="flex items-center gap-3">
 																<span class="text-3xl">📄</span>
-																<div class="text-lef">
+																<div class="text-left">
 																	<p class="font-medium text-gray-900 dark:text-white">
 																		  {{createForm.file.name}}
 																	</p>
@@ -311,7 +423,7 @@
 
 						<Teleport to="body">
 							<Transition name="modal">
-								<div  v-if="showStatusModal && selectedMaterial" class="fixed inset-0 bg-black/50 backdrop-blur-sm items-center justify-center p-4 z-50">
+								<div  v-if="showStatusModal && selectedMaterial" class="fixed inset-0 bg-black-50 backdrop-blur-sm items-center justify-center p-4 z-50">
 									<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl">
 										<h3>Estado del Mat.</h3>
 										<span class="text-3xl">ℹ️</span>
@@ -357,7 +469,7 @@
 									</div>
 									<button 
 										 @click="showStatusModal = false"
-									  class="w-full mt-6 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rodunded-lg font-medium transition-colors">
+									  class="w-full mt-6 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors">
 										Cerrar
 									</button>
 								</div>
@@ -381,7 +493,7 @@
 											<div class="flex gap-3">
 												<button  @click="controllDelete"
 														:disabled="deleting"
-												 class="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 dark:gray-700 text-white rounded-lg font-medium
+												 class="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 dark:bg-gray-700 text-white rounded-lg font-medium
 													transition-colors disabled:opacity-50 flex items-center justify-center font-medium gap-2"
 												>
 												<span v-if="delentig">⏳</span>
@@ -395,7 +507,7 @@
 							</Transition>
 						</Teleport>
 					</div>
-			</div>
+			<!-- </div> -->
 		</div>
 	</div>
 </template>
@@ -725,7 +837,7 @@ roundex en lugar de rounded en la 122-->
  <style scoped> 
   .material-list-enter-active,
   .material-list-leave-active{
-	 transition: all 0.3s eaase;
+	 transition: all 0.3s ease;
   }
 
   .material-list-enter-from{
@@ -740,9 +852,9 @@ roundex en lugar de rounded en la 122-->
 
 
   /* Animación del Modal */
-  .material-enter-active,
+  .modal-enter-active,
   .modal-leave-active{
-	 transition: all 0.3s eaase; 
+	 transition: all 0.3s ease; 
   }
 
   .modal-enter-from,
@@ -756,7 +868,7 @@ roundex en lugar de rounded en la 122-->
   }
 
   /* Utilidad Abrazadera en linea */
-	.line-camp-2 {
+	.line-clamp-2 {
 			display: -web-kit-box;
 			-web-wit-line-camp: 2;
 			-web-wit-box-orient: vertical;

@@ -1,0 +1,7 @@
+/*En primer lugar se creará este archivo, que importartará los estilos generales*/
+/*Wooow esta fenomenal el preprocesator*/
+@import './styles/materialColors.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

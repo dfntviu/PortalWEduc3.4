@@ -1,5 +1,5 @@
 // stores/authStore.ts
-import { defineStore, storeToRefs} from 'pinia';
+import { defineStore, storeToRefs, getActivePinia} from 'pinia';
 // import { getActivePinia } from 'pinia';
 import { ref, computed } from 'vue';
 import {doc,getDoc} from 'firebase/firestore';
@@ -25,24 +25,24 @@ export const useAuthStore3 = defineStore('auth', () => {
   console.log('Haz llegado al primer alm. de Autenticacion: ', useAuthStore3);
   // =====================================================
   // ESTADO
-  // =====================================================
+  // =====================================================}
   
   // Estado de carga
-  const loading = ref<boolean>(false);
+const loading = ref<boolean>(false);
   const error = ref<string | null>(null);
   
   // Usuario de Firebase Auth
   const currentUser = ref<User | null>(null);
-  
+
   // Perfil del usuario (teacher o student)
   const userProfile = ref<ProfileTeacher | ProfileStudent | null>(null);
-  
+
   // Rol del usuario
   const userRole = ref<UserRole | null>(null);
   // Esta interfaz no esta guardando nada, por lo que nunca compara en LayoutNBr
   // Estado de autenticación
   const isAuthenticated = ref<boolean>(false);
-  
+
   // Flag para saber si se completó la inicialización
   const isInitialized = ref<boolean>(false);
     // 26/02/2026
@@ -51,16 +51,16 @@ export const useAuthStore3 = defineStore('auth', () => {
 
   // =====================================================
   // GETTERS
-  // =====================================================
+  // =====================================================}
   
   const userId = computed(() => currentUser.value?.uid || null);
-  
+
   const userEmail = computed(() => currentUser.value?.email || null);
-  
+
   const userName = computed(() => userProfile.value?.name || '');
-  
+
   const isTeacher = computed(() => userRole.value === 'teacher');
-  
+
   const isStudent = computed(() => userRole.value === 'student');
   const role = computed(() => userRole.value);
     // const email = computed(() =>userProfile.email);
@@ -82,7 +82,7 @@ export const useAuthStore3 = defineStore('auth', () => {
   });
   // uid de la sesion personal de Firebase del Usuario
   const uid_auth = computed((): string | null => currentUser.value?.uid ?? null);
-
+  // Tiene doble quitar uno
   async function initAuthListener(): void {
     onAuthStateChanged(auth, async (user) => {
       try {
@@ -124,7 +124,7 @@ export const useAuthStore3 = defineStore('auth', () => {
     });
   }
   /*F(n) de Test para obtener el uid del autor de firebase [solo usar para probar] ****/
-  async function getUid(): void{
+  async function getUid(): void {
     try{  //NUNCA inicia la f(n), modificarla o bien depurarla para factorizarla y ajustarla para los stores que se necesiten
       const autenticate = await authService.getCurrentUser();
       console.log('guarde el dato de auth..');
@@ -286,6 +286,10 @@ export const useAuthStore3 = defineStore('auth', () => {
       
       const exit = await authService.logout();
       console.log('Cierra de Sesión, CONFIRMADO...');
+
+      const pinia = getActivePinia();
+      pinia?._s.forEach(store => store.$reset?.());
+
        this.uid_auth = null;
       this.isAuthenticated = false;
       console.log('Estado limpiado - ES-AUTENTICADO: [', this.isAuthenticated,']');
@@ -353,16 +357,6 @@ export const useAuthStore3 = defineStore('auth', () => {
   // UTILIDADES
   // =====================================================
   
-  /**
-   * Resetea todo el estado del store
-   */
-  function resetState(): void {
-    currentUser.value = null;
-    userProfile.value = null;
-    userRole.value = null;
-    isAuthenticated.value = false;
-    error.value = null;
-  }
 
   /**
    * Limpia el error actual
@@ -373,6 +367,19 @@ export const useAuthStore3 = defineStore('auth', () => {
     // 26/02/2026
   function setRole(role: 'student' | 'teacher') {
     this.currentRole.value = role;
+  }
+
+  /**
+   * Resetea todo el estado del store
+   */
+  function $reset() {
+    loading.value = false;
+    error.value = null;
+    currentUser.value = null;
+    userProfile.value = null;
+    isAuthenticated.value = false;
+    isInitialized.value = false;
+    currentRole.value = '';
   }
 
   // console.log('Cbio Vbe Usuario Actual '. currentUser.value);
@@ -400,7 +407,6 @@ export const useAuthStore3 = defineStore('auth', () => {
     isStudent,
     role,
     // profile,
-
     // Acciones
     initAuthListener,
     checkSystemInitialization,
@@ -410,8 +416,10 @@ export const useAuthStore3 = defineStore('auth', () => {
     handleLogout,
     reloadProfile,
     clearError,
-    resetState,
-    getUid
+    getUid,
+    // -- Limpia todos los reacts & computados --
+    $reset 
+    // resetState, el anterior esta completo
   };
 });
 

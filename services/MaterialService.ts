@@ -19,9 +19,12 @@ interface Material {
   nombre_material: string
   fechaSubida: string
   size?: number
-  status?: 'approved' | 'pending' | 'rejected'
+  status?: 'approved' | 'pending' | 'rejected' | 'aprobado' | 'rechazado' | 'pendiente' // *ajustado*
   url?: string
   uid_alumno: string
+  nombreAlumno?: string   //new add Date: May 26th, 2026 
+  uploadedBy?: string  //new add Date: May 26th, 2026 
+  /*archivoURL?: string  // [no existe]*/
 }
   // El nombre era incorrecto: se tenia 'materials' en lugar del actual
 export class MaterialService {
@@ -56,12 +59,14 @@ export class MaterialService {
         //  LA paginacion esta debbugenadose, para solucionarse. y ajustar lo que haga falta
         materials.push({
           id_material: docSnap.id,
-          nombre_material: data.nombre_material || data.nombre || 'Sin nombre',
+          nombre_material: data.titulo ||  data.nombre_material || data.nombre || 'Sin nombre', //*ajustado*
           fechaSubida: data.fechaCreacion?.toDate() || data.fecha_subida || new Date().toISOString(),
           size: data.size || data.tamano || 0,
           status: data.status || data.estado || 'pending',
-          url: data.url || data.downloadURL || '',
-          uid_alumno: data.autorId || uid
+          url: data.archivoURL || data.url || data.downloadURL || '', //*ajustado*
+          uid_alumno: data.autorId || uid,
+          nombreAlumno: data.nombreAlumno || '', //unico detalle mostrar en [admiMaterialStudent]
+          uploadedBy: data.nombreAlumno || '' //fecha en la misma que la 67 (<> objetivo[contrato])
         }) 
       }
 //uid_alumno: lineas: 41,60 ❌
@@ -191,5 +196,27 @@ export class MaterialService {
       console.error('[MaterialService] Error al descargar material:', error)
       throw new Error(`No se pudo descargar el material: ${error.message}`)
     }
+  } 
+
+       // Cargar los materiales propios del rol: 'student' estudiante, con sesion activa [23/5/26]
+    static async fetchStudentMaterials(userId: string): Promise<Material[]>{
+      const q = query(
+        collection(db, this.COLLECTION_MATERIALS),
+          where('autorId', '==', userId),
+          where('deleted', '==', false),
+          where('createdAt', '==', 'desc')
+        );
+
+        const snapshot = await getDocs(q);
+        
+        return snapshot.docs.map( doc => ({
+            id: doc.id,
+             ...doc.data()
+        })) as Material[]
+    }
+      // Control del recurso: valida que el material tiene una URL previa la abrir el modal [23/5/26]
+    static resolvePreviewUrl(material: Material): string | null {
+      console.log('Material completo :-> ',JSON.stringify(material) );
+      return material.archivoURL ?? material.url  ?? null;
+    }
   }
-}

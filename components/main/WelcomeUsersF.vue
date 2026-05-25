@@ -42,7 +42,7 @@
   		<ReporteSummaryModal
   		  :is-open="showReport"
   		  :role="profile?.role || 'alumno'"
-  		  :user-id="userId"
+  		  :user-id="uid_auth"
   		  @close="showReport = false"
   		  @minimize="handleMinimize"
   		/>
@@ -52,21 +52,23 @@
 </template>
 
 <script setup lang="ts">
-	import { ref } from 'vue';
+	import { ref, onUnmounted, onBeforeUnmount, watch} from 'vue';
 	import {storeToRefs} from 'pinia'; 
 	import {useAuthStore3}  from '@/stores/authStore3.ts'
 	import {useProfileStore } from '@/stores/profileStore.ts'
-	import ReporteSummaryModal from '@/components/ReporteSummaryModal.vue';
+	import {useMaterialStore} from '@/stores/materialStore.ts'
+ 	import ReporteSummaryModal from '@/components/ReporteSummaryModal.vue';
 
 	// ═════════════════════════════════════════
 	// 		STORE
 	// ═════════════════════════════════════════
 	 const authStore = useAuthStore3();
 	 const profileStore = useProfileStore();
+	 const materialeStore = useMaterialStore();
 
-	  const { user: userId } = storeToRefs(authStore);  //*
-	  const {profile} = storeToRefs(profileStore)
-
+	  const { uid_auth } = storeToRefs(authStore);  //*
+	  const {profile} = storeToRefs(profileStore)  
+	 // I belive, solution for error desmontaje de vwMatInd but not. I being able to on Profile(not taken)
 	// ═════════════════════════════════════════
 	// 		  STATE
 	// ═════════════════════════════════════════
@@ -84,7 +86,22 @@
 		console.log('El modal esta minimizado:', isMinimized);
 
 	}
+		// Metodo debbug utilizado, para encontrar el punto de corte. Donde se rompe la ejecucion
+	onUnmounted(() => {
+		console.log('[DESMONTADO]', 'Bienvenidos Usuarios Finales [Hijo de Bienvenida ALUMNOS');
+	});
 
+	watch(uid_auth ,(value) =>{
+		if (uid_auth) {
+			materialeStore.fetchStudentProfile(uid_auth)
+			materialeStore.fetchStudentMaterials(uid_auth)
+		}
+	})
+	onBeforeUnmount(async() => {
+		  //linea de prueba
+		// await materialeStore.fetchStudentProfile(userId.value);
+		materialeStore.cancelLoad();
+	})
 </script>
  <style scoped>
  	  /* ════════════════════════════════*/

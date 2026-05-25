@@ -32,8 +32,8 @@
              uid,
              [uid_role_key]: uid,
              role,
-             nombre: data.nombre ?? '',
-             apellido: data.apellido ?? '',
+             nombre: data.nombre ?? data.name  ?? '',  // Normalizacion roles
+             apellido: data.apellido ?? data.lname ?? '', // Normalizacion roles
              email: data.email ?? '',
            }
 
@@ -50,12 +50,19 @@
                    typeDoc: data.typeDocument ?? '', //*
                    passwd: data.password,
                 }
+                // -- Opcion/Rama de teacher --
                 :{
                   // No guarda Numero de Cuenta y apellido del prof
                    ...baseData,
                    uid_teacher:  uid,
-                   // lname: data.lname ?? '',
                    numCuenta: data.numCuenta ?? '',
+                   // Modificaciones para la foto y la Bienvenida
+                   area: data.area ?? '',
+                   passwd: data.passwd ?? '', // -a considerar, debe perm. oculta-
+                   photoURL: data.photoURL ?? 0,  //debe inicializarse en 0 [en el ultimo nivel, es lo pirimero q considera]
+                   updatedAt: data.updateAt ?? new Date(),
+                   createAt: data.createAt ?? new Date(),
+                      // lname: data.lname ?? '',
                  };
 
                  const docReference = doc(db, collectionName, uid);

@@ -289,7 +289,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted }    from 'vue';
+import { ref, computed, watch, onMounted}    from 'vue';
 import { storeToRefs } from 'pinia';
 import { useMaterialStudentStore }            from '@/stores/materialStudentStore';
 import {useMatBaseStore}                      from '@/stores/materialBaseStore';
@@ -646,7 +646,7 @@ function getStatusText(status: string): string {
   return statusMap[status] ?? status;
 }
 </script>
-<style>
+<style scoped>
     @import '@/assets/styles/materialColors.css';
 	/* ============================================ */
   /* CONTENEDOR PRINCIPAL                        */

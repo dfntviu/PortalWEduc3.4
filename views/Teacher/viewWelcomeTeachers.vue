@@ -7,7 +7,7 @@
 		 <!-- 		Componente de Bienvenida		   -->
 		 <!-- ________________________________________ -->
 		<Transition name="fade-slide">
-			<WelcomeUserF 
+			<TeacherDataStats 
 			 v-if="isAuthenticated && isTeacher"
 			  role="teacher"
 			/>
@@ -15,8 +15,8 @@
 			<div  v-else-if="isLoading" class="flex items-center justify-center min-h-screen">
 				<div class="text-center">
 					<div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4">
-						<p class="text-gray-600 dark:text-gray-400">Cargando perfil..</p>
 					</div>
+					<p class="text-gray-600 dark:text-gray-400">Cargando perfil..</p>
 				</div>
 			</div>
 					<!-- estado de errror -->
@@ -37,26 +37,27 @@
 	import {storeToRefs } from 'pinia'
 	import  {useAuthStore3} from '@/stores/authStore3.ts';
 	import {useProfileStore} from '@/stores/profileStore';
-	import WelcomeUsersF from '@/components/main/WelcomeUsersF.vue';
-
+	import TeacherDataStats from '@/components/main/TeacherDataStats.vue';
+	// import WelcomeUsersF from '@/components/main/WelcomeUsersF.vue';
+		/*En Prueba de no funcionar, habilitar la Bienvenida tradicional to apply students*/
    	// ══════════════════════════════════
     // 		STORE
     // ══════════════════════════════════
-    const authStore = useAuthStore3();
-    const profileStr3 = useProfileStore();
+    const authStore3 = useAuthStore3(); //*
+    const profileStoreR2 = useProfileStore();
 
-    const {isAuthenticated, userProfile} = storeToRefs(useAuthStore3);
-    const {profile} = storeToRefs(profileStr3);
+    const {isAuthenticated, userProfile} = storeToRefs(authStore3);
+    const {profile} = storeToRefs(profileStoreR2);
 
     // ═════════════════════════════════════
     //		  COMPUTADO
     // ═════════════════════════════════════
     const isLoading = computed(()=> {
-    	isAuthenticated && isProfileTeacher;
+    	!isAuthenticated.value && !profile.value; //*
     });
 
     const isTeacher = computed( () => {
-    	return isProfileTeacher.value?.role === 'profesor';
+    	return 	profile.value?.role === 'teacher'; //*
     });
 
     //

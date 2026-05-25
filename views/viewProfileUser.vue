@@ -1,151 +1,238 @@
 <template>
   <div class="profile-view min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Header -->
-    <div class="bg-white dark:bg-gray-800 shadow">
+    <header class="bg-white dark:bg-gray-800 shadow-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div class="flex items-center justify-between">
+        <div
+          class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
           <div>
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
               Mi Perfil
             </h1>
+
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Gestiona tu información personal y configuración
             </p>
           </div>
-          
+
           <button
             v-if="!isEditing"
             @click="startEditing"
-            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+            type="button"
+            class="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
           >
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            <svg
+              class="mr-2 h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
             </svg>
+
             Editar Perfil
           </button>
         </div>
       </div>
-    </div>
+    </header>
 
-    <!--Contenido Principal-->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Loading State -->
-      <div v-if="loading" class="flex justify-center items-center h-64">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    <!-- Contenido Principal -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Loading -->
+      <div
+        v-if="loading"
+        class="flex items-center justify-center h-64"
+      >
+        <div
+          class="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"
+        />
       </div>
 
-      <!--Error State-->
-      <div v-else-if="error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-        <div class="flex">
-          <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+      <!-- Error -->
+      <div
+        v-else-if="error"
+        class="rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+      >
+        <div class="flex items-start">
+          <svg
+            class="h-5 w-5 text-red-400"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 
+              1.414L8.586 10l-1.293 1.293a1 1 0 
+              101.414 1.414L10 11.414l1.293 
+              1.293a1 1 0 001.414-1.414L11.414 
+              10l1.293-1.293a1 1 0 
+              00-1.414-1.414L10 8.586 8.707 7.293z"
+            />
           </svg>
+
           <div class="ml-3">
-            <p class="text-sm text-red-800 dark:text-red-200">{{ error }}</p>
+            <p class="text-sm text-red-800 dark:text-red-200">
+              {{ error }}
+            </p>
           </div>
         </div>
       </div>
 
-      <!--Contenido del Perfil-->
-      <div v-else-if="profile" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Columna Izquierda: Foto y Acciones Rápidas -->
-        <div class="lg:col-span-1 space-y-6">
-          <!-- Tarjeta de Foto de Perfil -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+      <!-- Perfil -->
+      <div
+        v-else-if="profile"
+        class="grid grid-cols-1 gap-6 xl:grid-cols-4"
+      >
+        <!-- Sidebar -->
+        <aside class="space-y-6 xl:col-span-1">
+          <!-- Card Foto -> [Carga del Perfil segun corresp el rol] -->
+          <section
+            class="rounded-2xl bg-white shadow-lg dark:bg-gray-800"
+          >
             <div class="p-6">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              <h3
+                class="mb-6 text-lg font-semibold text-gray-900 dark:text-white"
+              >
                 Foto de Perfil
               </h3>
-              
-              <!-- Preview de Foto -->
+
               <div class="flex flex-col items-center">
+                <!-- Avatar -->
                 <div class="relative">
-                  <div class="w-40 h-40 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                  <div
+                    class="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700 sm:h-40 sm:w-40"
+                  >
                     <img
                       v-if="photoPreview || profile.photoURL"
                       :src="photoPreview || profile.photoURL"
                       :alt="`${profile.nombre} ${profile.apellidos}`"
-                      class="w-full h-full object-cover"
+                      class="h-full w-full object-cover"
                     />
-                    <div v-else class="text-center">
-                      <svg class="w-20 h-20 text-gray-400 dark:text-gray-500 mx-auto" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+
+                    <div
+                      v-else
+                      class="text-center"
+                    >
+                      <svg
+                        class="mx-auto h-20 w-20 text-gray-400 dark:text-gray-500"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M10 9a3 3 0 100-6 3 3 0 
+                          000 6zm-7 9a7 7 0 1114 
+                          0H3z"
+                        />
                       </svg>
-                      <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Sin foto</p>
+
+                      <p
+                        class="mt-2 text-sm text-gray-500 dark:text-gray-400"
+                      >
+                        Sin foto
+                      </p>
                     </div>
                   </div>
-                  
-                  <!-- Badge de rol -->
-                  <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
+
+                  <!-- Badge -->
+                  <div
+                    class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2"
+                  >
                     <span :class="roleBadgeClass">
                       {{ roleLabel }}
                     </span>
                   </div>
                 </div>
 
-                <!-- Nombre del Usuario -->
-                <div class="mt-6 text-center">
-                  <h4 class="text-xl font-bold text-gray-900 dark:text-white">
+                <!-- Usuario -->
+                <div class="mt-8 text-center">
+                  <h4
+                    class="text-xl font-bold text-gray-900 dark:text-white"
+                  >
                     {{ profile.nombre }} {{ profile.apellidos }}
                   </h4>
+
                   <p class="text-sm text-gray-500 dark:text-gray-400">
                     {{ profile.email }}
                   </p>
                 </div>
 
-                <!-- Controles de Foto (Solo en modo edición) -->
-                <div v-if="isEditing" class="mt-6 w-full space-y-4">
-                  <!-- Toggle para habilitar/deshabilitar foto -->
-                  <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <!-- Upload -->
+                <div
+                  v-if="isEditing"
+                  class="mt-6 w-full space-y-4"
+                >
+                  <!-- Toggle -->
+                  <div
+                    class="flex items-center justify-between rounded-xl bg-gray-50 p-3 dark:bg-gray-700/50"
+                  >
+                    <label
+                      class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                       Usar foto de perfil
                     </label>
+
                     <button
                       type="button"
                       @click="togglePhotoUpload"
                       :class="[
-                        'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-                        photoOptions.uploadPhoto ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'
+                        'relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800',
+                        photoOptions.uploadPhoto
+                          ? 'bg-blue-600'
+                          : 'bg-gray-300 dark:bg-gray-600'
                       ]"
                     >
                       <span
                         :class="[
-                          'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
-                          photoOptions.uploadPhoto ? 'translate-x-5' : 'translate-x-0'
+                          'inline-block h-5 w-5 transform rounded-full bg-white transition duration-200 ease-in-out',
+                          photoOptions.uploadPhoto
+                            ? 'translate-x-5'
+                            : 'translate-x-0'
                         ]"
                       />
                     </button>
                   </div>
 
-                  <!-- Input de archivo (Solo si está habilitado) -->
-                  <div v-if="photoOptions.uploadPhoto" class="space-y-2">
-                    <label class="block">
-                      <span class="sr-only">Elegir foto</span>
-                      <input
-                        ref="fileInput"
-                        type="file"
-                        accept="image/jpeg,image/png,image/jpg,image/webp"
-                        @change="handleFileSelect"
-                        class="block w-full text-sm text-gray-500 dark:text-gray-400
-                          file:mr-4 file:py-2 file:px-4
-                          file:rounded-md file:border-0
-                          file:text-sm file:font-semibold
-                          file:bg-blue-50 file:text-blue-700
-                          dark:file:bg-blue-900/50 dark:file:text-blue-300
-                          hover:file:bg-blue-100 dark:hover:file:bg-blue-900
-                          file:cursor-pointer file:transition-colors"
-                      />
-                    </label>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                  <!-- File -->
+                  <div
+                    v-if="photoOptions.uploadPhoto"
+                    class="space-y-2"
+                  >
+                    <input
+                      ref="fileInput"
+                      type="file"
+                      accept="image/jpeg,image/png,image/jpg,image/webp"
+                      @change="handleFileSelect"
+                      class="block w-full text-sm text-gray-500 dark:text-gray-400
+                      file:mr-4 file:rounded-lg file:border-0
+                      file:bg-blue-50 file:px-4 file:py-2
+                      file:text-sm file:font-semibold
+                      file:text-blue-700
+                      hover:file:bg-blue-100
+                      dark:file:bg-blue-900/50
+                      dark:file:text-blue-300
+                      dark:hover:file:bg-blue-900"
+                    />
+
+                    <p
+                      class="text-xs text-gray-500 dark:text-gray-400"
+                    >
                       JPG, PNG o WEBP. Máximo 2MB.
                     </p>
-                    
-                    <!-- Botón para eliminar foto -->
+
                     <button
                       v-if="photoPreview || profile.photoURL"
-                      @click="removePhoto"
                       type="button"
-                      class="w-full px-3 py-2 text-sm font-medium text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-md hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                      @click="removePhoto"
+                      class="w-full rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
                     >
                       Eliminar foto
                     </button>
@@ -153,188 +240,177 @@
                 </div>
               </div>
             </div>
-          </div>
+          </section> <!--end_od presentation [Card Foto] -->
 
-          <!-- Tarjeta de Estadísticas Rápidas -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          <!-- Info rápida -->
+          <section
+            class="rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800"
+          >
+            <h3
+              class="mb-4 text-lg font-semibold text-gray-900 dark:text-white"
+            >
               Información Rápida
             </h3>
-            <div class="space-y-3">
+
+            <div class="space-y-4">
               <div class="flex items-center justify-between text-sm">
-                <span class="text-gray-600 dark:text-gray-400">Estado</span>
-                <span :class="profile.activo !== false ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+                <span class="text-gray-600 dark:text-gray-400">
+                  Estado
+                </span>
+
+                <span
+                  :class="
+                    profile.activo !== false
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-red-600 dark:text-red-400'
+                  "
+                >
                   {{ profile.activo !== false ? 'Activo' : 'Inactivo' }}
                 </span>
               </div>
+
               <div class="flex items-center justify-between text-sm">
-                <span class="text-gray-600 dark:text-gray-400">Miembro desde</span>
+                <span class="text-gray-600 dark:text-gray-400">
+                  Miembro desde
+                </span>
+
                 <span class="text-gray-900 dark:text-white">
                   {{ formatDate(profile.createdAt) }}
                 </span>
               </div>
-              <div v-if="profile.updatedAt" class="flex items-center justify-between text-sm">
-                <span class="text-gray-600 dark:text-gray-400">Última actualización</span>
+
+              <div
+                v-if="profile.updatedAt"
+                class="flex items-center justify-between text-sm"
+              >
+                <span class="text-gray-600 dark:text-gray-400">
+                  Última actualización
+                </span>
+
                 <span class="text-gray-900 dark:text-white">
                   {{ formatDate(profile.updatedAt) }}
                 </span>
               </div>
             </div>
-          </div>
-        </div>
+          </section>
+        </aside>
 
-        <!-- Columna Derecha: Formulario de Datos -->
-        <div class="lg:col-span-2">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md">
-            <div class="p-6">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+        <!-- Formulario -->
+        <section class="xl:col-span-3">
+          <div
+            class="rounded-2xl bg-white shadow-lg dark:bg-gray-800"
+          >
+            <div class="max-w-4xl p-6">
+              <h3
+                class="mb-6 text-lg font-semibold text-gray-900 dark:text-white"
+              >
                 Información Personal
               </h3>
 
-              <form @submit.prevent="saveProfile" class="space-y-6">
-                <!-- Información Básica -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form
+                @submit.prevent="saveProfile"
+                class="space-y-8"
+              >
+                <!-- Datos -->
+                <div
+                  class="grid grid-cols-1 gap-6 md:grid-cols-2"
+                >
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Nombre(s) <span class="text-red-500">*</span>
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      Nombre(s)
+                      <span class="text-red-500">*</span>
                     </label>
+
                     <input
                       v-model="formData.nombre"
                       type="text"
-                      :disabled="!isEditing"
                       required
-                      class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
-                      placeholder="Ingresa tu nombre"
+                      :disabled="!isEditing"
+                      class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 shadow-sm transition-colors focus:border-blue-500 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
                     />
                   </div>
 
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Apellidos <span class="text-red-500">*</span>
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      Apellidos
+                      <span class="text-red-500">*</span>
                     </label>
+
                     <input
                       v-model="formData.apellidos"
                       type="text"
-                      :disabled="!isEditing"
                       required
-                      class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
-                      placeholder="Ingresa tus apellidos"
+                      :disabled="!isEditing"
+                      class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 shadow-sm transition-colors focus:border-blue-500 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Correo Electrónico <span class="text-red-500">*</span>
-                  </label>
-                  <input
-                    v-model="formData.email"
-                    type="email"
-                    disabled
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                  />
-                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    El correo no puede ser modificado
-                  </p>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Teléfono
-                  </label>
-                  <input
-                    v-model="formData.telefono"
-                    type="tel"
-                    :disabled="!isEditing"
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
-                    placeholder="Ej: +52 123 456 7890"
-                  />
-                </div>
-
-                <!-- Información Adicional para Profesores -->
-                <div v-if="profile.role === 'teacher'" class="space-y-6">
-                  <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-                    <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-4">
-                      Información Académica
-                    </h4>
-                    
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Materias que imparte
-                      </label>
-                      <div class="flex gap-2">
-                        <input
-                          v-model="newMateria"
-                          type="text"
-                          :disabled="!isEditing"
-                          @keyup.enter="addMaterial"
-                          class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
-                          placeholder="Escribe una materia y presiona Enter"
-                        />
-                        <button
-                          v-if="isEditing"
-                          type="button"
-                          @click="addMaterial"
-                          class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                        >
-                          Agregar
-                        </button>
-                      </div>
-                      
-                      <!-- Lista de Materias -->
-                      <div v-if="formData.materials && formData.materials.length > 0" class="mt-3 flex flex-wrap gap-2">
-                        <span
-                          v-for="(materia, index) in formData.materials"
-                          :key="index"
-                          class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300"
-                        >
-                          {{ materia }}
-                          <button
-                            v-if="isEditing"
-                            type="button"
-                            @click="removeMaterial(index)"
-                            class="ml-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
-                          >
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                          </button>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Botones de Acción -->
-                <div v-if="isEditing" class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <!-- Acciones -->
+                <div
+                  v-if="isEditing"
+                  class="flex flex-col-reverse gap-4 border-t border-gray-200 pt-6 dark:border-gray-700 sm:flex-row sm:justify-end"
+                >
                   <button
                     type="button"
                     @click="isCancelEditing"
-                    class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                    class="rounded-xl border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:focus:ring-offset-gray-800"
                   >
                     Cancelar
                   </button>
+
                   <button
                     type="submit"
                     :disabled="saving"
-                    class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    class="rounded-xl bg-blue-600 px-6 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-gray-800"
                   >
-                    <span v-if="saving" class="flex items-center">
-                      <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/> <!--habia error sin autocierre -->
+                    <span
+                      v-if="saving"
+                      class="flex items-center"
+                    >
+                      <svg
+                        class="-ml-1 mr-2 h-4 w-4 animate-spin text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          class="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          stroke-width="4"
+                        />
+
+                        <path
+                          class="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 
+                          0 0 5.373 0 12h4zm2 
+                          5.291A7.962 7.962 0 
+                          014 12H0c0 3.042 
+                          1.135 5.824 3 7.938l3-2.647z"
+                        />
                       </svg>
+
                       Guardando...
                     </span>
-                    <span v-else>Guardar Cambios</span>
+
+                    <span v-else>
+                      Guardar Cambios
+                    </span>
                   </button>
                 </div>
               </form>
             </div>
           </div>
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   </div>
 </template>
 
@@ -388,32 +464,42 @@
  	  	try{
 
  	  		// const uid = authStore3.currentUser?.uid;
- 	  		const role = authStore3.currentUser?.role;
 
         const {uid_auth, currentUser} = storeToRefs(authStore3);
           console.log('Usuarion con Id  -->',uid_auth.value);
+ 	  		const role = authStore3.currentUser?.role;
 
 
- 	  		if (!uid_auth) {
+ 	  		if (!uid_auth.value) {
  	  			throw new Error('Usuario no atutenticado');
  	  		}
 
  	  		if (role === 'student') {
- 	  			profileStore.getStudentById(uid_auth);
+            // error # falto pag sincronia
+ 	  			await profileStore.getStudentById(uid_auth.value);  
  	  		}else if(role === 'teacher'){
- 	  			profileStore.getTeacherById(uid_auth);
+ 	  			await profileStore.getTeacherById(uid_auth.value);
  	  		}
-
+        // Mapero del perfil de cada rol, segun corresponda sus atributos
  	  		if (profile.value) {
-				formData.value = {
-					 nombre: profile.value.nombre,
-                apellidos: profile.value.apellidos,
-                email: profile.value.email,
-                materias: profile.value.materias || []
-				   };
- 	  		}
- 	  			// Configurar el edo de la foto
- 	  		photoOptions.value.uploadPhoto = !!profile.value.photoURL;
+            if (role === 'student'){
+              formData.value = {
+                 nombre: profile.value.nombre,
+                 apellidos: profile.value.apellidos,
+                 email: profile.value.email,
+                 materias: profile.value.materias || []
+              };
+           }
+       } else if (role === 'teacher'){
+ 	  		    formData.value = {
+                 nombre: profile.value.nombre,
+                 apellidos: profile.value.lname, // identico a sus service, profile & compStudetProfile
+                 email: profile.value.email,
+                 materias: []
+            };
+ 	  			 // Configurar el edo de la foto
+ 	  		  photoOptions.value.uploadPhoto = !!profile.value.photoURL;
+        }
  	  	}catch(err){
  	  		console.error('Error al cargar el perfil:', err);
  	  	}

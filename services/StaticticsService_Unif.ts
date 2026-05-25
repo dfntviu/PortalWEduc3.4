@@ -96,8 +96,9 @@
 						approvedMaterials: approvedSnap.size,
 						rejectedMaterials: rejectedSnap.size,  
 						pendingReview:     pendingSnap.size, 
-						inReview:          inReviewSnap.size,
-						rejectedCommentsCount: rejectedCommentsCount,
+						inReview:          pendingSnap.size,
+						rejectedCommentsCount: rejectedSnap.docs.filter(
+								doc =>  doc.data().razonRechazo).length,
 					};  /*value*/
 					 	/*return {
 					 		totalMaterials:     allSnap.alumnoId,
