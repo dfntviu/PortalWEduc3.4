@@ -1,8 +1,0 @@
-===#===#===# ===#===#===# ===#===#===# ===#===#===# ===#===#===# ===#===#===# ===#===#===#
-				COMPACATACION ABS. DE BUNDLE
-===#===#===# ===#===#===# ===#===#===# ===#===#===# ===#===#===# ===#===#===# ===#===#===#
-			Los scripts del Sist. Nervioso Central fueron desplazados al directorio de orígen
-			para comunicarse efectivamente con el script de credencializacion oficial de Firebase
-			por obvias razones, los valores debieron modificarse por defecto para comunicar todas las
-			dependencias y sincronizar el  acceso a Firebase, mediante la sncronizacion de credenciales
-			reales.

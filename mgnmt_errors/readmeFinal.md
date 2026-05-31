@@ -6,7 +6,7 @@
 
 ## Descripción
 
-Sistema web educativo de gestión y moderación de materiales académicos desarrollado como proyecto de tesis bajo la modalidad *Reporte de Aplicación de Conocimientos*. Permite a estudiantes subir materiales educativos en formato PDF y a profesores moderarlos mediante un flujo de aprobación o rechazo con retroalimentación.
+Sistema web educativo como gestor y moderador de materiales académicos desarrollado como proyecto de Titulación bajo la modalidad *Reporte de Aplicación de Conocimientos*. Permite a estudiantes subir materiales educativos en formato PDF y a profesores moderarlos mediante un flujo de aprobación o rechazo con retroalimentación.
 
 ---
 

@@ -1,3 +1,4 @@
+/*02) Este archivo de guardianes es la  prueba legacy. Por lo que es infuncional*/
 import { PermissionsService } from '@/router/config/PersmissionService.ts';
 import {RoleFirstUsingService} from '@/services/CloseBoostrap/FirstUsingClSys.ts'
 import { useAuthStore3 } from '@/stores/authStore3.ts';

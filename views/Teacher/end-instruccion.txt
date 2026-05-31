@@ -1,5 +1,0 @@
-I am travel to go of vw before Fourth
-
-   Errores:
-   1. viewAdminMaterialStudent:10:28:06 p.m. [vite] (client) Pre-transform error: <Transition> expects exactly one child element or component.
-   2.viewRegisterStudent: Pre-transform error: At least one <template> or <script> is required in a single file component-->

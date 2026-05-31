@@ -1,3 +1,4 @@
+<!-- Esta vista Aun no es Usable en el Portal  -->
 <template>
 	<!-- ──────────────────────────────────────────────────────-->
 	<!--	VISTA BOOTSTRAP  Puente Cognitivo de primer acceso

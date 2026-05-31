@@ -1,13 +1,19 @@
 
      // ###  INDEX ROUTING: [VUE-ROUTER]  ###
-
+  /**    31/05/2026
+   * Archivo base encargado de invocar a la clase de Guardas GlobalGuardh
+   * en  RouterGuardhService del script -> 'RuterGuardhService'
+   * para un funcionamento correcto y modular.  No mover ningun router
+   * ningun modulo de router hasta que sea completamente interpretado
+   * */
   import {createRouter,createWebHistory} from 'vue-router';
   import { useAuthStore3 } from '@/stores/authStore3.ts';
   import {RouterGuardhService} from '@/router/config/guard/RuterGuardhService.ts';
-   // import {RouterGuardService} from '@/router/config/guard/RouterGuardService.ts'; habilitar cuando todo este organizado y funcional y remplazarlo
   import { router_main } from '@/router/config/routes/router_base.ts';
   import { students_routes } from '@/router/config/routes/router_student2.ts';
   import { teachers_routes } from '@/router/config/routes/router_teacher2.ts';
+    // import {RouterGuardService} from '@/router/config/guard/RouterGuardService.ts'; habilitar cuando todo este organizado y funcional y remplazarlo
+  
   /*Tiene la prioridad porque se ejecuta en el router antes que en el hook bfEach*/
   const routes = [
      // { path: '/', redirect: '/teacher'},

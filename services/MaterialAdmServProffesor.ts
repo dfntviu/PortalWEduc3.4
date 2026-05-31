@@ -293,6 +293,7 @@ export class DesplegarMaterialServiceR2 {
       uploadedBy: firebaseData.autorId || 'Anónimo',
       uploadedAt: firebaseData.fechaCreacion || Timestamp.now(),
       status: firebaseData.estado || 'pendiente',
+      size: firebaseData.size ?? data.fileSize ?? 0,
       type: firebaseData.tipoArchivo || 'PDF',
       nombreAlumno:  firebaseData.nombreAlumno,  //atributo de oro, lo unico que omiti
     };

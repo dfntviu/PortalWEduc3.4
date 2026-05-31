@@ -61,13 +61,14 @@ export class MaterialService {
           id_material: docSnap.id,
           nombre_material: data.titulo ||  data.nombre_material || data.nombre || 'Sin nombre', //*ajustado*
           fechaSubida: data.fechaCreacion?.toDate() || data.fecha_subida || new Date().toISOString(),
-          size: data.size || data.tamano || 0,
+          size: data.size ?? data.tamano ?? 0,  //cambio de operadores - tamanio por Material
           status: data.status || data.estado || 'pending',
           url: data.archivoURL || data.url || data.downloadURL || '', //*ajustado*
           uid_alumno: data.autorId || uid,
           nombreAlumno: data.nombreAlumno || '', //unico detalle mostrar en [admiMaterialStudent]
           uploadedBy: data.nombreAlumno || '' //fecha en la misma que la 67 (<> objetivo[contrato])
         }) 
+          //size: data.size *
       }
 //uid_alumno: lineas: 41,60 ❌
       return materials

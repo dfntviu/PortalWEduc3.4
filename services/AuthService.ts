@@ -13,7 +13,11 @@
 
  	export class AuthService {
   	
+    /*El usuario con el uid: 'TyucoqwY0Bb5fg7QaK8qyaYPA5W2' fue bloqueado
+    Mientras se terminaba de ajustar la f(n)->changePasswordStudent
+    paara cambiar la contraseña*/
   	 /**
+      * 
   	  * Verifica si existe algún usuario en el Sistema
   	  * Útil para determinar si es la primera inicializacion
   	  * */

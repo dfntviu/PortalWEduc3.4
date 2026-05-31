@@ -304,7 +304,7 @@
     	const passwordForm = reactive({
     		currentPassword: '',
     		newPassword: '',
-    		confirmPassword: ''
+    		confirmNewPassword: ''
     	});
 
     	/**
@@ -324,26 +324,34 @@
     	/**
     	 * Maneja el cambio de la contrasenia */
     	async function controllerPasswordChange(): Promise<boolean> {
+          console.warn('He ingresado al Composable [C1-Pte2]..')
     		try{
-    		 
-    		if (!isPasswordFormValidv.value) {
+    		  
+          // console.log('La contraseña modificada: ',isPasswordFormValid.value);
+    		if (isPasswordFormValid.value) {
     		 	 passwordError.value = 'Verifica que todos los campos sean correctos.';
     		 	  return false;
     		}
-
-    		 		 const  result  = await store.changePassword(passwordForm);
+          console.log('nueva',passwordForm.newPassword);  //DGomezP39
+          console.log('nueva-confirmada',passwordForm.confirmNewPassword);    //DGomezP39
+    		 		 const  result  = await store.changePasswordData({
+                 passwd: passwordForm.currentPassword, // omiti
+                newPassword: passwordForm.newPassword,
+                confirmNewPassword: passwordForm.confirmNewPassword});
 
     		 		if (result.success) {
     		 			resetPasswordForm();
     		 			return true;
+              // alert('✅ La contraseña ha sido cambiada exitosamente...');
     		 		}
 
-    		 		passwordForm.value = result.error  || 'Error al cambiar la contraseña';
+    		 		passwordError.value = result.error  || 'Error al cambiar la contraseña';
     		 		return false;
 
     		}catch(error: any){
     			console.error('[cambioContrasena] - (Composable2) Error al Cambiar La contraseña: ',error);
     		 return false;
+            // console.log('actual',passwordForm.currentPassword);
     		}
     	}
 

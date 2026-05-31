@@ -1,4 +1,4 @@
- import {createUserWithEmailAndPassword,getAuth} from 'firebase/auth';
+ import {createUserWithEmailAndPassword,updatePassword,reauthenticateWithCredential,EmailAuthProvider,getAuth} from 'firebase/auth';
  import {doc,addDoc,setDoc, collection} from 'firebase/firestore'; //colecciones
  import {getStorage, ref, uploadBytes,getDownloadURL} from 'firebase/storage';  // almacenamiento
  import {BaseProfileService} from './BaseProfileService.ts';
@@ -64,6 +64,7 @@
                 photoCount,  // Contador de Fotos *
   				createdAt: data.createdAt || new Date(),
   				updateAt: new Date(),
+                size: file.size, //atributo nuevo: tamanio por Material
   			};
             // El objeto enriquecido(directo), no crudo(su propiedad), para eso es el 2do arg
   			const profile = await BaseProfileService.saveProfileRoles(this.collectionNameR1,uid_student,studentData);
@@ -348,6 +349,47 @@
             console.log('[ProfileStudentService] ❌ Error al obtener estadísticas:', error);
         }
     }
+    /*Cambiar la contraseña del usuario: Es recomendable utilizar 
+     cuentas de correo reales, en caso de que la cuenta llegara a bloquearse
+     Si se tiene una falsa, firebase nunca enviaría un email para recuperar la cuenta.
+     Y esta seria irrecuperable*/
+    static async changePasswordStudent(data){
+        console.warn('He ingresado al Servicio [C3]..')
+        // P0 Destructurar las propiedades en el objeto Data
+        const { passwd, newPassword }= data;
+    try{
+        // P1 Obtener al usuario
+       const user_current = auth.currentUser;
+        // PAux Validar que el usuario tenga la sesion activa
+         if (!user_current || !user_current.email) {
+           throw new Error("No hay usuario autenticado")
+         }
+         // Debbugging
+         console.log('Email:', user_current.email);
+         console.log('Passwd actual recibida:', passwd);
+            
+           // Obligar al alumno a tener contrasenia de longitud definida
+         if (!newPassword || newPassword.length<8) {
+            return {success: false, error:'La nueva contraseña es invalida'};
+         }  //Usuario DEMO: DGomezP391
+         /*P1. Obtener la reutenticacion de credenciales*/
+         const credential = EmailAuthProvider.credential(user_current.email,passwd);
+           await reauthenticateWithCredential(user_current, credential);
+           console.log('1️⃣ Reautenticación OK');
+
+           console.log('2️⃣ Nueva Contraseña aplicar: ',JSON.stringify(newPassword));
+
+          /*P3 ActualizaR la contrasenia*/
+           await updatePassword(user_current, newPassword);
+           console.log('3️⃣ Actualizacion de Contraseña COMPLETADO')
+           return {success: true}
+
+    }catch(error){
+       console.error('[PerfilServicioEstudi]- Error especifíco',error.code, error.message);
+       return {success: false, error: error.message};
+        // throw error;
+    }
+  }
 
   	//security Stg$$##$ <!- ABCda [-..1|^2..-]-->%%#%
   }

@@ -1,3 +1,4 @@
+<!-- Esta vista Aun no es Usable en el Portal  -->
 <template>
   <div class="profile-view min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Header -->
@@ -273,9 +274,9 @@
                 <span class="text-gray-600 dark:text-gray-400">
                   Miembro desde
                 </span>
-
+                <!-- En construccion -->
                 <span class="text-gray-900 dark:text-white">
-                  {{ formatDate(profile.createdAt) }}
+                  {{ formatDate(profile.uploadedAt) }} 
                 </span>
               </div>
 

@@ -1,0 +1,685 @@
+
+> serve
+> vue-cli-service serve
+
+ INFO  Starting development server...
+[3%] setup (watch run)
+[2K[1A[2K[G[3%] setup (watch run vue-loader-plugin)
+[2K[1A[2K[G[3%] setup (watch run webpack-dev-middleware)
+[2K[1A[2K[G[3%] setup (watch run)
+[2K[1A[2K[G[4%] setup (normal module factory)
+[2K[1A[2K[G[4%] setup (normal module factory CaseSensitivePathsPlugin)
+[2K[1A[2K[G[4%] setup (normal module factory)
+[2K[1A[2K[G[5%] setup (context module factory)
+[2K[1A[2K[G[6%] setup (before compile)
+[2K[1A[2K[G[6%] setup (before compile ProgressPlugin)
+[2K[1A[2K[G[6%] setup (before compile)
+[2K[1A[2K[G[7%] setup (compile)
+[2K[1A[2K[G[7%] setup (compile ExternalsPlugin)
+[2K[1A[2K[G[7%] setup (compile)
+[2K[1A[2K[G[8%] setup (compilation)
+[2K[1A[2K[G[8%] setup (compilation HtmlWebpackPlugin)
+[2K[1A[2K[G[8%] setup (compilation CopyPlugin)
+[2K[1A[2K[G[8%] setup (compilation ArrayPushCallbackChunkFormatPlugin)
+[2K[1A[2K[G[8%] setup (compilation JsonpChunkLoadingPlugin)
+[2K[1A[2K[G[8%] setup (compilation StartupChunkDependenciesPlugin)
+[2K[1A[2K[G[8%] setup (compilation ImportScriptsChunkLoadingPlugin)
+[2K[1A[2K[G[8%] setup (compilation WorkerPlugin)
+[2K[1A[2K[G[8%] setup (compilation SplitChunksPlugin)
+[2K[1A[2K[G[8%] setup (compilation ResolverCachePlugin)
+[2K[1A[2K[G[8%] setup (compilation)
+[2K[1A[2K[G[9%] setup (compilation)
+[2K[1A[2K[G[9%] setup (compilation vue-loader-plugin)
+[2K[1A[2K[G[9%] setup (compilation DefinePlugin)
+[2K[1A[2K[G[9%] setup (compilation ProgressPlugin)
+[2K[1A[2K[G[9%] setup (compilation EntryPlugin)
+[2K[1A[2K[G[9%] setup (compilation ExternalsPlugin)
+[2K[1A[2K[G[9%] setup (compilation ChunkPrefetchPreloadPlugin)
+[2K[1A[2K[G[9%] setup (compilation ModuleInfoHeaderPlugin)
+[2K[1A[2K[G[9%] setup (compilation EvalSourceMapDevToolPlugin)
+[2K[1A[2K[G[9%] setup (compilation JavascriptModulesPlugin)
+[2K[1A[2K[G[9%] setup (compilation JsonModulesPlugin)
+[2K[1A[2K[G[9%] setup (compilation AssetModulesPlugin)
+[2K[1A[2K[G[9%] setup (compilation EntryPlugin)
+[2K[1A[2K[G[9%] setup (compilation RuntimePlugin)
+[2K[1A[2K[G[9%] setup (compilation InferAsyncModulesPlugin)
+[2K[1A[2K[G[9%] setup (compilation DataUriPlugin)
+[2K[1A[2K[G[9%] setup (compilation FileUriPlugin)
+[2K[1A[2K[G[9%] setup (compilation CompatibilityPlugin)
+[2K[1A[2K[G[9%] setup (compilation HarmonyModulesPlugin)
+[2K[1A[2K[G[9%] setup (compilation AMDPlugin)
+[2K[1A[2K[G[9%] setup (compilation RequireJsStuffPlugin)
+[2K[1A[2K[G[9%] setup (compilation CommonJsPlugin)
+[2K[1A[2K[G[9%] setup (compilation LoaderPlugin)
+[2K[1A[2K[G[9%] setup (compilation NodeStuffPlugin)
+[2K[1A[2K[G[9%] setup (compilation APIPlugin)
+[2K[1A[2K[G[9%] setup (compilation ExportsInfoApiPlugin)
+[2K[1A[2K[G[9%] setup (compilation WebpackIsIncludedPlugin)
+[2K[1A[2K[G[9%] setup (compilation ConstPlugin)
+[2K[1A[2K[G[9%] setup (compilation UseStrictPlugin)
+[2K[1A[2K[G[9%] setup (compilation RequireIncludePlugin)
+[2K[1A[2K[G[9%] setup (compilation RequireEnsurePlugin)
+[2K[1A[2K[G[9%] setup (compilation RequireContextPlugin)
+[2K[1A[2K[G[9%] setup (compilation ImportPlugin)
+[2K[1A[2K[G[9%] setup (compilation ImportMetaContextPlugin)
+[2K[1A[2K[G[9%] setup (compilation SystemPlugin)
+[2K[1A[2K[G[9%] setup (compilation ImportMetaPlugin)
+[2K[1A[2K[G[9%] setup (compilation URLPlugin)
+[2K[1A[2K[G[9%] setup (compilation DefaultStatsFactoryPlugin)
+[2K[1A[2K[G[9%] setup (compilation DefaultStatsPresetPlugin)
+[2K[1A[2K[G[9%] setup (compilation DefaultStatsPrinterPlugin)
+[2K[1A[2K[G[9%] setup (compilation JavascriptMetaInfoPlugin)
+[2K[1A[2K[G[9%] setup (compilation EnsureChunkConditionsPlugin)
+[2K[1A[2K[G[9%] setup (compilation RemoveEmptyChunksPlugin)
+[2K[1A[2K[G[9%] setup (compilation MergeDuplicateChunksPlugin)
+[2K[1A[2K[G[9%] setup (compilation SideEffectsFlagPlugin)
+[2K[1A[2K[G[9%] setup (compilation FlagDependencyExportsPlugin)
+[2K[1A[2K[G[9%] setup (compilation NamedModuleIdsPlugin)
+[2K[1A[2K[G[9%] setup (compilation NamedChunkIdsPlugin)
+[2K[1A[2K[G[9%] setup (compilation DefinePlugin)
+[2K[1A[2K[G[9%] setup (compilation TemplatedPathPlugin)
+[2K[1A[2K[G[9%] setup (compilation RecordIdsPlugin)
+[2K[1A[2K[G[9%] setup (compilation WarnCaseSensitiveModulesPlugin)
+[2K[1A[2K[G[9%] setup (compilation EntryPlugin)
+[2K[1A[2K[G[9%] setup (compilation ProvidePlugin)
+[2K[1A[2K[G[9%] setup (compilation HotModuleReplacementPlugin)
+[2K[1A[2K[G[9%] setup (compilation ProgressPlugin)
+[2K[1A[2K[G[9%] setup (compilation)
+[2K[1A[2K[G[10%] building 
+[2K[1A[2K[G[10%] building (0/0 modules)
+[2K[1A[2K[G[24%] building (6/16 modules)
+[2K[1A[2K[G[24%] building (import loader vue-loader/dist/index.js)
+[2K[1A[2K[G[24%] building (7/18 modules)
+[2K[1A[2K[G[24%] building (import loader vue-loader/dist/pitcher.js)
+[2K[1A[2K[G[24%] building (import loader vue-loader/dist/templateLoader.js)
+[2K[1A[2K[G[24%] building (12/24 modules)
+[2K[1A[2K[G[24%] building (import loader vue-style-loader/index.js)
+[2K[1A[2K[G[24%] building (import loader css-loader/dist/cjs.js)
+[2K[1A[2K[G[24%] building (import loader postcss-loader/dist/cjs.js)
+[2K[1A[2K[G[24%] building (20/30 modules)
+[2K[1A[2K[G[24%] building (import loader vue-loader/dist/stylePostLoader.js)
+[2K[1A[2K[G[24%] building (20/43 modules)
+[2K[1A[2K[G[38%] building (25/58 modules)
+[1m[33m[@vue/compiler-sfc][0m[33m `defineProps` is a compiler macro and no longer needs to be imported.[0m
+
+[2K[1A[2K[G[38%] building (66/132 modules)
+[2K[1A[2K[G[51%] building (85/136 modules)
+[2K[1A[2K[G[51%] building (100/140 modules)
+[2K[1A[2K[G[65%] building (143/143 modules)
+[2K[1A[2K[G[65%] building 
+[2K[1A[2K[G[69%] building (finish)
+[2K[1A[2K[G[70%] sealing (finish module graph)
+[2K[1A[2K[G[70%] sealing (finish module graph ResolverCachePlugin)
+[2K[1A[2K[G[70%] sealing (finish module graph InferAsyncModulesPlugin)
+[2K[1A[2K[G[70%] sealing (finish module graph FlagDependencyExportsPlugin)
+[2K[1A[2K[G[70%] sealing (finish module graph)
+[2K[1A[2K[G[71%] sealing (plugins)
+[2K[1A[2K[G[71%] sealing (plugins WarnCaseSensitiveModulesPlugin)
+[2K[1A[2K[G[71%] sealing (plugins)
+[2K[1A[2K[G[71%] sealing (dependencies optimization)
+[2K[1A[2K[G[71%] sealing (dependencies optimization SideEffectsFlagPlugin)
+[2K[1A[2K[G[71%] sealing (dependencies optimization)
+[2K[1A[2K[G[72%] sealing (after dependencies optimization)
+[2K[1A[2K[G[73%] sealing (chunk graph)
+[2K[1A[2K[G[73%] sealing (after chunk graph)
+[2K[1A[2K[G[74%] sealing (optimizing)
+[2K[1A[2K[G[74%] sealing (module optimization)
+[2K[1A[2K[G[75%] sealing (after module optimization)
+[2K[1A[2K[G[76%] sealing (chunk optimization)
+[2K[1A[2K[G[76%] sealing (chunk optimization EnsureChunkConditionsPlugin)
+[2K[1A[2K[G[76%] sealing (chunk optimization RemoveEmptyChunksPlugin)
+[2K[1A[2K[G[76%] sealing (chunk optimization MergeDuplicateChunksPlugin)
+[2K[1A[2K[G[76%] sealing (chunk optimization SplitChunksPlugin)
+[2K[1A[2K[G[76%] sealing (chunk optimization RemoveEmptyChunksPlugin)
+[2K[1A[2K[G[76%] sealing (chunk optimization)
+[2K[1A[2K[G[76%] sealing (after chunk optimization)
+[2K[1A[2K[G[77%] sealing (module and chunk tree optimization)
+[2K[1A[2K[G[77%] sealing (module and chunk tree optimization PersistentChildCompilerSinglet
+onPlugin)
+[2K[1A[2K[1A[2K[G[77%] sealing (module and chunk tree optimization)
+[2K[1A[2K[G[78%] sealing (after module and chunk tree optimization)
+[2K[1A[2K[G[78%] sealing (chunk modules optimization)
+[2K[1A[2K[G[79%] sealing (after chunk modules optimization)
+[2K[1A[2K[G[80%] sealing (module reviving)
+[2K[1A[2K[G[80%] sealing (module reviving RecordIdsPlugin)
+[2K[1A[2K[G[80%] sealing (module reviving)
+[2K[1A[2K[G[80%] sealing (before module ids)
+[2K[1A[2K[G[81%] sealing (module ids)
+[2K[1A[2K[G[81%] sealing (module ids NamedModuleIdsPlugin)
+[2K[1A[2K[G[81%] sealing (module ids)
+[2K[1A[2K[G[82%] sealing (module id optimization)
+[2K[1A[2K[G[82%] sealing (module id optimization)
+[2K[1A[2K[G[83%] sealing (chunk reviving)
+[2K[1A[2K[G[83%] sealing (chunk reviving RecordIdsPlugin)
+[2K[1A[2K[G[83%] sealing (chunk reviving)
+[2K[1A[2K[G[83%] sealing (before chunk ids)
+[2K[1A[2K[G[84%] sealing (chunk ids)
+[2K[1A[2K[G[84%] sealing (chunk ids NamedChunkIdsPlugin)
+[2K[1A[2K[G[84%] sealing (chunk ids)
+[2K[1A[2K[G[85%] sealing (chunk id optimization)
+[2K[1A[2K[G[85%] sealing (after chunk id optimization)
+[2K[1A[2K[G[86%] sealing (record modules)
+[2K[1A[2K[G[86%] sealing (record modules RecordIdsPlugin)
+[2K[1A[2K[G[86%] sealing (record modules)
+[2K[1A[2K[G[87%] sealing (record chunks)
+[2K[1A[2K[G[87%] sealing (record chunks RecordIdsPlugin)
+[2K[1A[2K[G[87%] sealing (record chunks)
+[2K[1A[2K[G[87%] sealing (module hashing)
+[2K[1A[2K[G[88%] sealing (code generation)
+[2K[1A[2K[G[89%] sealing (runtime requirements)
+[2K[1A[2K[G[89%] sealing (hashing)
+[2K[1A[2K[G[90%] sealing (after hashing)
+[2K[1A[2K[G[91%] sealing (record hash)
+[2K[1A[2K[G[91%] sealing (module assets processing)
+[2K[1A[2K[G[92%] sealing (chunk assets processing)
+[2K[1A[2K[G[92%] sealing (asset processing)
+[2K[1A[2K[G[92%] sealing (asset processing copy-webpack-plugin)
+[2K[1A[2K[G[92%] sealing (asset processing HotModuleReplacementPlugin)
+[2K[1A[2K[G[92%] sealing (asset processing PersistentChildCompilerSingletonPlugin)
+[2K[1A[2K[G[92%] sealing (asset processing HtmlWebpackPlugin)
+[2K[1A[2K[G[92%] sealing (asset processing)
+[2K[1A[2K[G[93%] sealing (after asset optimization)
+[2K[1A[2K[G[94%] sealing (recording)
+[2K[1A[2K[G[94%] sealing (recording HotModuleReplacementPlugin)
+[2K[1A[2K[G[94%] sealing (recording)
+[2K[1A[2K[G[94%] sealing (after seal)
+[2K[1A[2K[G[95%] emitting (emit)
+[2K[1A[2K[G[98%] emitting (after emit)
+[2K[1A[2K[GBuild finished at 22:24:02 by 0.000s
+[2K[1A[2K[GBuild finished at 22:24:02 by 0.000s
+[2K[1A[2K[GBuild finished at 22:24:02 by 0.000s
+[2K[1A[2K[G ERROR  Failed to compile with 3 errors10:24:02 p.m.
+
+ error  in ./src/Student/views/viewUploadMaterial.vue?vue&type=style&index=0&id=3f51ffdb&scoped=true&lang=css
+
+Syntax Error: Error: Expected a pseudo-class or pseudo-element.
+
+
+ error  in ./src/Teacher/views/viewModerarMateriales.solution.vue?vue&type=style&index=0&id=1a8cbc84&scoped=true&lang=css
+
+Syntax Error: Error: Expected a pseudo-class or pseudo-element.
+
+
+ error  in ./src/Teacher/views/viewRegisterTeacher1.vue?vue&type=script&setup=true&lang=ts
+
+Syntax Error: TypeError: Cannot read properties of null (reading 'content')
+
+
+Build finished at 22:24:02 by 0.000s
+[2K[1A[2K[GBuild finished at 22:24:02 by 0.000s
+[2K[1A[2K[GBuild finished at 22:24:02 by 0.000s
+[2K[1A[2K[GBuild finished at 22:24:02 by 0.000s
+[2K[1A[2K[GBuild finished at 22:24:02 by 0.000s
+[2K[1A[2K[GBuild finished at 22:24:02 by 0.000s
+[2K[1A[2K[GBuild finished at 22:24:02 by 0.000s
+[2K[1A[2K[GBuild finished at 22:24:02 by 0.000s
+[2K[1A[2K[GBuild finished at 22:24:02 by 0.000s
+[2K[1A[2K[G[1m[31mERROR[39m[22m in [1m./src/Student/views/viewUploadMaterial.vue?vue&type=style&index=0&id=3f51ffdb&scoped=true&lang=css[39m[22m (./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Student/views/viewUploadMaterial.vue?vue&type=style&index=0&id=3f51ffdb&scoped=true&lang=css)
+[1mModule build [1m[31mfailed[39m[22m[1m (from ./node_modules/vue-loader/dist/stylePostLoader.js):
+[1m[31mError[39m[22m[1m: Expected a pseudo-class or pseudo-element.
+    at C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\src\Student\views\viewUploadMaterial.vue:73:3
+    at Root._error (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:6574:17)
+    at Root.[1m[31merror[39m[22m[1m (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:5136:20)
+    at Parser.[1m[31merror[39m[22m[1m (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:7038:22)
+    at Parser.expected (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:7364:20)
+    at Parser.pseudo (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:7170:20)
+    at Parser.parse (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:7326:15)
+    at Parser.loop (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:7295:13)
+    at new Parser (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:6567:11)
+    at Processor._root (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:7498:19)
+    at Processor._runSync (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:7536:22)[39m[22m
+ @ ./node_modules/vue-style-loader/index.js??clonedRuleSet-12.use[0]!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Student/views/viewUploadMaterial.vue?vue&type=style&index=0&id=3f51ffdb&scoped=true&lang=css 4:14-374 15:3-20:5 16:22-382
+ @ ./src/Student/views/viewUploadMaterial.vue?vue&type=style&index=0&id=3f51ffdb&scoped=true&lang=css 1:0-438 1:0-438
+ @ ./src/Student/views/viewUploadMaterial.vue 5:0-89
+ @ ./src/router/index.js 16:2-76 88:15-33
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Teacher/views/viewModerarMateriales.solution.vue?vue&type=style&index=0&id=1a8cbc84&scoped=true&lang=css[39m[22m (./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Teacher/views/viewModerarMateriales.solution.vue?vue&type=style&index=0&id=1a8cbc84&scoped=true&lang=css)
+[1mModule build [1m[31mfailed[39m[22m[1m (from ./node_modules/vue-loader/dist/stylePostLoader.js):
+[1m[31mError[39m[22m[1m: Expected a pseudo-class or pseudo-element.
+    at C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\src\Teacher\views\viewModerarMateriales.solution.vue:52:5
+    at Root._error (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:6574:17)
+    at Root.[1m[31merror[39m[22m[1m (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:5136:20)
+    at Parser.[1m[31merror[39m[22m[1m (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:7038:22)
+    at Parser.expected (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:7364:20)
+    at Parser.pseudo (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:7170:20)
+    at Parser.parse (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:7326:15)
+    at Parser.loop (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:7295:13)
+    at new Parser (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:6567:11)
+    at Processor._root (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:7498:19)
+    at Processor._runSync (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:7536:22)[39m[22m
+ @ ./node_modules/vue-style-loader/index.js??clonedRuleSet-12.use[0]!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Teacher/views/viewModerarMateriales.solution.vue?vue&type=style&index=0&id=1a8cbc84&scoped=true&lang=css 4:14-386 15:3-20:5 16:22-394
+ @ ./src/Teacher/views/viewModerarMateriales.solution.vue?vue&type=style&index=0&id=1a8cbc84&scoped=true&lang=css 1:0-450 1:0-450
+ @ ./src/Teacher/views/viewModerarMateriales.solution.vue 5:0-101
+ @ ./src/router/index.js 8:2-99 32:15-44
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Student/views/bienvenidaStudents.vue?vue&type=script&setup=true&lang=ts[39m[22m (./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Student/views/bienvenidaStudents.vue?vue&type=script&setup=true&lang=ts) [1m[32m26:42[39m[22m
+[1mModule parse [1m[31mfailed[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (26:42)
+File was processed with these loaders:
+ * ./node_modules/vue-loader/dist/index.js
+You may need an additional loader to handle the result of these loaders.
+| 	});
+|  
+> 	async function animarBienvenidaRole(email: string, password: string, role: 'alumno') {  
+| 		try{
+| 			 // invocamos al metodo del servicio correspondiente[39m[22m
+ @ ./src/Student/views/bienvenidaStudents.vue?vue&type=script&setup=true&lang=ts 1:0-154 1:0-154 1:155-298 1:155-298
+ @ ./src/Student/views/bienvenidaStudents.vue 2:0-80 6:49-55 3:0-75 3:0-75
+ @ ./src/router/index.js 12:2-76 60:15-33
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Student/views/viewMaterIndividual.vue?vue&type=script&setup=true&lang=ts[39m[22m (./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Student/views/viewMaterIndividual.vue?vue&type=script&setup=true&lang=ts) [1m[32m29:36[39m[22m
+[1mModule parse [1m[31mfailed[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (29:36)
+File was processed with these loaders:
+ * ./node_modules/vue-loader/dist/index.js
+You may need an additional loader to handle the result of these loaders.
+|  	  /* Definicion de varibales reactivas */
+|  	 const alumno = ref<any>(null);
+>  	 const materialesAlumno = ref<any[]>([]);
+| 
+|  	 /* Def. de la funcion Principal */[39m[22m
+ @ ./src/Student/views/viewMaterIndividual.vue?vue&type=script&setup=true&lang=ts 1:0-155 1:0-155 1:156-300 1:156-300
+ @ ./src/Student/views/viewMaterIndividual.vue 2:0-81 8:49-55 3:0-76 3:0-76
+ @ ./src/router/index.js 13:2-78 67:15-34
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Student/views/viewStudentRegisterBase.vue?vue&type=script&setup=true&lang=js[39m[22m (./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Student/views/viewStudentRegisterBase.vue?vue&type=script&setup=true&lang=js) [1m[32m4:4-85[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: [1m[31mError[39m[22m[1m: Can't resolve '@/utils/validacionsProfileTeacher.js' in 'C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\src\Student\views'[39m[22m
+ @ ./src/Student/views/viewStudentRegisterBase.vue?vue&type=script&setup=true&lang=js 1:0-159 1:0-159 1:160-308 1:160-308
+ @ ./src/Student/views/viewStudentRegisterBase.vue 2:0-85 8:49-55 3:0-80 3:0-80
+ @ ./src/router/index.js 14:2-86 74:15-38
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Student/views/viewStudentsAdmMatls.vue[39m[22m
+[1mModule [1m[31mError[39m[22m[1m (from ./node_modules/vue-loader/dist/index.js):
+
+VueCompilerError: Element is missing end tag.
+at C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\src\Student\views\viewStudentsAdmMatls.vue:44:15
+42 |            <h2>Lista de Materiales</h2>
+43 |              <ul>  <!-- nombre de la coleccion del DeployService -->
+44 |                <li  v-for="m in materialStore.materials" :key="m.id" class="border-b py-2 flex justify-between items-center"></div>
+   |                ^
+45 |                  <span> {{m.titulo}} </span>
+46 |                  <div class="space-x-2" >
+[39m[22m
+ @ ./src/router/index.js 15:2-80 81:15-35
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Student/views/viewStudentsAdmMatls.vue[39m[22m
+[1mModule [1m[31mError[39m[22m[1m (from ./node_modules/vue-loader/dist/index.js):
+
+VueCompilerError: [1m[31mInvalid[39m[22m[1m end tag.
+at C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\src\Student\views\viewStudentsAdmMatls.vue:63:15
+61 |                     ></button>
+62 |                  </div>
+63 |                </li>
+   |                ^
+64 |              </ul>
+65 |          </div>
+[39m[22m
+ @ ./src/router/index.js 15:2-80 81:15-35
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Student/views/viewStudentsAdmMatls.vue[39m[22m
+[1mModule [1m[31mError[39m[22m[1m (from ./node_modules/vue-loader/dist/index.js):
+
+VueCompilerError: [1m[31mInvalid[39m[22m[1m end tag.
+at C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\src\Student\views\viewStudentsAdmMatls.vue:64:13
+62 |                  </div>
+63 |                </li>
+64 |              </ul>
+   |              ^
+65 |          </div>
+66 |            
+[39m[22m
+ @ ./src/router/index.js 15:2-80 81:15-35
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Student/views/viewStudentsAdmMatls.vue[39m[22m
+[1mModule [1m[31mError[39m[22m[1m (from ./node_modules/vue-loader/dist/index.js):
+
+VueCompilerError: [1m[31mInvalid[39m[22m[1m end tag.
+at C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\src\Student\views\viewStudentsAdmMatls.vue:65:9
+63 |                </li>
+64 |              </ul>
+65 |          </div>
+   |          ^
+66 |            
+67 |            <!-- Modal de Detales-->
+[39m[22m
+ @ ./src/router/index.js 15:2-80 81:15-35
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Teacher/views/bienvenidaTeachers.vue?vue&type=script&setup=true&lang=ts[39m[22m (./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Teacher/views/bienvenidaTeachers.vue?vue&type=script&setup=true&lang=ts) [1m[32m22:43[39m[22m
+[1mModule parse [1m[31mfailed[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (22:43)
+File was processed with these loaders:
+ * ./node_modules/vue-loader/dist/index.js
+You may need an additional loader to handle the result of these loaders.
+|  	});
+| 
+>  	async function animarBienvenidaRole(email: string, password: string, role: 'profesor'){
+|  		try{
+|  				const cargar_perfil2 = ProfileStudentService.loadUserProfile(email,passwd,role);[39m[22m
+ @ ./src/Teacher/views/bienvenidaTeachers.vue?vue&type=script&setup=true&lang=ts 1:0-154 1:0-154 1:155-298 1:155-298
+ @ ./src/Teacher/views/bienvenidaTeachers.vue 2:0-80 6:49-55 3:0-75 3:0-75
+ @ ./src/router/index.js 7:2-76 25:15-33
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Teacher/views/viewModerateBaseComments.vue?vue&type=script&setup=true&lang=ts[39m[22m (./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Teacher/views/viewModerateBaseComments.vue?vue&type=script&setup=true&lang=ts) [1m[32m9:16[39m[22m
+[1mModule parse [1m[31mfailed[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (9:16)
+File was processed with these loaders:
+ * ./node_modules/vue-loader/dist/index.js
+You may need an additional loader to handle the result of these loaders.
+|   import {ComentariosDestacados} from '@/components/ComentariosDestacados.vue'; 
+|   import {materialValidationsNotify} from '@/utils/validations.origin/validationsModerationNotifications.ts';
+> 	   import type {Material} from '@/types/interf.index.ts';
+| 
+| 	 [39m[22m
+ @ ./src/Teacher/views/viewModerateBaseComments.vue?vue&type=script&setup=true&lang=ts 1:0-160 1:0-160 1:161-310 1:161-310
+ @ ./src/Teacher/views/viewModerateBaseComments.vue 2:0-86 6:49-55 3:0-81 3:0-81
+ @ ./src/router/index.js 9:2-88 39:15-39
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Teacher/views/viewRegisterTeacher1.vue?vue&type=script&setup=true&lang=ts[39m[22m (./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Teacher/views/viewRegisterTeacher1.vue?vue&type=script&setup=true&lang=ts)
+[1mModule [1m[31mError[39m[22m[1m (from ./node_modules/vue-loader/dist/index.js):
+[vue/compiler-sfc] Missing semicolon. (109:27)
+
+C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\src\Teacher\views\viewRegisterTeacher1.vue
+179|    	 		const created = await authStore.registerTradicional(tradicional.email, tradicional.password);
+180|    	 		const     uid = created?.uuid;
+181|    	 		  if (!uid) throw naw [1m[31mError[39m[22m[1m('Lo sentimos no se creo el usuario (uid):',uid, 'corresp al E-mail:',tradicional.email);
+   |                             ^
+182|  
+183|    	 		  await store_profile.saveProfile('tradicional', uid,{[39m[22m
+ @ ./src/Teacher/views/viewRegisterTeacher1.vue?vue&type=script&setup=true&lang=ts 1:0-156 1:0-156 1:157-302 1:157-302
+ @ ./src/Teacher/views/viewRegisterTeacher1.vue 2:0-82 8:49-55 3:0-77 3:0-77
+ @ ./src/router/index.js 10:2-80 46:15-35
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Teacher/views/viewRegisterTeacher1.vue?vue&type=script&setup=true&lang=ts[39m[22m (./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Teacher/views/viewRegisterTeacher1.vue?vue&type=script&setup=true&lang=ts)
+[1mModule build [1m[31mfailed[39m[22m[1m (from ./node_modules/vue-loader/dist/index.js):
+TypeError: Cannot read properties of null (reading 'content')
+    at selectBlock (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\vue-loader\dist\select.js:23:45)
+    at Object.loader (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\vue-loader\dist\index.js:92:41)[39m[22m
+ @ ./src/Teacher/views/viewRegisterTeacher1.vue?vue&type=script&setup=true&lang=ts 1:0-156 1:0-156 1:157-302 1:157-302
+ @ ./src/Teacher/views/viewRegisterTeacher1.vue 2:0-82 8:49-55 3:0-77 3:0-77
+ @ ./src/router/index.js 10:2-80 46:15-35
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Teacher/views/viewTeachersAdmMatls.vue?vue&type=script&setup=true&lang=ts[39m[22m (./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Teacher/views/viewTeachersAdmMatls.vue?vue&type=script&setup=true&lang=ts) [1m[32m20:45[39m[22m
+[1mModule parse [1m[31mfailed[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (20:45)
+File was processed with these loaders:
+ * ./node_modules/vue-loader/dist/index.js
+You may need an additional loader to handle the result of these loaders.
+|  	   const opciones = ref([1,2,3,4,5,6]); 
+| 
+>  	  const filtradoDeMateriales = async(opcion: number | null)=>{
+|  			// El adicional
+|   		if (!opcion) return;[39m[22m
+ @ ./src/Teacher/views/viewTeachersAdmMatls.vue?vue&type=script&setup=true&lang=ts 1:0-156 1:0-156 1:157-302 1:157-302
+ @ ./src/Teacher/views/viewTeachersAdmMatls.vue 2:0-82 6:49-55 3:0-77 3:0-77
+ @ ./src/router/index.js 11:2-80 53:15-35
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/components/ProfileStudentView.vue?vue&type=script&lang=js[39m[22m (./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/components/ProfileStudentView.vue?vue&type=script&lang=js) [1m[32m2:2-84[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: [1m[31mError[39m[22m[1m: Can't resolve '@/composable/composableProfileStudent.js' in 'C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\src\components'[39m[22m
+ @ ./src/components/ProfileStudentView.vue?vue&type=script&lang=js 1:0-140 1:0-140 1:141-270 1:141-270
+ @ ./src/components/ProfileStudentView.vue 2:0-69 6:49-55 3:0-64 3:0-64
+ @ ./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Student/views/viewStudentRegisterBase.vue?vue&type=script&setup=true&lang=js 3:4-78 13:90-108 35:114-132
+ @ ./src/Student/views/viewStudentRegisterBase.vue?vue&type=script&setup=true&lang=js 1:0-159 1:0-159 1:160-308 1:160-308
+ @ ./src/Student/views/viewStudentRegisterBase.vue 2:0-85 8:49-55 3:0-80 3:0-80
+ @ ./src/router/index.js 14:2-86 74:15-38
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/components/RegisterStudentView.vue?vue&type=script&lang=js[39m[22m (./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/components/RegisterStudentView.vue?vue&type=script&lang=js)
+[1mModule [1m[31mError[39m[22m[1m (from ./node_modules/vue-loader/dist/index.js):
+[vue/compiler-sfc] Missing initializer in const declaration. (10:17)
+
+C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\src\components\RegisterStudentView.vue
+37 |  
+38 |  	// Formulario de Registro
+39 |  		const form_send: {
+   |                   ^
+40 |  		      nombre = form.name
+41 |  		    apellido = form.lname[39m[22m
+ @ ./src/components/RegisterStudentView.vue?vue&type=script&lang=js 1:0-141 1:0-141 1:142-272 1:142-272
+ @ ./src/components/RegisterStudentView.vue 2:0-70 8:49-55 3:0-65 3:0-65
+ @ ./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Student/views/viewStudentRegisterBase.vue?vue&type=script&setup=true&lang=js 2:4-79 13:68-87 35:93-112
+ @ ./src/Student/views/viewStudentRegisterBase.vue?vue&type=script&setup=true&lang=js 1:0-159 1:0-159 1:160-308 1:160-308
+ @ ./src/Student/views/viewStudentRegisterBase.vue 2:0-85 8:49-55 3:0-80 3:0-80
+ @ ./src/router/index.js 14:2-86 74:15-38
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/components/RegisterStudentView.vue?vue&type=script&lang=js[39m[22m (./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/components/RegisterStudentView.vue?vue&type=script&lang=js)
+[1mModule build [1m[31mfailed[39m[22m[1m (from ./node_modules/vue-loader/dist/index.js):
+TypeError: Cannot read properties of null (reading 'content')
+    at selectBlock (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\vue-loader\dist\select.js:23:45)
+    at Object.loader (C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\node_modules\vue-loader\dist\index.js:92:41)[39m[22m
+ @ ./src/components/RegisterStudentView.vue?vue&type=script&lang=js 1:0-141 1:0-141 1:142-272 1:142-272
+ @ ./src/components/RegisterStudentView.vue 2:0-70 8:49-55 3:0-65 3:0-65
+ @ ./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Student/views/viewStudentRegisterBase.vue?vue&type=script&setup=true&lang=js 2:4-79 13:68-87 35:93-112
+ @ ./src/Student/views/viewStudentRegisterBase.vue?vue&type=script&setup=true&lang=js 1:0-159 1:0-159 1:160-308 1:160-308
+ @ ./src/Student/views/viewStudentRegisterBase.vue 2:0-85 8:49-55 3:0-80 3:0-80
+ @ ./src/router/index.js 14:2-86 74:15-38
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Student/views/bienvenidaStudents.vue?vue&type=template&id=6179df1d&ts=true[39m[22m (./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Student/views/bienvenidaStudents.vue?vue&type=template&id=6179df1d&ts=true) [1m[32m5:27[39m[22m
+[1mModule parse [1m[31mfailed[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (5:27)
+File was processed with these loaders:
+ * ./node_modules/vue-loader/dist/templateLoader.js
+ * ./node_modules/vue-loader/dist/index.js
+You may need an additional loader to handle the result of these loaders.
+| const _hoisted_1 = { class: "vista-welcome_alumnos" }
+| 
+> export function render(_ctx: any,_cache: any,$props: any,$setup: any,$data: any,$options: any) {
+|   return (_openBlock(), _createElementBlock("div", _hoisted_1, [
+|     ($setup.alumno)[39m[22m
+ @ ./src/Student/views/bienvenidaStudents.vue?vue&type=template&id=6179df1d&ts=true 1:0-223 1:0-223
+ @ ./src/Student/views/bienvenidaStudents.vue 1:0-87 6:68-74 17:29-35 16:86-18:3 16:2-18:4
+ @ ./src/router/index.js 12:2-76 60:15-33
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Student/views/viewMaterIndividual.vue?vue&type=template&id=1190e083&scoped=true&ts=true[39m[22m (./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Student/views/viewMaterIndividual.vue?vue&type=template&id=1190e083&scoped=true&ts=true) [1m[32m31:27[39m[22m
+[1mModule parse [1m[31mfailed[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (31:27)
+File was processed with these loaders:
+ * ./node_modules/vue-loader/dist/templateLoader.js
+ * ./node_modules/vue-loader/dist/index.js
+You may need an additional loader to handle the result of these loaders.
+| ]
+| 
+> export function render(_ctx: any,_cache: any,$props: any,$setup: any,$data: any,$options: any) {
+|   return (_openBlock(), _createElementBlock("section", _hoisted_1, [
+|     _createElementVNode("div", _hoisted_2, [[39m[22m
+ @ ./src/Student/views/viewMaterIndividual.vue?vue&type=template&id=1190e083&scoped=true&ts=true 1:0-236 1:0-236
+ @ ./src/Student/views/viewMaterIndividual.vue 1:0-100 8:68-74 19:29-35 18:99-20:3 18:2-20:4
+ @ ./src/router/index.js 13:2-78 67:15-34
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Teacher/views/bienvenidaTeachers.vue?vue&type=template&id=6226d18f&ts=true[39m[22m (./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Teacher/views/bienvenidaTeachers.vue?vue&type=template&id=6226d18f&ts=true) [1m[32m5:27[39m[22m
+[1mModule parse [1m[31mfailed[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (5:27)
+File was processed with these loaders:
+ * ./node_modules/vue-loader/dist/templateLoader.js
+ * ./node_modules/vue-loader/dist/index.js
+You may need an additional loader to handle the result of these loaders.
+| const _hoisted_1 = { class: "vista-welcome_profesores" }
+| 
+> export function render(_ctx: any,_cache: any,$props: any,$setup: any,$data: any,$options: any) {
+|   return (_openBlock(), _createElementBlock("div", _hoisted_1, [
+|     ($setup.profesor)[39m[22m
+ @ ./src/Teacher/views/bienvenidaTeachers.vue?vue&type=template&id=6226d18f&ts=true 1:0-223 1:0-223
+ @ ./src/Teacher/views/bienvenidaTeachers.vue 1:0-87 6:68-74 17:29-35 16:86-18:3 16:2-18:4
+ @ ./src/router/index.js 7:2-76 25:15-33
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Teacher/views/viewModerateBaseComments.vue?vue&type=template&id=02544a58&ts=true[39m[22m (./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Teacher/views/viewModerateBaseComments.vue?vue&type=template&id=02544a58&ts=true) [1m[32m5:27[39m[22m
+[1mModule parse [1m[31mfailed[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (5:27)
+File was processed with these loaders:
+ * ./node_modules/vue-loader/dist/templateLoader.js
+ * ./node_modules/vue-loader/dist/index.js
+You may need an additional loader to handle the result of these loaders.
+| const _hoisted_1 = { class: "moderate_panel" }
+| 
+> export function render(_ctx: any,_cache: any,$props: any,$setup: any,$data: any,$options: any) {
+|   return (_openBlock(), _createElementBlock("div", _hoisted_1, [
+|     _createCommentVNode(" Integracion de los comentarios "),[39m[22m
+ @ ./src/Teacher/views/viewModerateBaseComments.vue?vue&type=template&id=02544a58&ts=true 1:0-229 1:0-229
+ @ ./src/Teacher/views/viewModerateBaseComments.vue 1:0-93 6:68-74 17:29-35 16:92-18:3 16:2-18:4
+ @ ./src/router/index.js 9:2-88 39:15-39
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Teacher/views/viewRegisterTeacher1.vue?vue&type=template&id=0da3039e&scoped=true&ts=true[39m[22m (./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Teacher/views/viewRegisterTeacher1.vue?vue&type=template&id=0da3039e&scoped=true&ts=true) [1m[32m36:27[39m[22m
+[1mModule parse [1m[31mfailed[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (36:27)
+File was processed with these loaders:
+ * ./node_modules/vue-loader/dist/templateLoader.js
+ * ./node_modules/vue-loader/dist/index.js
+You may need an additional loader to handle the result of these loaders.
+| const _hoisted_22 = { class: "botones" }
+| 
+> export function render(_ctx: any,_cache: any) {
+|   const _component_buttton = _resolveComponent("buttton")!
+| [39m[22m
+ @ ./src/Teacher/views/viewRegisterTeacher1.vue?vue&type=template&id=0da3039e&scoped=true&ts=true 1:0-237 1:0-237
+ @ ./src/Teacher/views/viewRegisterTeacher1.vue 1:0-101 8:68-74 19:29-35 18:100-20:3 18:2-20:4
+ @ ./src/router/index.js 10:2-80 46:15-35
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Teacher/views/viewRegisterTeacher1.vue?vue&type=template&id=0da3039e&scoped=true&ts=true[39m[22m (./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Teacher/views/viewRegisterTeacher1.vue?vue&type=template&id=0da3039e&scoped=true&ts=true)
+[1mModule [1m[31mError[39m[22m[1m (from ./node_modules/vue-loader/dist/templateLoader.js):
+[vue/compiler-sfc] Missing semicolon. (109:27)
+
+C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\src\Teacher\views\viewRegisterTeacher1.vue
+179|    	 		const created = await authStore.registerTradicional(tradicional.email, tradicional.password);
+180|    	 		const     uid = created?.uuid;
+181|    	 		  if (!uid) throw naw [1m[31mError[39m[22m[1m('Lo sentimos no se creo el usuario (uid):',uid, 'corresp al E-mail:',tradicional.email);
+   |                             ^
+182|  
+183|    	 		  await store_profile.saveProfile('tradicional', uid,{[39m[22m
+ @ ./src/Teacher/views/viewRegisterTeacher1.vue?vue&type=template&id=0da3039e&scoped=true&ts=true 1:0-237 1:0-237
+ @ ./src/Teacher/views/viewRegisterTeacher1.vue 1:0-101 8:68-74 19:29-35 18:100-20:3 18:2-20:4
+ @ ./src/router/index.js 10:2-80 46:15-35
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/Teacher/views/viewTeachersAdmMatls.vue?vue&type=template&id=cd4694cc&ts=true[39m[22m (./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Teacher/views/viewTeachersAdmMatls.vue?vue&type=template&id=cd4694cc&ts=true) [1m[32m10:27[39m[22m
+[1mModule parse [1m[31mfailed[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (10:27)
+File was processed with these loaders:
+ * ./node_modules/vue-loader/dist/templateLoader.js
+ * ./node_modules/vue-loader/dist/index.js
+You may need an additional loader to handle the result of these loaders.
+| const _hoisted_6 = /*#__PURE__*/_createElementVNode("h3", null, "Resultados Aplicados, con respecto al Filtro:", -1 /* HOISTED */)
+| 
+> export function render(_ctx: any,_cache: any,$props: any,$setup: any,$data: any,$options: any) {
+|   return (_openBlock(), _createElementBlock("div", null, [
+|     _hoisted_1,[39m[22m
+ @ ./src/Teacher/views/viewTeachersAdmMatls.vue?vue&type=template&id=cd4694cc&ts=true 1:0-225 1:0-225
+ @ ./src/Teacher/views/viewTeachersAdmMatls.vue 1:0-89 6:68-74 17:29-35 16:88-18:3 16:2-18:4
+ @ ./src/router/index.js 11:2-80 53:15-35
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/components/RegisterStudentView.vue?vue&type=template&id=c0eb7f46[39m[22m (./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/components/RegisterStudentView.vue?vue&type=template&id=c0eb7f46)
+[1mModule [1m[31mError[39m[22m[1m (from ./node_modules/vue-loader/dist/templateLoader.js):
+[vue/compiler-sfc] Missing initializer in const declaration. (10:17)
+
+C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\src\components\RegisterStudentView.vue
+37 |  
+38 |  	// Formulario de Registro
+39 |  		const form_send: {
+   |                   ^
+40 |  		      nombre = form.name
+41 |  		    apellido = form.lname[39m[22m
+ @ ./src/components/RegisterStudentView.vue?vue&type=template&id=c0eb7f46 1:0-210 1:0-210
+ @ ./src/components/RegisterStudentView.vue 1:0-80 8:68-74 19:29-35 18:79-20:3 18:2-20:4
+ @ ./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Student/views/viewStudentRegisterBase.vue?vue&type=script&setup=true&lang=js 2:4-79 13:68-87 35:93-112
+ @ ./src/Student/views/viewStudentRegisterBase.vue?vue&type=script&setup=true&lang=js 1:0-159 1:0-159 1:160-308 1:160-308
+ @ ./src/Student/views/viewStudentRegisterBase.vue 2:0-85 8:49-55 3:0-80 3:0-80
+ @ ./src/router/index.js 14:2-86 74:15-38
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/router/index.js[39m[22m [1m[32m2:1-54[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: [1m[31mError[39m[22m[1m: Can't resolve '@/stores/useAuthStore.ts' in 'C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\src\router'[39m[22m
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/services/AuthService.ts[39m[22m [1m[32m12:32[39m[22m
+[1mModule parse [1m[31mfailed[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (12:32)
+You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+| 
+|    export class AuthService {
+>    	    static async login(email: string, password: string): Promise<User> {
+|    	  		try{
+|    	  	 	   //1. Autentificacion de Firebase(BackEnd)[39m[22m
+ @ ./src/stores/authStore.js 7:41-77
+ @ ./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Student/views/viewUploadMaterial.vue?vue&type=script&setup=true&lang=js 3:1-51 18:24-36 85:181-193
+ @ ./src/Student/views/viewUploadMaterial.vue?vue&type=script&setup=true&lang=js 1:0-154 1:0-154 1:155-298 1:155-298
+ @ ./src/Student/views/viewUploadMaterial.vue 2:0-80 8:49-55 3:0-75 3:0-75
+ @ ./src/router/index.js 16:2-76 88:15-33
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/services/config/RouterGuardServ.ts[39m[22m [1m[32m6:12[39m[22m
+[1mModule parse [1m[31mfailed[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (6:12)
+You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+| import {PermissionsService} from '@/services/PermissionsServ.ts';  /** Clase de permisos segun su Rol **/
+|   import {useAuthStore} from '@/stores/authStore.ts';
+> import type {NavigationGuardNext, RouteLocationNormalized} from 'vue-router'; //[1m[31merror[39m[22m[1m instal dependence
+| 
+|     export class RouterGuardService {[39m[22m
+ @ ./src/router/index.js 4:1-74 114:29-47
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/stores/authStore.js[39m[22m [1m[32m6:16-32[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: [1m[31mError[39m[22m[1m: Can't resolve 'pinia' in 'C:\Users\Daniel GP Gamming\vue\portalwebeducativo_v33.final\src\stores'[39m[22m
+ @ ./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Student/views/viewUploadMaterial.vue?vue&type=script&setup=true&lang=js 3:1-51 18:24-36 85:181-193
+ @ ./src/Student/views/viewUploadMaterial.vue?vue&type=script&setup=true&lang=js 1:0-154 1:0-154 1:155-298 1:155-298
+ @ ./src/Student/views/viewUploadMaterial.vue 2:0-80 8:49-55 3:0-75 3:0-75
+ @ ./src/router/index.js 16:2-76 88:15-33
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/stores/materialStore.js[39m[22m [1m[32m23:75[39m[22m
+[1mModule parse [1m[31mfailed[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (23:75)
+You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+|             // ðŸ“ŒTraza de errores en Consola
+|             console.[1m[31merror[39m[22m[1m("[MaterialStore] [1m[31mError[39m[22m[1m: ", msg);
+>             this.errorHistory.push(`${new Date().toISOString() - $, { msg });
+|         }
+|     } `[39m[22m
+ @ ./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Student/views/viewUploadMaterial.vue?vue&type=script&setup=true&lang=js 2:1-59 19:25-41 85:133-149
+ @ ./src/Student/views/viewUploadMaterial.vue?vue&type=script&setup=true&lang=js 1:0-154 1:0-154 1:155-298 1:155-298
+ @ ./src/Student/views/viewUploadMaterial.vue 2:0-80 8:49-55 3:0-75 3:0-75
+ @ ./src/router/index.js 16:2-76 88:15-33
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/stores/moderateStore.ts[39m[22m [1m[32m7:15[39m[22m
+[1mModule parse [1m[31mfailed[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (7:15)
+You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+|   // Instalar Pinia
+|     const useModerationStore =  ('moderation_materials', {
+>      	 state() => ({
+|     	 	   // Dec. de las variables reactivas de ambos roles    --> tot <- 3.5
+|           tipo_moderation: uuid_mat as Moderation | null,  // 1 acierto[39m[22m
+ @ ./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Teacher/views/viewModerarMateriales.solution.vue?vue&type=script&setup=true&lang=js 2:3-67 11:26-44 68:192-210
+ @ ./src/Teacher/views/viewModerarMateriales.solution.vue?vue&type=script&setup=true&lang=js 1:0-166 1:0-166 1:167-322 1:167-322
+ @ ./src/Teacher/views/viewModerarMateriales.solution.vue 2:0-92 8:49-55 3:0-87 3:0-87
+ @ ./src/router/index.js 8:2-99 32:15-44
+ @ ./src/main.js 3:0-29 5:19-25
+
+[1m[31mERROR[39m[22m in [1m./src/utils/validations.origin/validationsMaterials.js[39m[22m [1m[32m31:36[39m[22m
+[1mModule parse [1m[31mfailed[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (31:36)
+You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+|             },
+| 
+>             async existsInCollection: function(id, collection, service){
+|                 try{
+|                      const doc = service.getId(collection,id);[39m[22m
+ @ ./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./src/Student/views/viewUploadMaterial.vue?vue&type=script&setup=true&lang=js 4:2-132 85:234-255 85:297-319 85:354-369
+ @ ./src/Student/views/viewUploadMaterial.vue?vue&type=script&setup=true&lang=js 1:0-154 1:0-154 1:155-298 1:155-298
+ @ ./src/Student/views/viewUploadMaterial.vue 2:0-80 8:49-55 3:0-75 3:0-75
+ @ ./src/router/index.js 16:2-76 88:15-33
+ @ ./src/main.js 3:0-29 5:19-25
+
+webpack compiled with [1m[31m32 errors[39m[22m
+Build finished at 22:25:47 by 0.000s
+[2K[1A[2K[GBuild finished at 22:25:47 by 0.000s
+[2K[1A[2K[GBuild finished at 22:25:47 by 0.000s
+[2K[1A[2K[GBuild finished at 22:25:47 by 0.000s
+[2K[1A[2K[GBuild finished at 22:25:47 by 0.000s
+[2K[1A[2K[G¨Desea terminar el trabajo por lotes (S/N)? 
+^C

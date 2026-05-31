@@ -95,6 +95,7 @@
                  timeoutId = null;
              } 
         };
+        const timeoutIds = new Map<string, NodeJS.Timeout>();
         //* cambio*
         const showNotification = (payload: NotificationPayload): void => {
             const id = `notif-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
@@ -106,10 +107,16 @@
               icon:    ICONS[payload.type]
             }
              // ** **
-            activeNotifications.value.push(notification)
+            activeNotifications.value.push(notification);
 
+            const timmer = setTimeout(()=>{
+                removeNotification(id);
+                timeoutIds.delete(id);
+            }, AUTO_DISMISS_MS);
+
+            timeoutIds.set(id, timmer);
             // Auto-dismiss
-            setTimeout(() => removeNotification(id), AUTO_DISMISS_MS)
+            // setTimeout(() => removeNotification(id), AUTO_DISMISS_MS)
         }
                 //* cambio *
             const removeNotification = (id: string): void => {
@@ -117,6 +124,16 @@
                 if (index !== -1) {
                   activeNotifications.value.splice(index, 1)
                 }
+            }
+
+            const destroy = (): void  => {
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                     timeoutId = null;
+                }
+                // Cancelar todos los timmeouts pendientes
+                timeoutIds.forEach(timmer => clearTimeout(timmer));
+                timeoutIds.clear();
             }
 
         const success  = (mensaje: string): void => mostrar(mensaje,'success');
@@ -139,6 +156,7 @@
             // Metodos
             mostrar,
             cerrar,
+            destroy,
             success,
             error,
             warning,

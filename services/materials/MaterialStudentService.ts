@@ -266,6 +266,7 @@ import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
                 archivoURL: data.archivoURL,
                 fechaCreacion: new Date(),
                 tipoArchivo: data.type,
+                size: file.size, //atributo nuevo: tamanio por Material
                 //estado: 'pendiente', 
             }
             console.log('Descripcion:', materialData.descripcion);

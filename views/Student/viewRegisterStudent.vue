@@ -4,15 +4,15 @@
     </header>
    <div class="vista-estudiantes">
        <nav class="navegacion-paneles">
-          <button class="btn-nav"> Registrar Estudiante </button>
-          <button class="btn-nav"> Editar el Perfil </button>
+          <button class="btn-nav" @click="changePanel('registrar')"> Registrar Estudiante </button>
+          <button class="btn-nav" @click="changePanel('edit')"> Editar el Perfil </button>
        </nav>
 
      <!-- =======================================
               CONTENEDOR DE PANELES
           ======================================= -->
 
-          <Transition name="slide-fade" mode="out-in">
+        <Transition name="slide-fade" mode="out-in">
              <div v-if="currentPanel === 'register'" key="register" class="panel-activo">
                 <RegisterStudentView/>
              </div>
@@ -22,7 +22,10 @@
         </Transition>
 
 
-
+        <!-- Controlar el componente por medio de un evento tipo click
+             No es posible, realizarse porque no sigue la herencia entre emits de los
+             paneles -->
+      <button class="cge-pwd" @click="openPasswordModal">Cambiar Contraseña</button>
   <!-- =====================================
          MODAL DE CAMBIO DE CONTRASENIA
        ===================================== -->
@@ -31,6 +34,7 @@
        @close="closePasswordModal"
        @success="openPasswordChangeSuccess"
      />
+       
    </div>
 </template>
 

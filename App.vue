@@ -1,11 +1,15 @@
+<!-- Script Principal: A partir de aqui se iniciaran los layouts. En consecuencia todas y 
+     cada una de las vistas correspondientes en cada Rol arquitecturado -->
 <template>
     <div class="app" :class="{'dark-mode': isDarkMode}">
       <div class="institucional-header">
-        <img src="./assets/logo.fi-uaemex" id="logo-univ" alt="">
+        <img src="./assets/logo.fi.png" id="logo-univ" class="">
         <span class="institucional-name">
             Facultad de Ingenería - Universidad Autonóma del Estado de México
         </span>
+        <img src="./assets/wild_horse.png" id="logo-univ" class="">
       </div>
+        <span class="lema-header">Somos UAEMéx</span>
 
       <LayoutNavBar v-if="showNavBar" />
 
@@ -47,17 +51,6 @@
      * */
      // const userRole = computed(()=>authStore.role);
 
-     /**
-      * Mapea el Rol del store al formato navbar
-      * 'alumno' → 'student'
-      * 'professor' → 'teacher'
-      *  */
-    /*const  navBarRole = computed(()=> {
-       if (userRole.value === 'alumno') return 'student';
-        if( userRole.value === 'alumno') return 'teacher';
-          return 'student';  // fallback
-    });*/
-
     /**
      * Estado en Dark Mode(A posteriori, para futuras integraciones) 
      * */
@@ -78,17 +71,10 @@
         }*/
     });
 
-    /** 24/01/2026
-     No seguire depurando el proyecto hasta tomar la desicion informada y constatar con un 
-    experto. No es posible correr el riesgo por medio de switch controlado, o cualq.
-    otra tecnica q no se tenga la exp. Pues tengo la intuicion de que es posible salvarse
-    corrigiendo con precision tecnica en tailwind.config.js y tsconfig.json
-     Cambiar cualquier parametro sin conocer sus repercuciones podria afectarlo mas
-     HASTA  garantizar su veracidad técnica. **/
-        // npm install -D tailwindcss@latest postcss@latest autoprefixer@latest [ready]
  </script>
 
  <style scoped>
+
   #app {
      min-height: 100vh;
      display: flex;
@@ -108,23 +94,47 @@
   .institucional-header{
      display: flex;
      align-items: center;
-     gap: 1rem;
+     justify-content: space-between; /** Justo a la mitad del Encabezado **/  
+     gap: 8.5px;
      background-color: #006400; /*Verde Institucional*/  
      color: #ffffff;
      padding: 0.75rem 2rem;
-     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+     font-size: 20px;
   }
-
+  /*Estilos del SubEncaebezado*/
+  .lema-header{
+     color: #1e40af;
+     font-weight:600;
+     display: inline-block;
+     cursor: pointer;
+     font-size: 15px;
+  }
+  /*Animacion del SubEncabezado: (Leyenda debajo)*/
+  .lema-header:hover  {
+    color: #FFD700;
+    animation: lema-hover 0.3s ease  forwards;  /** control de la animacion **/
+  }
+  /*Personalizacion de los logos*/
   #logo-univ{
-    height: 60px;
+    height: 87px;
+    width: 87px;
+    object-fit: cover;
+    border-radius: 50%;
+    flex-shrink: 0;
     width: auto;
   }
-
+  /*Animacion del Encabezado*/
   .institucional-name{
-    font-size: 0.95rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
+    flex: 1;
+    text-align: center;
+    transition: color 0.3s ease;  /** inicio de la transicion **/
   }
+  
+  .institucional-header:hover .institucional-name {
+    color: #FFD700;  /*dorado */
+  }
+
       /*** ==========================
             CONTENIDO PRINCIPAL   
            ========================== ***/
@@ -141,7 +151,19 @@
         padding: 1rem;
      }
   }
-
+  /*Ejecucion de la animacion*/
+  @keyframes lema-hover {
+    from{
+      transform: translateY(0);
+      letter-spacing: normal;
+      text-shadow: none;
+    }
+    to {
+      transform: translateY(-2px);
+      letter-spacing: 1px;
+      text-shadow: 0 0 8px rgba(215, 215, 0, 0.6);
+    }
+  }
   /*================
         FOOTER
     ================*/
@@ -160,7 +182,7 @@
     border-top-color: #4a5568;
     color: #cbd5e0;
   }
-   
+
     /*======================
         HELPERS RESPONSIVOS
       ======================*/
@@ -177,4 +199,11 @@
         display: flex !important
       }
     }
+    /** 24/01/2026
+     No seguire depurando el proyecto hasta tomar la desicion informada y constatar con un 
+    experto. No es posible correr el riesgo por medio de switch controlado, o cualq.
+    otra tecnica q no se tenga la exp. Pues tengo la intuicion de que es posible salvarse
+    corrigiendo con precision tecnica en tailwind.config.js y tsconfig.json
+     Cambiar cualquier parametro sin conocer sus repercuciones podria afectarlo mas
+     HASTA  garantizar su veracidad técnica. **/
 </style>

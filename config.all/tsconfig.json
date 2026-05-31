@@ -1,0 +1,28 @@
+{
+  // Visit https://aka.ms/tsconfig to read more about this file
+  "compilerOptions": {
+     "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "strict": true,
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "outDir": "/dist", //param_new_1   [**]
+    "rootDir":"/src",  //param_new_2 *  [**]
+    "lib": ["ESNext", "DOM"],
+    "baseUrl": ".",
+    "types": ["vite/client"], //new_02
+    "paths": {
+      "@/*": ["src/*"],
+      "@composables/*":["./src/composables/*"], //new_03 [??] 
+      "@components/*":["./src/components/*"],
+    }
+  },
+   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue"],  //cambio
+  "references": [{ "path": "./tsconfig.node.json" }] 
+}

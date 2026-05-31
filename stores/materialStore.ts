@@ -8,7 +8,7 @@ export interface Material {
   nombre_material: string
   fechaSubida: string
   size?: number
-  status?: 'approved' | 'pending' | 'rejected'| 'aprovado' | 'rechazado' | 'pendiente'
+  status?: 'approved' | 'pending' | 'rejected'| 'aprobado' | 'rechazado' | 'pendiente'
   url?: string
   uid_alumno: string
   //url: string *

@@ -108,6 +108,7 @@
                 tipoArchivo: file.type,
                 estado: 'pendiente',  //*
                 nombreAlumno,
+                size: file.size,        // Pedir el tamanio del archivo
                 // clasificacionMaterial: clasificacion ?? '',
             }
             // console.log('nombreAlumno en Firestore:', dataCollection.nombreAlumno); ✅ - Objetivo Superado - ✅

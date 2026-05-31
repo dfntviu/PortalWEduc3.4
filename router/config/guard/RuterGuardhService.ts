@@ -1,3 +1,4 @@
+/*01) Este archivo de Guardiantes es el archivo funcional*/
 	import { PermissionsService } from '@/router/config/PersmissionService.ts';
  		// import {RoleFirstUsingService} from '@/services/CloseBoostrap/FirstUsingClSys.ts'
  	import { useAuthStore3 } from '@/stores/authStore3.ts';
@@ -44,8 +45,6 @@
 					  name: role === 'teacher' 
 					  ?'viewWelcomeTeachers'     // ← nombre actual de tu ruta
 					  : 'viewBienvenidaStudents' });
-			    	/*const dashboard = authStore3.role === 'teacher'
-			    		return next(dashboard);*/
 			}
 
 			if (isAuth && to.name === 'viewProfileUser') {
@@ -57,7 +56,7 @@
 
 					return next();
 
-			// 0. El sistema esta vacio
+			// 0. El sistema esta vacio: [Habilitar cuando sea Funcional]
 				/*if (!bootstrapCompleted) {
 					if (to.name !== ROUTE_BOOTSTRAP ) {
 						console.warn('[Guard] Sistema sin inicializar → redirigiendo a bootstrap');
@@ -66,34 +65,4 @@
 				  return next();
 				}*/
 		}
-
-		/* // 1.
-		  if (isAuth.isAuthenticated && to.name === 'viewLoginMultUser') {
-				return next ({
-					name: role === 'teacher'
-					 ? 'viewWelcomeTeachers'
-					 : 'viewBienvenidaStudents'
-				});
-			}*/
-
-		// deberia de desplazarse a LayoutNavBar, porque esta libre
-						 // ─── 3. Sin autenticación ───[funcionales acceso por role]──────────────────────────────────────
-					/*if (!authStore3.isAuthenticated) {
-					    if (to.meta.requiresAuth) {  // ← quitar la 'e'
-					        return next({ name: ROUTE_LOGIN });
-					    }
-					    return next();
-					}
-					*/
-
-		// 3. Ruta protegida con el rol incorre|cto → redirigir al home del rol activo
-			/**
-			 * No impota en que ubicacion este si no ha iniciado sesion debera de
-			if(to.meta.requiredRole && to.meta.requiredRole !== authStore3.role){
-				return next({
-					name: authStore3.role === 'teacher'
-					  ? 'viewWelcomeTeachers'
-					  : 'viewBienvenidaStudents'
-				});
-			}*/
 	}

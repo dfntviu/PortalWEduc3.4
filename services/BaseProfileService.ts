@@ -40,8 +40,7 @@
            const profileData =
                collectionName === 'student_register'
                 ? {
-                   ...baseData,
-                   uid_student: uid,
+                   ...baseData,                   uid_student: uid,
                    photoURL: data.photoURL ?? '', //may 15
                    photoCount: data.photoCount ?? 0,//may 15
                    createAt: data.createAt ?? serverTimestamp(),
@@ -49,6 +48,7 @@
                    edad: data.edad ?? null, //*
                    typeDoc: data.typeDocument ?? '', //*
                    passwd: data.password,
+                   size: file.size, //atributo nuevo: tamanio por Material
                 }
                 // -- Opcion/Rama de teacher --
                 :{

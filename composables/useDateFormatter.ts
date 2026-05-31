@@ -1,6 +1,8 @@
 /**
  * Composable para modulo de fechas
  * Gestiona la Lógica en formato de timestamps de Firebase
+ * 
+ *  La correcion fue correctamente aplicada, el retorno estaba dentro, no fuera
  * */
 import {ref,computed} from 'vue';
 
@@ -42,23 +44,22 @@ import {ref,computed} from 'vue';
     }
   };
 
-  return { formatearFecha };
-}
-
     const formatearFechaRelativa = (timestamp: any):string => {
+       if (!timestamp) return 'Fecha no disponible';  
     	try{
     		const fecha = timestamp.toDate() ? timestamp.toDate() : new Date(timestamp);
     		const ahora = new Date();
     		const diffMs = ahora.getTime() - fecha.getTime();
-    	    const  diffSegundos = Math.floor(diffMs/1000);
+    	    // const  diffSegundos = Math.floor(diffMs/1000);
     	    const  diffMinutos = Math.floor(diffMs/60);
     	    const  diffHoras = Math.floor(diffMs/60);
     	    const  diffDias = Math.floor(diffMs/24); 
 
-    	    if (diffSegundos<60) return 'Hace un momento';
-    	     if (diffMinutos < 60) return `Hace ${diffMinutos} minuto ${diffMinutos}>1 ? 's' : '' `;
-    	     if (diffHoras<60) return `Hace ${diffHoras} hora ${diffHoras} > 1 ? 's' : '' `;
-    	     if (diffDias<60) return `Hace ${diffDias} hora ${diffDias} > 1 ? 's' : '' `;
+    	    /*if (diffSegundos<60) return 'Hace un momento';
+    	     if (diffMinutos < 60) return `Hace ${diffMinutos} minuto ${diffMinutos}>1 ? 's' : '' `;*/
+           if (diffHoras<1) return `Hace menos de una Hora`;
+    	     if (diffHoras<24) return `Hace ${diffHoras} hora ${diffHoras} > 1 ? 's' : '' `;
+    	     if (diffDias<7) return `Hace ${diffDias} día ${diffDias} > 1 ? 's' : '' `;
      		
      		 return formatearFecha(timestamp);
      	}catch(error){
@@ -79,11 +80,12 @@ import {ref,computed} from 'vue';
     	}catch{
     		return false
     	}
-
+    }
 
       return {
       	formatearFecha,
       	formatearFechaRelativa,
       	esHoy,
       };
+    
     }

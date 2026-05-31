@@ -17,11 +17,11 @@ export const initializeFirebaseStorage = () => {
    };
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const auth = getAuth(app); //*
+    const auth = getAuth(app); //*Importante gracias a esto se puede ver la conexion en todo el FrontEnd*
     const storage = getStorage(app);
 
-      // console.log('Conexion Satisfactoria, Gracias por usar FBase');
     return { app, db, auth, storage, firebaseConfig };
+      // console.log('Conexion Satisfactoria, Gracias por usar Firebase');
 };
    /*console.log('Clave de Acceso:' ,import.meta.env.VITE_FIREBASE_API_KEY);
      console.log('Clave de Acceso- ',firebaseConfig.apiKey);

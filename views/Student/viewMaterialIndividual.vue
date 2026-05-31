@@ -163,7 +163,7 @@
 								<th scope="col">Estado</th>
 								<th scope="col">Acciones</th>
 							</tr>
-						</thead>
+						</thead><!-- Materials Table-03: Testeado  solo quitar TGroup-->
 						<TransitionGroup name="table-row" tag="tbody">
 							<tr v-for="material in paginacionMateriales" :key="material.id_material" class="material-row">
 								<td class="material-name-cell">
@@ -181,14 +181,14 @@
 											{{formatearFecha(material.fechaSubida)}}
 										</time>
 									</td>
-									
+									<!-- Es necesario que se gurda la propiedad al subir -->
 									<td class="size-cell">
 											{{formatFileSize(material.size)}}	
 									</td>
-
+									<!-- ORIGINALMENTE ERA ESTADO -->
 									<td class="status-cell">
 										<span :class="['status-badge',`status-${material.status || 'pending'}`]">
-											{{getStatusLabel(material.status)}}
+											{{getStatusLabel(material.estado)}}
 										</span>
 									</td>
 									
@@ -251,10 +251,11 @@
 			</section>
 		</Transition>
 			 <!-- ════════════════════════════════════ -->
-			 <!--     MATERIAL VIEWER MODAL
+			 <!--     MATERIAL VIEWER MODAL [:disabled="!isUnmounting"] error interno en vue
 				Muestra el material  en un iframe con navegacion prev/next-->
 			 <!-- ════════════════════════════════════ -->
-		<Teleport to="body" :disabled="!isUnmounting">
+			 <!-- TableComponent01TEsteado -->
+		<Teleport to="body" >
 			<Transition>
 				<div v-if="isModalOpen"  class="modal-overlay" @click.self="materialStore.closeMaterialModal()"
 						role="dialog" arial-modal="true" aria-labelledby="viewer-title">
@@ -290,6 +291,7 @@
 		<!--════════════════════════════════════-->
 		<!--     NOTIFICATIONS	     -->
 		<!--════════════════════════════════════-->
+		<!-- TableComponent02TEsteado -->
 		<Teleport to="body" >
 			<TransitionGroup  tag="div" class="notificacions-container"	
 			  v-if="activeNotifications.length > 0">
@@ -318,13 +320,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch,onUnmounted,onBeforeUnmount } from 'vue'
+import { ref, computed, watch,/*onUnmounted,*/onBeforeUnmount,onMounted/*,nextTick*/} from 'vue'
 import { storeToRefs } from 'pinia';
 import { useAuthStore3 } from '@/stores/authStore3'
 import { useMaterialStore } from '@/stores/materialStore'
 import { useNotifications } from '@/composables/useNotifications'
 import { useDateFormatter } from '@/composables/useDateFormatter'
 import { useFileFormatter } from '@/composables/useFileFormatter'
+	// import { onRenderTracked, onRenderTriggered } from 'vue'; [fix para indagar errores]
 
 // ══════════════════════
 //    TYPES & INTERFACES
@@ -363,11 +366,11 @@ const authStore3     = useAuthStore3();
  const {isModalOpen, selectedMaterial, previewMaterial} = storeToRefs(materialStore);
 
 // FIX #10: una sola instancia, ambas funciones desestructuradas
-const { formatearFecha, formatearFechaRelativa } = useDateFormatter()
+const { formatearFecha, formatearFechaRelativa } = useDateFormatter({locale: 'es-MX'});
 const { formatFileSize }                         = useFileFormatter()
 
 // FIX #1: desestructurar showNotification y activeNotifications
-const { showNotification, activeNotifications, removeNotification}  = useNotifications()
+const { showNotification, activeNotifications, removeNotification, destroy}  = useNotifications()
 
 // ══════════════════════
 //    REACTIVE STATE
@@ -578,66 +581,50 @@ const getStatusLabel = (status?: string): string =>
 // ══════════════════════
 //    LIFECYCLE
 // ══════════════════════
+  let isMounted = true;
+ onMounted(async ()=> {
+ 	if(uid_auth.value){
+ 		 await materialStore.fetchStudentMaterials(uid_auth.value);
+ 	}
+ });
+
 const stopAuthWatch = watch(uid_auth, async (unique_user) => {
-		if (!unique_user)  return;
+		if (!unique_user || !isMounted)  return;
 			console.log('[Auth] ',unique_user);
 		// const unique_user = uid_auth.value;
   	materialStore._isCancelled = false;
     	await materialStore.fetchStudentMaterials(unique_user);
-}, {immediate: true} // Auth ya resuelto — carga directa
-    /*console.log('[Debug]',{
-    	uid: unique_user,
-    	materials: materialStore.studentMaterials,
-    	perfil: materialStore.studentProfile,
-    	error:materialStore.error
-    });*/
-
-  // Auth aún no resuelto — esperar
-  	/*stopWatcher = watchEffect(async () => {
-   const unique_user = uid_auth.value
-    if (unique_user) await materialStore.fetchStudentMaterials(unique_user)
-	 })*/
-);
-   
+});
 	
-  		// Parche para seguir correctamente la animacion transition de vue
-   const isUnmounting = ref(false);
+  		
   onBeforeUnmount( ()=> {
   	/*Detener la Ejecucion de todos los watchs*/
+  	isMounted = false;
   	stopErrorWatch() ;
    stopPaginationWatch();
      stopAuthWatch();
-     // Detener flujo de f(n)s disparadas y detener el modal
-  	  isUnmounting.value = true;
+    
   	  materialStore._isCancelled = true;
-  	  materialStore.closeMaterialModal();
-  	  // materialStore.studentMaterials = []
-  		/*nextTick(() => {
-  	 			materialStore.$reset();
-  		}
-		);*/
-  	   // regresar la directiva, reg. el met. comentado de vue
-  	  // if(stopWatcher) stopWatcher();
-  	 // alert('eliminando los residuos de las cuentas previas..');
+  	  destroy();
+  	  // materialStore.closeMaterialModal();
+  	
   });
-  
-  /*const unwatch = watch(
-    () => unique_user,
-    async (newUid) => {
-    	console.log(newUid);
-      if (newUid) {
-        unwatch() // dejar de observar
-        await materialStore.fetchStudentMaterials(newUid)
-      }
-    },
-    { immediate: false }
-  )*/
- /* const uid = authStore.user?.uid
-  if (!uid) {
-    showNotification({ type: 'error', message: 'No se pudo identificar al usuario' })
-    return
-  }
-  await materialStore.fetchStudentMaterials(uid)*/
+
+  /* F(n)s para buscar todos lo que fue disparado un desmontaje
+  onRenderTracked((event) => {
+  		console.log('[TRACKED] ',{
+  			key: event.key,
+  			type: event.type,
+  			target: event.target
+  		});
+  });
+  onRenderTriggered((event) => {
+  	console.log('[TRIGGERED], ',{
+  		key: event.key,
+			type: event.type,
+			target: event.target
+  	});
+  });*/
 
 </script>
 
@@ -931,6 +918,16 @@ const stopAuthWatch = watch(uid_auth, async (unique_user) => {
   		@apply hover:bg-gray-300 dark:hover:bg-gray-600;
   	}
 
+  	.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
   	/* ═════════════════════════════ */
 	/*    NOTIFICACIONES             */
 	/* ═════════════════════════════ */
@@ -965,8 +962,41 @@ const stopAuthWatch = watch(uid_auth, async (unique_user) => {
    	  @apply text-gray-400 hover:text-gray-600 dark:hover:text-gray-200
    	   transition-colors;
    	}
+   	.slide-down-enter-active,
+.slide-down-leave-active {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
+}
    	/*═══════════════════════════════════════*/
    	/*			 TRANSITIONS			 */
    	/*═══════════════════════════════════════*/
+   	@keyframes fadeIn {
+   		from {opacity: 0;}
+   		to   {opacity: 1;}
+   	}
 
+   	@keyframes slideInUp {
+   		from {opacity: 0; transform: translateY(20px);}
+   		to   {opacity: 1; transform:translateY(0)}
+   	}
+
+   	@keyframes scaleIn{
+   		from {opacity: 0; transform: scale(0.95);}
+   		to   {opacity: 1; transform:scale(1);}
+   	}
+
+   	@keyframes slideRight {
+   		from { opacity: 0; transform: translateX(20px);}
+   		to   { opacity: 1; transform: translateX(0); }
+   	}
+
+   	@keyframes spin {
+   		from {transform: rotate(0deg);}
+   		to   {transform: rotate(360deg);}
+   	}
   </style>  

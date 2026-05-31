@@ -15,6 +15,12 @@
 StudentProfileState, ServiceResponse} from '@/interfaces/tipos.estudiantes';
  import  {MESSAGES} from '@/interfaces/students.types';
  import type { ProfilePhotoOptions } from '@/services/ProfileStudentService';
+ 
+ interface changePassword{
+ 	 passwd: string;          // actual
+  newPassword: string;     // nueva
+  confirmNewPassword: string; // confirmación
+ };
 
  export const useStudentProfileStore = defineStore('studentProfile', {
   	 state: (): StudentProfileState  => ({
@@ -268,27 +274,30 @@ StudentProfileState, ServiceResponse} from '@/interfaces/tipos.estudiantes';
   		 * Requiere contrasenia actual para re-autenticacion
   		 * Cierra session automaticamente despues del cambio
   		 * */
-  		async changePassword(data: changePassword): Promise<ServiceResponse> {
+  		async changePasswordData(data: changePassword): Promise<ServiceResponse> {
+  					const {newPassword,confirmNewPassword} = data;
+  			console.error('He ingresado al Store [C2] ..')
   			  this.loading = true;
       		this.error = '';
       		this.message = '';
 
       	try{
       		console.log(' [StudentStore] Iniciando cambio de contrasenia ');
-
-      		if (data.newPasssword !== data.confirmPassword) {
+      		console.log('Nueva Pwd',data.newPassword);
+      		console.log('Repeticion Pwd',data.confirmNewPassword);
+      		if (data.newPassword !== data.confirmNewPassword) {
       			throw new Error('Las contraseñas son diferentes');
       		}
 
-      		if (data.newPasssword.length < 8) {
+      		if (data.newPassword.length < 8) {
       			throw new Error('La nueva contrasenia debe tener al menos 8 caracteres ');
       		}
       		
-      		if (data.newPasssword === data.confirmPassword) {
+      		if (data.newPassword === data.passwd) {
       			throw new Error('La nueva contrasenia debe ser diferente a la actual');
       		}
 
-      		const result = await ProfileStudentService.changePassword(data);
+      		const result = await ProfileStudentService.changePasswordStudent(data);
 
       		if (!result.success) {
       			throw new Error(result.error || 'Error al cambiar la contrasenia');
@@ -298,7 +307,7 @@ StudentProfileState, ServiceResponse} from '@/interfaces/tipos.estudiantes';
       		this.message = MESSAGES.PASSWORD_CAMBIADO;
 
 
-      		console.log('[StudentStore] La contraseña fue cambiada, sesion cerrada');
+      		console.log('[StudentStore] La contraseña fue cambiada EXITOSAMENTE, sesion cerrada');
 
       		return {
       			success: true,
