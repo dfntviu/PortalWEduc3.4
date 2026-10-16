@@ -576,7 +576,7 @@
  	 =======================*/
 
  	.navbar-student{/* Azul student en Tailwind */
- 		 bordet-bottom: 3px solid #3b8f26;
+ 		 border-bottom: 3px solid #3b8f26;
  	}
 
  	.navbar-teacher {/* Purpura teacher en Tailwind */

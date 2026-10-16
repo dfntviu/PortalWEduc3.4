@@ -1,6 +1,6 @@
 /**
  * @store StaticticsAdminStre
- * @descriptio Estado de estadisticas globales del sistema(Admin) 
+ * @description Estado de estadisticas globales del sistema(Admin) 
  * @pattrn Service-Store-View
  * 
  * RESPONSABILIDADES

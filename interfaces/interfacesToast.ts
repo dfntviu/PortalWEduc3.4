@@ -152,7 +152,7 @@ export interface MaterialBase {
  	 * ══════════════════════════════════════════
  	 *      TIPOS PARA USUARIOS (para el modal de reportes- [Welcomes- Vws-Bienvenida])
  	 * ══════════════════════════════════════════*/ 	
- 	export UserRole = 'alumno' | 'profesor';  /*| 'admin';*/
+ 	export type UserRole = 'alumno' | 'profesor';  /*| 'admin';*/
 
 
  	 	export interface UserProfile {

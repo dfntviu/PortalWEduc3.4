@@ -183,7 +183,18 @@
 	   ═════════════════════════════════════════════════
 	 */
 	.modal-overlay{
+<<<<<<< HEAD
 
+=======
+		background: var(--color-background-primary, #fff);
+		border-radius: 12px;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.48);
+		display: flex;
+		align-items: center;
+		z-index: 1000;
+		padding: 1rem;
+>>>>>>> 810244b (Solucion PostCSS, errores clases mal CSS, building succesfull. Ready for presentation)
 	}
 
 	.modal-contenedor{
@@ -260,9 +271,20 @@
 	}
 
 	.validacion-fortaleza {
+<<<<<<< HEAD
 		margin-top: 0.5px 3px;
 		padding: auto;
 		color:lightcoral;
+=======
+		background: var(--color-backgroud-secondary,#f9fafb);
+		border: 0.5px solid var(--color-border-tertiary,#e57e7b);
+		border-radius: 8px;
+		padding: 0.7rem 1rem;
+		margin-top: 0.25rem;
+		/*margin-top: 0.5px 3px;
+		padding: auto;
+		color:lightcoral;*/
+>>>>>>> 810244b (Solucion PostCSS, errores clases mal CSS, building succesfull. Ready for presentation)
 	}
 
 	.titulo-validacion {

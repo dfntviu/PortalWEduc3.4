@@ -22,7 +22,7 @@
 
  		<!-- Divider -->
         <div class="relative">
-            <div class="absolute iset-0 items-center">
+            <div class="absolute inset-0 items-center">
                 <div class="w-full border-t border-gray-300 dark:border-dark-600"></div>
             </div>
             <div class="relative flex">
